@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ntgajwt="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ntga.jwt.JbywFxcListActivity" >
+
+    <item
+        android:id="@+id/menu_all_upload"
+        android:orderInCategory="100"
+        android:title="@string/menu_all_upload"
+        ntgajwt:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/menu_del"
+        android:orderInCategory="100"
+        android:title="@string/btn_del"
+        ntgajwt:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/menu_rkqk"
+        android:orderInCategory="100"
+        android:title="@string/image_rkqk"
+        ntgajwt:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/menu_del_all"
+        android:orderInCategory="100"
+        android:title="@string/btn_del_all"
+        ntgajwt:showAsAction="ifRoom|withText"/>
+    
+</menu>

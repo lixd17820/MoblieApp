@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_relative_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="交通事故事实及责任 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_acd_sszr"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:minLines="8" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="损害赔偿调解结果 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_acd_tjjg"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="text"
+                android:minLines="8" >
+            </EditText>
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

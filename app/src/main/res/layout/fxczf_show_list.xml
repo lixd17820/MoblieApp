@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_relative_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:id="@+id/line_xslx"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="显示类型" />
+
+        <Spinner
+            android:id="@+id/spin_xslx"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"></Spinner>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_but"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#aaa"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="3dip">
+
+        <Button
+            android:id="@+id/btn_one"
+            style="@style/btnBottom"
+            android:text="one" />
+
+        <Button
+            android:id="@+id/btn_two"
+            style="@style/btnBottom"
+            android:text="two" />
+
+        <Button
+            android:id="@+id/btn_three"
+            style="@style/btnBottom"
+            android:text="three" />
+
+        <Button
+            android:id="@+id/btn_four"
+            style="@style/btnBottom"
+            android:text="four" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_but"
+        android:layout_below="@+id/line_xslx"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
+
+</RelativeLayout>

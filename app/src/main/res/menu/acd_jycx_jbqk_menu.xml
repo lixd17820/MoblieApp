@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ntgajwt="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ntga.jwt.AcdJycxJbqklrActivity">
+    <item
+        android:id="@+id/menu_add_ryclqk"
+        android:orderInCategory="100"
+        ntgajwt:showAsAction="ifRoom|withText"
+        android:title="添加人车" />
+    <item
+        android:id="@+id/menu_mod_context"
+        android:orderInCategory="100"
+        ntgajwt:showAsAction="ifRoom|withText"
+        android:title="调解认定" />
+    <item
+        android:id="@+id/menu_save_acd_quite"
+        android:orderInCategory="100"
+        ntgajwt:showAsAction="ifRoom|withText"
+        android:title="保存记录" />
+    <item
+        android:id="@+id/menu_del_ryjbqk"
+        android:orderInCategory="100"
+        ntgajwt:showAsAction="ifRoom|withText"
+        android:title="删除人车" />
+    <item
+        android:id="@+id/menu_mod_ryjbqk"
+        android:orderInCategory="100"
+        ntgajwt:showAsAction="ifRoom|withText"
+        android:title="显示人车" />
+    <item
+        android:id="@+id/menu_show_context"
+        android:orderInCategory="100"
+        ntgajwt:showAsAction="ifRoom|withText"
+        android:title="认定调解情况" />
+</menu>

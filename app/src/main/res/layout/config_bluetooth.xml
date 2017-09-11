@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
+        android:id="@+id/TextView02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="蓝牙打印机: "
+        android:textSize="18sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/tv_blue_printer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/TextView02"
+        android:layout_alignTop="@+id/TextView02"
+        android:layout_toRightOf="@+id/TextView02"
+        android:text="@+id/TextView01"
+        android:textSize="18sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/title_blue_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/TextView02"
+        android:text="蓝牙读卡器: "
+        android:textSize="18sp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/tv_blue_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/title_blue_card"
+        android:layout_alignTop="@+id/title_blue_card"
+        android:layout_toRightOf="@+id/title_blue_card"
+        android:text="@+id/TextView01"
+        android:textSize="18sp" >
+    </TextView>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_blue_card" >
+    </ListView>
+
+    <LinearLayout
+        android:id="@+id/bottom_but_1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#aaa"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="3dip" >
+
+        <Button
+            android:id="@+id/btn_bluetooth_printer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="设为默认打印机" />
+
+        <Button
+            android:id="@+id/btn_bluetooth_card"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="设身份证读卡器" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottom_but"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_but_1"
+        android:background="#aaa"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="3dip" >
+
+        <Button
+            android:id="@+id/btn_bluetooth_search"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="查找蓝牙设备" />
+
+        <Button
+            android:id="@+id/btn_bluetooth_bound"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="配对蓝牙设备" />
+
+        <Button
+            android:id="@+id/btn_bluetooth_un_bound"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="解除蓝牙配对" />
+    </LinearLayout>
+
+</RelativeLayout>

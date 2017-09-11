@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ntgajwt="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ntga.jwt.AcdPhotoListActivity" >
+
+    <item
+        android:id="@+id/menu_check_detail"
+        android:orderInCategory="100"
+        android:title="@string/check_detail"
+        ntgajwt:showAsAction="ifRoom|withText"/>
+
+</menu>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ntgajwt="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ntga.jwt.PrintJdsList" >
+
+    <item
+        android:id="@+id/menu_jds_detail"
+        android:orderInCategory="100"
+        android:title="@string/btn_detail"
+        ntgajwt:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/menu_jds_print"
+        android:orderInCategory="100"
+        android:title="@string/print"
+        ntgajwt:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_jds_upload"
+        android:orderInCategory="100"
+        android:title="@string/upload"
+        ntgajwt:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_jds_preview"
+        android:orderInCategory="100"
+        android:title="@string/preview"
+        ntgajwt:showAsAction="ifRoom"/>
+
+</menu>

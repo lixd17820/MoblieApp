@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.jwt.update">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.jwt.update.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity">
+
+        </activity>
+        <!-- Mqtt Service -->
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
+        <service
+            android:name=".MainReferService"
+            android:enabled="true" />
+
+        <receiver android:name=".BootServeiceReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".JbywWarnActivity" />
+        <activity android:name=".JbywBjbdListActivity" />
+        <activity android:name=".ZhcxMainActivity" />
+        <activity android:name=".ConfigMainActivity" />
+        <activity android:name=".ConfigBluetoothActivity" />
+        <activity android:name=".ConfigJtfsActivity" />
+        <activity android:name=".ConfigMjgrxxActivity" />
+        <activity android:name=".ConfigParamSetting" />
+        <activity android:name=".ConfigWfddActivity" />
+        <activity android:name=".ConfigWfdmActivity" />
+        <activity android:name=".ConfigWfdmForceActivity" />
+        <activity android:name=".ConfigWsglActivity" />
+        <activity android:name=".ZhcxConditionActivity" />
+        <activity android:name=".ZhcxQueryResultActivity" />
+        <activity android:name=".ZhcxOneRecordListActivity" />
+        <activity android:name=".VioJycxActivity" />
+        <activity android:name=".VioQwjgActivity" />
+        <activity android:name=".VioQzcsActivity" />
+        <activity android:name=".VioWftzActivity" />
+        <activity android:name=".JbywVioFzjgActivity" />
+        <activity android:name=".JbywPrintJdsDetailActivity" />
+        <activity android:name=".JbywPrintJdsList" />
+        <activity android:name=".TestActivity" />
+        <activity android:name="com.jwt.jbyw.JdsPreviewActivity" />
+        <activity android:name=".JbywSixSpListActivity" />
+        <activity android:name=".JbywSixSpActivity" />
+        <activity android:name=".MainQueryMjJobActivity" />
+        <activity android:name=".JbywZhcxActivity" />
+        <activity android:name=".JbywFxcListActivity" />
+        <activity android:name=".JbywFxcActivity" />
+        <activity android:name=".ShowImageActivity" />
+        <activity android:name=".AcdFindLawActivity" />
+        <activity android:name=".AcdFindWfxwActivity" />
+        <activity android:name=".AcdJycxJbqklrActivity" />
+        <activity android:name=".AcdRyclJbqkActivity" />
+        <activity android:name=".AcdSimpleShowList" />
+        <activity android:name=".AcdSsZrTjjgActivity" />
+        <activity android:name=".AcdTakePhotoActivity" />
+        <activity android:name=".AcdPhotoListActivity" />
+        <activity android:name=".QzcsxmActivity"></activity>
+    </application>
+
+</manifest>

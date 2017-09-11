@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ntgajwt="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ntga.jwt.AcdSsZrTjjgActivity" >
+
+    <item
+        android:id="@+id/save_file"
+        android:orderInCategory="100"
+        android:title="@string/save"
+        ntgajwt:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_reset_zr"
+        android:orderInCategory="100"
+        android:title="重置认定"
+        ntgajwt:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_reset_tj"
+        android:orderInCategory="100"
+        android:title="重置调解"
+        ntgajwt:showAsAction="ifRoom"/>
+
+</menu>

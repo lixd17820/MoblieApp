@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <grid name="交巡警业务" gid="0" img="main_ywcl">
+        <menu name="简易程序" catalog="0" cname="com.jwt.update.VioJycxActivity" data="1"
+            dname="cfCatalog" id="0" img="menu_ywcl_jycf" pck="com.jwt.update" qx="0" />
+        <menu name="轻微警告" catalog="0" cname="com.jwt.update.VioQwjgActivity" data="0"
+            dname="cfCatalog" id="1" img="menu_ywcl_qwjg" pck="com.jwt.update" qx="0" />
+        <menu name="强制措施" catalog="0" cname="com.jwt.update.VioQzcsActivity" data="3"
+            dname="cfCatalog" id="2" img="menu_ywcl_qzcs" pck="com.jwt.update" qx="0" />
+        <menu name="文书打印" catalog="0" cname="com.jwt.update.JbywPrintJdsList" data="" dname="" id="3"
+            img="menu_xtgl_dyjpz" pck="com.jwt.update" qx="0" />
+        <menu name="治安盘查" catalog="0" cname="com.jwt.update.QzcsxmActivity" data="" dname=""
+            id="4" img="menu_xxcx_rkzc" pck="com.jwt.update" qx="0" />
+        <menu name="设施报修" catalog="0" cname="com.jwt.update.RepairShowListActivity" data="" dname=""
+            id="5" img="main_xtgl" pck="com.jwt.update" qx="0" />
+        <menu name="工作量统计" catalog="0" cname="com.jwt.update.MainQueryMjJobActivity" data=""
+            dname="" id="6" img="menu_xtgl_mjxx" pck="com.jwt.update" qx="0" />
+        <menu name="简易事故处理" catalog="0" cname="com.jwt.update.AcdSimpleShowList" data="" dname=""
+            id="7" img="menu_xtgl_wsgl" pck="com.jwt.update" qx="0" />
+        <menu name="事故照片采集" catalog="0" cname="com.jwt.update.AcdPhotoListActivity" data="" dname=""
+            id="8" img="menu_ywcl_fxccf" pck="com.jwt.update" qx="0" />
+        <menu name="非现场处罚" catalog="0" cname="com.jwt.update.JbywFxcListActivity" data="" dname=""
+            id="9" img="menu_camera" pck="com.jwt.update" qx="0" />
+        <menu name="本地人口综查" catalog="0" cname="com.jwt.update.JbywZhcxActivity" data="" dname=""
+            id="10" img="menu_ywcl_zapc" pck="com.jwt.update" qx="0" />
+        <menu name="学校临停证" catalog="0" cname="com.jwt.update.JbywSchoolVehActivity" data="" dname=""
+            id="11" img="school_tcz" pck="com.jwt.update" qx="0" />
+        <menu name="六分审批" catalog="0" cname="com.jwt.update.JbywSixSpListActivity" data="" dname=""
+            id="12" img="menu_six_sp" pck="com.jwt.update" qx="0" />
+        <menu name="春运管理" catalog="0" cname="com.jwt.update.JbywSpringDjListActivity" data=""
+            dname="" id="13" img="menu_bus" pck="com.jwt.update" qx="0" />
+        <menu name="重型车管理" catalog="0" cname="com.jwt.update.JbywTruckVehicleActivity" data=""
+            dname="" id="14" img="menu_truck" pck="com.jwt.update" qx="0" />
+        <menu name="禁区警告" catalog="0" cname="com.jwt.update.JbywWarnActivity" data="1" dname=""
+            id="15" img="notice_s" pck="com.jwt.update" qx="0" />
+        <menu name="未年检警告" catalog="0" cname="com.jwt.update.JbywWarnActivity" data="2" dname=""
+            id="15" img="announcement_s" pck="com.jwt.update" qx="0" />
+        <menu name="实时报警" badge="1" catalog="0" cname="com.jwt.update.JbywBjbdListActivity" data=""
+            dname="" id="16" img="light" pck="com.jwt.update" qx="0" />
+    </grid>
+
+    <grid name="综合查询" gid="1" img="main_xxcx"></grid>
+
+    <grid name="系统配置" gid="2" img="main_xtgl">
+
+        <menu name="文书管理" catalog="2" cname="com.jwt.update.ConfigWsglActivity" data="" dname=""
+            id="200" img="menu_xtgl_wsgl" pck="com.jwt.update" qx="0" />
+
+        <menu name="违法代码" catalog="2" cname="com.jwt.update.ConfigWfdmActivity" data="" dname=""
+            id="201" img="menu_xtgl_wfdm" pck="com.jwt.update" qx="0" />
+
+        <menu name="强制措施代码" catalog="2" cname="com.jwt.update.ConfigWfdmForceActivity" data=""
+            dname="" id="202" img="menu_ywcl_qzcs" pck="com.jwt.update" qx="0" />
+
+        <menu name="执勤地点" catalog="2" cname="com.jwt.update.ConfigWfddActivity" data="" dname=""
+            id="203" img="menu_xtgl_zqdd" pck="com.jwt.update" qx="0" />
+
+        <menu name="蓝牙设备配置" catalog="2" cname="com.jwt.update.ConfigBluetoothActivity" data=""
+            dname="" id="204" img="menu_xtgl_dyjpz" pck="com.jwt.update" qx="0" />
+
+        <menu name="参数配置" catalog="2" cname="com.jwt.update.ConfigParamSetting" data="" dname=""
+            id="205" img="menu_xtgl_wlpz" pck="com.jwt.update" qx="0" />
+
+        <menu name="民警基本信息" catalog="2" cname="com.jwt.update.ConfigMjgrxxActivity" data="" dname=""
+            id="206" img="menu_xtgl_mjxx" pck="com.jwt.update" qx="0" />
+    </grid>
+
+</root>

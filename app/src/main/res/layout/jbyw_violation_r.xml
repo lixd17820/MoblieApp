@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <RelativeLayout
+        android:id="@+id/RelativeLayout01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingRight="5dip">
+
+        <LinearLayout
+            android:id="@+id/unless_linear"
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:layout_alignParentTop="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="horizontal" />
+
+        <TextView
+            android:id="@+id/tv_jdsbh"
+            style="@style/rel_tv"
+            android:layout_alignParentTop="true"
+            android:text="决定书编号：" />
+
+        <TextView
+            android:id="@+id/TextView01"
+            style="@style/rel_tv"
+            android:layout_below="@+id/tv_jdsbh"
+            android:text="@string/ryfl" />
+
+        <Spinner
+            android:id="@+id/Sp_ryfl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView01"
+            android:layout_toRightOf="@+id/TextView01"></Spinner>
+
+        <TextView
+            android:id="@+id/tv_zjlx"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Sp_ryfl"
+            android:text="@string/zjlx" />
+
+        <Spinner
+            android:id="@+id/sp_zjlx"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/tv_zjlx"
+            android:layout_toRightOf="@+id/tv_zjlx"></Spinner>
+
+        <TextView
+            android:id="@+id/TextView03"
+            style="@style/rel_tv"
+            android:layout_below="@+id/sp_zjlx"
+            android:text="@string/dabh" />
+
+        <Button
+            android:id="@+id/But_query_drv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView03"
+            android:layout_alignParentRight="true"
+            android:text="查驾驶人" />
+
+        <EditText
+            android:id="@+id/Edit_dabh"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView03"
+            android:layout_toLeftOf="@+id/But_query_drv"
+            android:layout_toRightOf="@+id/TextView03"
+            android:hint="@string/dabh"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/TextView04"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Edit_dabh"
+            android:layout_toLeftOf="@+id/Edit_dabh"
+            android:text="@string/xm" />
+
+        <EditText
+            android:id="@+id/Edit_xm"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView04"
+            android:layout_toRightOf="@+id/TextView04"
+            android:hint="@string/xm" />
+
+        <TextView
+            android:id="@+id/Text_jszh"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Edit_xm"
+            android:text="@string/jszh" />
+
+        <Button
+            android:id="@+id/but_query_drv_sfzh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/Text_jszh"
+            android:layout_alignParentRight="true"
+            android:minWidth="10dp"
+            android:text="查询..." />
+
+        <EditText
+            android:id="@+id/Edit_jszh"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/Text_jszh"
+            android:layout_toLeftOf="@+id/but_query_drv_sfzh"
+            android:layout_toRightOf="@+id/Text_jszh"
+            android:digits="1234567890Xx"
+            android:hint="@string/jszh"
+            android:inputType="textCapCharacters"
+            android:maxLength="18" />
+
+        <TextView
+            android:id="@+id/TextView06"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Edit_jszh"
+            android:text="@string/lxdz" />
+
+        <EditText
+            android:id="@+id/Edit_lxdz"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView06"
+            android:layout_toRightOf="@+id/TextView06"
+            android:hint="@string/lxdz" />
+
+        <TextView
+            android:id="@+id/TextView_fzjgms"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Edit_lxdz"
+            android:text="@string/fzjgms" />
+
+        <Button
+            android:id="@+id/btn_fzjg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView_fzjgms"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/Edit_lxdz"
+            android:minWidth="10dp"
+            android:text="查机关" />
+
+        <EditText
+            android:id="@+id/Edit_fzjgms"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView_fzjgms"
+            android:layout_toLeftOf="@+id/btn_fzjg"
+            android:layout_toRightOf="@+id/TextView_fzjgms"
+            android:hint="@string/fzjgms_hint" />
+
+        <LinearLayout
+            android:id="@+id/line_zj_dh"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_fzjg"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/TextView08"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/zjcx" />
+
+            <EditText
+                android:id="@+id/Edit_zjcx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/zjcx"
+                android:inputType="textCapCharacters" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ljjf" />
+
+            <EditText
+                android:id="@+id/Edit_ljjf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/ljjf"
+                android:inputType="none" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/TextView07"
+            style="@style/rel_tv"
+            android:layout_below="@+id/line_zj_dh"
+            android:text="@string/lxdh" />
+
+        <EditText
+            android:id="@+id/Edit_lddh"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView07"
+            android:layout_toRightOf="@+id/TextView07"
+            android:hint="@string/lxdh"
+            android:inputType="phone" />
+
+        <LinearLayout
+            android:id="@+id/line_ryxx_1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Edit_lddh"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ry_zzmm" />
+
+            <Spinner
+                android:id="@+id/sp_zzmm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ry_zyxx" />
+
+            <Spinner
+                android:id="@+id/sp_zyxx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/TextView16"
+            style="@style/rel_tv"
+            android:layout_below="@+id/line_ryxx_1"
+            android:text="@string/clfl" />
+
+        <Button
+            android:id="@+id/But_clbd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView16"
+            android:layout_alignParentRight="true"
+            android:text="查车辆" />
+
+        <Spinner
+            android:id="@+id/Sp_clfl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView16"
+            android:layout_toLeftOf="@+id/But_clbd"
+            android:layout_toRightOf="@+id/TextView16" />
+
+        <TextView
+            android:id="@+id/TextView1"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Sp_clfl"
+            android:text="@string/hpzl" />
+
+        <Spinner
+            android:id="@+id/Sp_hpzl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView1"
+            android:layout_toRightOf="@+id/TextView1" />
+
+        <TextView
+            android:id="@+id/TextView14"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Sp_hpzl"
+            android:text="@string/hphm" />
+
+        <EditText
+            android:id="@+id/Edit_hphm"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView14"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/Sp_hpql"
+            android:hint="@string/hphm"
+            android:inputType="textCapCharacters"
+            android:text="F" />
+
+        <Spinner
+            android:id="@+id/Sp_hpql"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView14"
+            android:layout_toRightOf="@+id/TextView14" />
+
+        <TextView
+            android:id="@+id/TextView2"
+            style="@style/rel_tv"
+            android:layout_below="@+id/Edit_hphm"
+            android:text="@string/jtfs" />
+
+        <Button
+            android:id="@+id/But_cllx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView2"
+            android:layout_alignParentRight="true"
+            android:text="选交通方式" />
+
+        <Spinner
+            android:id="@+id/Sp_cllx"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView2"
+            android:layout_toLeftOf="@+id/But_cllx"
+            android:layout_toRightOf="@+id/TextView2" />
+
+        <TextView
+            android:id="@+id/tv_veh_syxz"
+            style="@style/rel_tv"
+            android:layout_below="@+id/But_cllx"
+
+            android:layout_marginTop="10dp"
+            android:text="@string/veh_syxz" />
+
+
+        <Spinner
+            android:id="@+id/sp_syxz"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/tv_veh_syxz"
+            android:layout_marginBottom="10dp"
+            android:layout_toRightOf="@+id/tv_veh_syxz" />
+
+        <TextView
+            android:id="@+id/TextView09"
+            style="@style/rel_tv"
+            android:layout_below="@+id/sp_syxz"
+            android:text="@string/wfsj" />
+
+        <Button
+            android:id="@+id/But_wzsj"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView09"
+            android:layout_alignParentRight="true"
+            android:minWidth="10dp"
+            android:text="时间" />
+
+        <Button
+            android:id="@+id/But_wzrq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView09"
+            android:layout_toLeftOf="@+id/But_wzsj"
+            android:minWidth="10dp"
+            android:text="日期" />
+
+        <EditText
+            android:id="@+id/Edit_wfsj"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView09"
+            android:layout_toLeftOf="@+id/But_wzrq"
+            android:layout_toRightOf="@+id/TextView09"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/TextView10"
+            style="@style/rel_tv"
+            android:layout_below="@+id/But_wzsj"
+            android:text="@string/wfdd" />
+
+        <Button
+            android:id="@+id/But_wfdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView10"
+            android:layout_alignParentRight="true"
+            android:text="@string/btn_add_wfdd" />
+
+        <Spinner
+            android:id="@+id/sp_wfdd"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/TextView10"
+            android:layout_toLeftOf="@+id/But_wfdd"
+            android:layout_toRightOf="@+id/TextView10" />
+
+        <RelativeLayout
+            android:id="@+id/layout_jycx"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/But_wfdd">
+
+            <TextView
+                android:id="@+id/Text_wfxwms"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/TextView11"
+                style="@style/rel_tv"
+                android:layout_below="@+id/Text_wfxwms"
+                android:text="@string/wfxw" />
+
+            <Button
+                android:id="@+id/But_query_wfxw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/TextView11"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/Text_wfxwms"
+                android:text="@string/query_wfdm" />
+
+            <EditText
+                android:id="@+id/Edit_wfxw"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/TextView11"
+                android:layout_toLeftOf="@+id/But_query_wfxw"
+                android:layout_toRightOf="@+id/TextView11"
+                android:hint="直接输入或查询代码"
+                android:inputType="number"
+                android:maxLength="5" />
+
+            <LinearLayout
+                android:id="@+id/layout_bzz"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_wfxw">
+
+                <TextView
+                    android:id="@+id/tv_bzz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bzz" />
+
+                <EditText
+                    android:id="@+id/edit_bzz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:inputType="number" />
+
+                <TextView
+                    android:id="@+id/tv_scz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/scz" />
+
+                <EditText
+                    android:id="@+id/edit_scz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:inputType="number" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_jkfs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layout_jycx">
+
+            <TextView
+                android:id="@+id/TextView12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="@string/jkfs" />
+
+            <Spinner
+                android:id="@+id/Sp_jkfs"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView12"
+                android:layout_toRightOf="@+id/TextView12" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/layout_qzcs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layout_jkfs">
+
+            <Button
+                android:id="@+id/btn_mod_qzcs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="强制措施" />
+
+            <TextView
+                android:id="@+id/tv_qzcs_detail"
+                style="@style/rel_tv"
+                android:layout_toLeftOf="@+id/btn_mod_qzcs"
+                android:text="强制措施详细：" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+</ScrollView>

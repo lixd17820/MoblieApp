@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="jtfs_jc">
+        <item>O:全部</item>
+        <item>A:步行</item>
+        <item>B:半挂车</item>
+        <item>C:乘车</item>
+        <item>D:电车</item>
+        <item>F:非机动车</item>
+        <item>G:全挂车</item>
+        <item>H:货车</item>
+        <item>J:轮式机械</item>
+        <item>K:客车</item>
+        <item>M:摩托车</item>
+        <item>N:三轮汽车</item>
+        <item>Q:牵引车</item>
+        <item>R:道路挖掘占用</item>
+        <item>T:拖拉机</item>
+        <item>X:其它</item>
+        <item>Z:专项作业车</item>
+    </string-array>
+    <string-array name="bx_item">
+        <item>标志</item>
+        <item>标线</item>
+        <item>信号灯</item>
+        <item>护栏</item>
+        <item>其他</item>
+    </string-array>
+    <string-array name="bx_side">
+        <item></item>
+        <item>东</item>
+        <item>西</item>
+        <item>南</item>
+        <item>北</item>
+    </string-array>
+    <string-array name="gps_freq_entries">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="gps_freq_values">
+        <item>每1分钟上传一次</item>
+        <item>每2分钟上传一次</item>
+        <item>每3分钟上传一次</item>
+        <item>每4分钟上传一次</item>
+        <item>每5分钟上传一次</item>
+    </string-array>
+     <string-array name="pic_compress_entries">
+        <item>60</item>
+        <item>80</item>
+        <item>100</item>
+    </string-array>
+    <string-array name="pic_compress_values">
+        <item>低质量</item>
+        <item>一般质量</item>
+        <item>高精度</item>
+    </string-array>
+    <string-array name="fileEndingImage">
+        <item >jpg</item>
+    </string-array>
+    <string-array name="fileEndingAudio">
+        <item >mp3</item>
+    </string-array>
+    <string-array name="fileEndingVideo">
+        <item >mp4</item>
+    </string-array>
+    <string-array name="fileEndingPackage">
+        <item >apk</item>
+    </string-array>
+    <string-array name="fileEndingWebText">
+        <item >txt</item>
+    </string-array>
+	<string-array name="drv_check_entries">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="drv_check_values">
+        <item>不验证</item>
+        <item>本地驾驶员</item>
+        <item>全国驾驶员</item>
+    </string-array>
+    <string-array name="veh_check_entries">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="veh_check_values">
+        <item>不验证</item>
+        <item>本地机动车</item>
+        <item>全国机动车</item>
+    </string-array>
+</resources>

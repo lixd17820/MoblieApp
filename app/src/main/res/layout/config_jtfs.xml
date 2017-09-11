@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<LinearLayout android:orientation="horizontal" android:id="@+id/bottom_but"
+		android:gravity="center_horizontal" android:paddingTop="3dip"
+		android:background="#aaa" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:layout_alignParentBottom="true">
+		<Button android:id="@+id/jtfs_OKButton" android:layout_weight="1"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="确定" />
+		<Button android:id="@+id/But_jtfs" android:layout_weight="1"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="检索" />
+		<Button android:id="@+id/jtfs_CancelButton"
+			android:layout_weight="1" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:text="取消" />
+	</LinearLayout>
+	<TextView android:id="@+id/TextView01"
+		android:layout_alignParentLeft="true" android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:text="首字拼音"></TextView>
+	<EditText android:layout_toRightOf="@+id/TextView01"
+		android:layout_height="wrap_content" android:layout_alignTop="@+id/TextView01"
+		android:id="@+id/Edit_pinyin" android:layout_width="fill_parent"></EditText>
+	<TextView android:id="@+id/TextView02" android:layout_below="@+id/Edit_pinyin"
+		android:layout_height="wrap_content" android:layout_width="wrap_content"
+		android:text="中文检索" android:layout_toLeftOf="@+id/Edit_pinyin" />
+	<EditText android:layout_toRightOf="@+id/TextView02"
+		android:layout_height="wrap_content" android:layout_alignTop="@+id/TextView02"
+		android:layout_width="fill_parent" android:id="@+id/Edit_zwhz" />
+	<TextView android:id="@+id/TextView03" android:layout_below="@+id/Edit_zwhz"
+		android:layout_height="wrap_content" android:layout_width="wrap_content"
+		android:text="分类检索" android:layout_toLeftOf="@+id/Edit_zwhz" />
+	<Spinner android:layout_height="wrap_content"
+		android:layout_toRightOf="@+id/TextView03" android:layout_alignTop="@+id/TextView03"
+		android:id="@+id/Spin_jtfs_catalog" android:layout_width="fill_parent" />
+	<ListView android:layout_width="wrap_content" android:id="@android:id/list"
+		android:layout_below="@+id/Spin_jtfs_catalog" android:layout_height="wrap_content"
+		android:layout_above="@+id/bottom_but"></ListView>
+
+</RelativeLayout>

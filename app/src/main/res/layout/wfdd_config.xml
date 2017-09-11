@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:id="@+id/bottom_but"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#aaa"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="3dip">
+
+        <Button
+            android:id="@+id/sysOKButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="确定" />
+
+        <Button
+            android:id="@+id/addFavorButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="加入自选列表" />
+        <!--
+			<Button android:id="@+id/updateFromServerButton"
+			android:layout_weight="1" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:text="从服务器更新" />
+        -->
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/bottom_but"
+        android:layout_alignParentTop="true">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="3sp">
+
+            <TextView
+                android:id="@+id/xzqh_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:text="@string/tv_xzqh"></TextView>
+
+            <Spinner
+                android:id="@+id/spinner_xzqh"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/xzqh_text"
+                android:layout_toRightOf="@+id/xzqh_text"></Spinner>
+
+            <TextView
+                android:id="@+id/text_dllb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/spinner_xzqh"
+                android:text="道路列表  "></TextView>
+
+            <Spinner
+                android:id="@+id/spinner_road_list"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/text_dllb"
+                android:layout_below="@+id/spinner_xzqh"
+                android:layout_toRightOf="@+id/text_dllb"></Spinner>
+
+            <TextView
+                android:id="@+id/text_ldlb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/spinner_road_list"
+                android:text="路段列表  "></TextView>
+
+            <Spinner
+                android:id="@+id/spinner_road_seg_list"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/spinner_road_list"
+                android:layout_alignBaseline="@+id/text_ldlb"
+                android:layout_toRightOf="@+id/text_ldlb"></Spinner>
+
+            <LinearLayout
+                android:id="@+id/ld_and_ms"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/spinner_road_seg_list"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="公里数：" />
+
+                <EditText
+                    android:id="@+id/edit_kls"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="填入公里数"
+                    android:inputType="number"
+                    android:maxLength="4" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="米数：" />
+
+                <EditText
+                    android:id="@+id/edit_ms"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="填入米数"
+                    android:inputType="number"
+                    android:maxLength="3" />
+
+                <ImageButton
+                    android:id="@+id/button_add_edit_wfdd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_input_add" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/mc"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ld_and_ms"
+                android:text="@string/tv_wfdd_dlmc" />
+
+            <EditText
+                android:id="@+id/edit_eidtable_dlmc"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/mc"
+                android:hint="@string/tv_wfdd_dlmc" />
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

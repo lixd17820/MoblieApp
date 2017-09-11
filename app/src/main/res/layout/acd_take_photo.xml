@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="5dip">
+
+    <TextView
+        android:id="@+id/tv_sgbh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="事故编号："
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/acd_date" />
+
+        <EditText
+            android:id="@+id/edit_acd_sgsj"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="none"
+            android:inputType="none"
+            android:singleLine="true"></EditText>
+
+        <Button
+            android:id="@+id/btn_chg_sgrq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="8dp"
+            android:text="@string/btn_date" />
+
+        <Button
+            android:id="@+id/btn_chg_sgsj"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="8dp"
+            android:text="@string/btn_time" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/acd_position" />
+
+        <Spinner
+            android:id="@+id/spin_sgdd"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btn_chg_sgdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="8dp"
+            android:text="选地点" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="图片列表" />
+
+        <Spinner
+            android:id="@+id/spin_images"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btn_show_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="8dp"
+            android:text="显示图片" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+</LinearLayout>

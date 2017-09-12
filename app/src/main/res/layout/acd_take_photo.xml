@@ -6,12 +6,22 @@
     android:orientation="vertical"
     android:padding="5dip">
 
-    <TextView
-        android:id="@+id/tv_sgbh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="事故编号："
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="事故编号：" />
+
+        <TextView
+            android:id="@+id/tv_sgbh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -73,28 +83,13 @@
             android:text="选地点" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="图片列表" />
-
-        <Spinner
-            android:id="@+id/spin_images"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/btn_show_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="8dp"
-            android:text="显示图片" />
-    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/gridView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
 
     <LinearLayout
         android:layout_width="match_parent"

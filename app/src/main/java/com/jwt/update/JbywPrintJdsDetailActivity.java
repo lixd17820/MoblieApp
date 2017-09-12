@@ -2,7 +2,6 @@ package com.jwt.update;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,7 +17,7 @@ import com.jwt.dao.ViolationDAO;
 import com.jwt.dao.WfdmDao;
 import com.jwt.globalquery.ZhcxOneRecordListAdapter;
 import com.jwt.globalquery.ZhcxQueryResultBean;
-import com.jwt.jbyw.VioViolation;
+import com.jwt.pojo.VioViolation;
 import com.jwt.pojo.VioWfdmCode;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;

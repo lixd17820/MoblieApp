@@ -1776,7 +1776,7 @@ public class GlobalMethod {
                 re += s + d;
         }
         if (re.length() > 0) {
-            re = re.substring(re.length() - d.length());
+            re = re.substring(0, re.length() - d.length());
         }
         return re;
     }
@@ -1788,7 +1788,7 @@ public class GlobalMethod {
                 re += s + d;
         }
         if (re.length() > 0) {
-            re = re.substring(re.length() - d.length());
+            re = re.substring(0, re.length() - d.length());
         }
         return re;
     }

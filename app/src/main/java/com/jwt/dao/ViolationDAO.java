@@ -1,12 +1,11 @@
 package com.jwt.dao;
 
 import android.content.ContentResolver;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.jwt.jbyw.VioViolation;
-import com.jwt.jbyw.VioViolation_;
+import com.jwt.pojo.VioViolation;
+import com.jwt.pojo.VioViolation_;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
 import com.jwt.pojo.VioWfdmCode;
@@ -20,11 +19,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
-import io.objectbox.query.QueryBuilder;
 
 /**
  * Created by lixiaodong on 2017/8/28.

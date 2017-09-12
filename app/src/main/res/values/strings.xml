@@ -85,6 +85,7 @@
     <string name="image_list">图片列表</string>
     <string name="image_content">拍摄图片</string>
     <string name="image_rkqk">入库情况</string>
+    <string name="image_show">看图片</string>
     <string name="menu_zhcx">综合查询</string>
     <string name="menu_config">系统设置</string>
     <string name="menu_scan">扫一扫</string>

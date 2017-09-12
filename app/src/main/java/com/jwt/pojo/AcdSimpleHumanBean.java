@@ -1,4 +1,4 @@
-package com.jwt.jbyw;
+package com.jwt.pojo;
 
 
 import java.io.Serializable;

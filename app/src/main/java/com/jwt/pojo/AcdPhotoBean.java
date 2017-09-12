@@ -1,8 +1,6 @@
-package com.jwt.jbyw;
+package com.jwt.pojo;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;

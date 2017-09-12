@@ -10,8 +10,8 @@ import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.TwoLineSelectBean;
 import com.jwt.dao.ViolationDAO;
 import com.jwt.jbyw.JdsPreviewActivity;
-import com.jwt.jbyw.VioViolation;
-import com.jwt.jbyw.VioViolation_;
+import com.jwt.pojo.VioViolation;
+import com.jwt.pojo.VioViolation_;
 import com.jwt.printer.BlueToothPrint;
 import com.jwt.printer.JdsPrintBean;
 import com.jwt.printer.PrintJdsTools;
@@ -24,7 +24,6 @@ import com.jwt.zapc.ZapcReturn;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -41,7 +40,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Spinner;
 
-import io.objectbox.BoxStore;
 import io.objectbox.query.QueryBuilder;
 
 public class JbywPrintJdsList extends ActionBarListActivity {

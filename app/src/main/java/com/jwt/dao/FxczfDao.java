@@ -2,10 +2,10 @@ package com.jwt.dao;
 
 import android.text.TextUtils;
 
-import com.jwt.jbyw.VioFxcFileBean;
-import com.jwt.jbyw.VioFxcFileBean_;
-import com.jwt.jbyw.VioFxczfBean;
-import com.jwt.jbyw.VioFxczfBean_;
+import com.jwt.pojo.VioFxcFileBean;
+import com.jwt.pojo.VioFxcFileBean_;
+import com.jwt.pojo.VioFxczfBean;
+import com.jwt.pojo.VioFxczfBean_;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 

@@ -6,13 +6,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import android.app.Activity;
-import android.content.ContentResolver;
 import android.text.TextUtils;
 import android.view.Gravity;
 
-import com.jwt.jbyw.AcdSimpleBean;
-import com.jwt.jbyw.AcdSimpleHumanBean;
+import com.jwt.pojo.AcdSimpleBean;
+import com.jwt.pojo.AcdSimpleHumanBean;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;

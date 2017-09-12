@@ -4,22 +4,19 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.ContentResolver;
 import android.util.Log;
 import android.view.Gravity;
 
 
-import com.jwt.jbyw.AcdSimpleBean;
-import com.jwt.jbyw.AcdSimpleHumanBean;
-import com.jwt.jbyw.VioViolation;
+import com.jwt.pojo.AcdSimpleBean;
+import com.jwt.pojo.AcdSimpleHumanBean;
+import com.jwt.pojo.VioViolation;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import io.objectbox.BoxStore;
 
 /**
  * 蓝牙打印的工具类

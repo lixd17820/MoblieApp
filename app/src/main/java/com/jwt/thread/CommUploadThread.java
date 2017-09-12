@@ -1,6 +1,5 @@
 package com.jwt.thread;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import android.app.ProgressDialog;
@@ -11,8 +10,8 @@ import android.os.Message;
 
 import com.jwt.bean.TruckDriverBean;
 import com.jwt.bean.TruckVehicleBean;
-import com.jwt.jbyw.AcdSimpleBean;
-import com.jwt.jbyw.AcdSimpleHumanBean;
+import com.jwt.pojo.AcdSimpleBean;
+import com.jwt.pojo.AcdSimpleHumanBean;
 import com.jwt.web.RestfulDao;
 import com.jwt.web.RestfulDaoFactory;
 import com.jwt.web.WebQueryResult;

@@ -1,18 +1,17 @@
 package com.jwt.dao;
 
-import com.jwt.jbyw.AcdPhotoBean;
-import com.jwt.jbyw.AcdPhotoBean_;
-import com.jwt.jbyw.AcdSimpleBean;
-import com.jwt.jbyw.AcdSimpleBean_;
-import com.jwt.jbyw.AcdSimpleHumanBean;
-import com.jwt.jbyw.AcdSimpleHumanBean_;
+import com.jwt.pojo.AcdPhotoBean;
+import com.jwt.pojo.AcdPhotoBean_;
+import com.jwt.pojo.AcdSimpleBean;
+import com.jwt.pojo.AcdSimpleBean_;
+import com.jwt.pojo.AcdSimpleHumanBean;
+import com.jwt.pojo.AcdSimpleHumanBean_;
 import com.jwt.jbyw.AcdWftLawBean;
 import com.jwt.jbyw.AcdWfxwBean;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
 import com.jwt.utils.GlobalConstant;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.objectbox.Box;

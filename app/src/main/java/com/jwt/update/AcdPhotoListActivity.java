@@ -9,8 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,16 +23,14 @@ import com.jwt.activity.ActionBarSelectListActivity;
 import com.jwt.bean.TwoColTwoSelectBean;
 import com.jwt.dao.AcdSimpleDao;
 import com.jwt.event.CommEvent;
-import com.jwt.jbyw.AcdPhotoBean;
-import com.jwt.jbyw.AcdSimpleBean;
+import com.jwt.pojo.AcdPhotoBean;
+import com.jwt.pojo.AcdSimpleBean;
 import com.jwt.thread.AcdUploadPhotoThread;
 import com.jwt.utils.GlobalMethod;
-import com.jwt.utils.ParserJson;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONObject;
 
 public class AcdPhotoListActivity extends ActionBarSelectListActivity {
     public static final int SEQ_NEW_ACD_PHOTO = 0;
@@ -190,7 +186,8 @@ public class AcdPhotoListActivity extends ActionBarSelectListActivity {
     private void createBeanFromAcdPhoto(List<AcdPhotoBean> photos) {
         beanList.clear();
         for (AcdPhotoBean photo : photos) {
-            String text1 = photo.getSgbh() + "|" + photo.getSgsj();
+            String[] ps = photo.getPhoto().split(",");
+            String text1 = photo.getSgbh() + "|" + photo.getSgsj() + "|" + ps.length+"张";
             String text2 = getString(R.string.acd_position) + ":"
                     + photo.getSgdd();
             boolean isSc = photo.getScbj() == 1;

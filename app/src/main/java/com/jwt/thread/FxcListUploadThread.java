@@ -10,8 +10,8 @@ import android.util.Log;
 
 
 import com.jwt.dao.FxczfDao;
-import com.jwt.jbyw.VioFxcFileBean;
-import com.jwt.jbyw.VioFxczfBean;
+import com.jwt.pojo.VioFxcFileBean;
+import com.jwt.pojo.VioFxczfBean;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.ZipUtils;

@@ -1,12 +1,9 @@
 package com.jwt.update;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,17 +12,12 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.jwt.dao.AcdSimpleDao;
-import com.jwt.jbyw.AcdSimpleBean;
-import com.jwt.jbyw.AcdSimpleHumanBean;
 import com.jwt.jbyw.AcdWftLawBean;
+import com.jwt.pojo.AcdSimpleBean;
+import com.jwt.pojo.AcdSimpleHumanBean;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 

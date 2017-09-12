@@ -9,16 +9,13 @@ import com.jwt.bean.WfxwBzz;
 import com.jwt.dao.ViolationDAO;
 import com.jwt.dao.WfdmDao;
 import com.jwt.jbyw.JdsUnjkPrintBean;
-import com.jwt.jbyw.VioFxczfBean;
-import com.jwt.jbyw.VioViolation;
+import com.jwt.pojo.VioFxczfBean;
+import com.jwt.pojo.VioViolation;
 import com.jwt.pojo.VioWfdmCode;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.ParserJson;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

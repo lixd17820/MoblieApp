@@ -24,5 +24,9 @@
         android:orderInCategory="100"
         android:title="@string/btn_del_image"
         ntgajwt:showAsAction="ifRoom"/>
-
+    <item
+        android:id="@+id/menu_show_image"
+        android:orderInCategory="100"
+        android:title="@string/image_show"
+        ntgajwt:showAsAction="ifRoom"/>
 </menu>

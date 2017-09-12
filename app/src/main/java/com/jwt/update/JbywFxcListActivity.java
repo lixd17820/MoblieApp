@@ -240,10 +240,9 @@ public class JbywFxcListActivity extends CommTwoRowSelectAcbarListActivity {
             }
             VioFxczfBean fxc = fxcList.get(selectedIndex);
             if (v == btnShowFxc) {
-                Intent intent = new Intent(self, JbywFxcActivity.class);
-                intent.putExtra("operMod", "readonly");
+                Intent intent = new Intent(self, JbywFxcShowActivity.class);
                 intent.putExtra("fxc", fxc);
-                startActivityForResult(intent, SEQ_NEW_FXC);
+                startActivity(intent);
             } else if (v == btnUpload) {
                 if (!isUploadTime(fxc)) {
                     GlobalMethod.showErrorDialog("超过" + GlobalSystemParam.unsend_fxc_hours + "个小时不能上传了", self);

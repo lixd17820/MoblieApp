@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:id="@+id/unless_linear"
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:layout_alignParentTop="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal" />
+
+    <TextView
+        android:id="@+id/tv_hpzl"
+        style="@style/rel_tv"
+        android:layout_alignParentLeft="true"
+        android:text="@string/hpzl" />
+
+    <TextView
+        android:id="@+id/tv_hphm"
+        style="@style/rel_tv"
+        android:layout_below="@+id/tv_hpzl"
+        android:text="@string/hphm" />
+
+    <TextView
+        android:id="@+id/tv_wfsj"
+        style="@style/rel_tv"
+        android:layout_below="@+id/tv_hphm"
+        android:text="@string/wfsj" />
+
+    <TextView
+        android:id="@+id/tv_wfdd"
+        style="@style/rel_tv"
+        android:layout_below="@+id/tv_wfsj"
+        android:text="@string/wfdd" />
+
+    <TextView
+        android:id="@+id/tv_wfxw"
+        style="@style/rel_tv"
+        android:layout_below="@+id/tv_wfdd"
+        android:text="@string/wfxw" />
+
+    <TextView
+        android:id="@+id/tv_scbj"
+        style="@style/rel_tv"
+        android:layout_below="@+id/tv_wfxw"
+        android:text="上传标记" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/gridView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_below="@+id/tv_scbj"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
+
+</RelativeLayout>

@@ -100,6 +100,7 @@
         <activity android:name=".AcdTakePhotoActivity" />
         <activity android:name=".AcdPhotoListActivity" />
         <activity android:name=".QzcsxmActivity"></activity>
+        <activity android:name=".JbywFxcShowActivity" />
     </application>
 
 </manifest>

@@ -16,6 +16,8 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.jwt.adapter.ImageListAdapter;
 import com.jwt.adapter.OnSpinnerItemSelected;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.dao.FxczfDao;
@@ -66,13 +69,10 @@ public class JbywFxcActivity extends AppCompatActivity {
     private final int REQCODE_WFDD = 1111;
     private final int REQCODE_WFXW = 1112;
 
-    private ArrayList<String> bigList;
-    private ArrayList<VioFxcFileBean> zpList;
+    //private ArrayList<VioFxcFileBean> zpList;
     private Context self;
-    private Spinner spHpzl, spHpqz, spImageList;
+    private Spinner spHpzl, spHpqz;
     private EditText edWfdd, edWfxw, edHphm, edWfsj;
-    private ImageView mImageView;
-    private int imageIndex = -1;
     private KeyValueBean kvWfdd;
 
     private boolean isSaveText = false, isSaveFile = false;
@@ -96,23 +96,19 @@ public class JbywFxcActivity extends AppCompatActivity {
     private static final String STATE_FXCZF_BEAN = "fxczf";
     private static final String STATE_OPER_MOD = "operMod";
 
+    private ImageListAdapter adapter;
+    private String photoName = "";
+
     @SuppressWarnings("unchecked")
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         // Restore the previously serialized current dropdown position.
         Log.e("AcdTakePhotoActivity", "onRestoreInstanceState");
-        if (savedInstanceState.containsKey(STATE_ZP_LIST)) {
-            zpList = (ArrayList<VioFxcFileBean>) savedInstanceState
-                    .getSerializable(STATE_ZP_LIST);
-        }
-        if (savedInstanceState.containsKey(STATE_BIG_LIST)) {
-            bigList = savedInstanceState.getStringArrayList(STATE_BIG_LIST);
-        }
-
-        if (savedInstanceState.containsKey(STATE_IMAGE_INDEX)) {
-            imageIndex = savedInstanceState.getInt(STATE_IMAGE_INDEX);
-        }
+//        if (savedInstanceState.containsKey(STATE_ZP_LIST)) {
+//            zpList = (ArrayList<VioFxcFileBean>) savedInstanceState
+//                    .getSerializable(STATE_ZP_LIST);
+//        }
         if (savedInstanceState.containsKey(STATE_TZSBH)) {
             tzsbh = savedInstanceState.getString(STATE_TZSBH);
         }
@@ -146,8 +142,6 @@ public class JbywFxcActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // Serialize the current dropdown position.
-        outState.putStringArrayList(STATE_BIG_LIST, bigList);
-        outState.putInt(STATE_IMAGE_INDEX, imageIndex);
         outState.putString(STATE_TZSBH, tzsbh);
         outState.putBoolean(STATE_IS_SAVE_FILE_BOL, isSaveFile);
         outState.putBoolean(STATE_IS_SAVE_TEXT_BOL, isSaveText);
@@ -157,8 +151,8 @@ public class JbywFxcActivity extends AppCompatActivity {
         if (fxczf != null) {
             outState.putSerializable(STATE_FXCZF_BEAN, fxczf);
         }
-        if (zpList != null)
-            outState.putSerializable(STATE_ZP_LIST, zpList);
+//        if (zpList != null)
+//            outState.putSerializable(STATE_ZP_LIST, zpList);
         super.onSaveInstanceState(outState);
     }
 
@@ -183,8 +177,6 @@ public class JbywFxcActivity extends AppCompatActivity {
         edWfsj.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm")
                 .format(new Date()));
         edWfsj.setKeyListener(null);
-        spImageList = (Spinner) findViewById(R.id.spin_image_list);
-        mImageView = (ImageView) findViewById(R.id.imgview_1);
         GlobalMethod.changeAdapter(spHpzl, GlobalData.hpzlList, this);
         GlobalMethod.changeAdapter(spHpqz, GlobalData.hpqlList, this);
         spHpzl.setSelection(
@@ -195,12 +187,10 @@ public class JbywFxcActivity extends AppCompatActivity {
 
         edHphm.setText("F");
         kvWfdd = new KeyValueBean("", "");
-        bigList = new ArrayList<String>();
-        zpList = new ArrayList<VioFxcFileBean>();
+        //zpList = new ArrayList<VioFxcFileBean>();
         findViewById(R.id.but_wfsj).setOnClickListener(butClick);
         findViewById(R.id.but_wfdd).setOnClickListener(butClick);
         findViewById(R.id.but_wfxw).setOnClickListener(butClick);
-        findViewById(R.id.btn_show_image).setOnClickListener(butClick);
         // 检测
         if (!Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)) {
@@ -209,39 +199,18 @@ public class JbywFxcActivity extends AppCompatActivity {
             return;
         }
         Log.e("jbywFxc", "test");
-        //if (2 > 1)
-        //    return;
-        String op = getIntent().getStringExtra("operMod");
-        if (TextUtils.equals("readonly", op)) {
-            Log.e("jbywFxc", op);
-            operMod = READONLY;
-            fxczf = (VioFxczfBean) getIntent().getSerializableExtra("fxc");
-            zpList = FxczfDao.queryFxczfFileByFId(fxczf.getId(), GlobalMethod.getBoxStore(self));
-            if (fxczf != null && zpList != null) {
-                Log.e("jyywFxc", fxczf.getId() + "/" + zpList.size());
-                GlobalMethod.changeSpinnerSelect(spHpzl, fxczf.getHpzl(),
-                        GlobalConstant.KEY);
-                GlobalMethod.changeSpinnerSelect(spHpqz,
-                        fxczf.getHphm().substring(0, 1), GlobalConstant.VALUE);
-                edHphm.setText(fxczf.getHphm().substring(1));
-                edWfsj.setText(fxczf.getWfsj());
-                edWfdd.setText(fxczf.getWfdz());
-                String wfdd = fxczf.getXzqh() + fxczf.getWfdd() + fxczf.getLddm()
-                        + fxczf.getDdms();
-                kvWfdd = new KeyValueBean(wfdd, fxczf.getWfdz());
-                edWfxw.setText(fxczf.getWfxw());
-                referImageList();
-            }
-        } else {
-            tzsbh = FxczfDao.getTodayFxczfId(GlobalMethod.getBoxStore(self));
-            String[] ar = FxczfDao.getLastWfdd(GlobalMethod.getBoxStore(self));
-            if (ar != null && WfddDao.isWfddOk(ar[0], GlobalMethod.getBoxStore(self))) {
-                kvWfdd = new KeyValueBean(ar[0], ar[1]);
-                edWfdd.setText(ar[1]);
-                edWfxw.setText(ar[2]);
-            }
+        tzsbh = FxczfDao.getTodayFxczfId(GlobalMethod.getBoxStore(self));
+        String[] ar = FxczfDao.getLastWfdd(GlobalMethod.getBoxStore(self));
+        if (ar != null && WfddDao.isWfddOk(ar[0], GlobalMethod.getBoxStore(self))) {
+            kvWfdd = new KeyValueBean(ar[0], ar[1]);
+            edWfdd.setText(ar[1]);
+            edWfxw.setText(ar[2]);
         }
-
+        //初始化图片列表
+        RecyclerView gridView = (RecyclerView) findViewById(R.id.gridView1);
+        gridView.setHasFixedSize(true);
+        gridView.setLayoutManager(new GridLayoutManager(this, 2));
+        gridView.setAdapter(adapter = new ImageListAdapter(imgClick, new ArrayList<String>()));
         // 设置打印的名字，打印时在数据库中取
         String pn = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_NAME);
         String pd = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_ADDRESS);
@@ -254,18 +223,16 @@ public class JbywFxcActivity extends AppCompatActivity {
         setTitle("非现场执法");
         // setTitle("非现场编号: " + tzsbh + " 打印机：" + printerName);
         Log.e("AcdTakePhotoActivity", "onCreate");
-        spImageList.setOnItemSelectedListener(sl);
-        mImageView.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                if (imageIndex > -1 && zpList != null && !zpList.isEmpty()
-                        && zpList.size() > imageIndex) {
-                    showImageActivity(zpList.get(imageIndex).getWjdz());
-                }
-            }
-        });
     }
+
+    ImageListAdapter.ImageClickListener imgClick = new ImageListAdapter.ImageClickListener() {
+        @Override
+        public void onClick(int position) {
+            adapter.setSelectIndex(position);
+            adapter.notifyDataSetChanged();
+        }
+    };
 
     private void showImageActivity(String file) {
         Intent intent = new Intent(self, ShowImageActivity.class);
@@ -273,25 +240,8 @@ public class JbywFxcActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    OnSpinnerItemSelected sl = new OnSpinnerItemSelected() {
-
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view,
-                                   int position, long id) {
-            if (imageIndex != position) {
-                imageIndex = position;
-                threadReferImageView();
-            }
-        }
-    };
-
     @Override
     protected void onResume() {
-        referImageList();
-        Log.e("JbywFxc onResume", "" + GlobalSystemParam.isPreviewPhoto + "/"
-                + imageIndex);
-        if (GlobalSystemParam.isPreviewPhoto && imageIndex > -1)
-            threadReferImageView();
         super.onResume();
     }
 
@@ -340,8 +290,6 @@ public class JbywFxcActivity extends AppCompatActivity {
         public void onClick(View v) {
             if (v == findViewById(R.id.but_wfsj)) {
                 GlobalMethod.changeTime(edWfsj, self);
-            } else if (v == findViewById(R.id.btn_show_image)) {
-                threadReferImageView();
             } else if (v == findViewById(R.id.but_wfdd)) {
                 // 查询违法地点
                 Intent intent = new Intent(self, ConfigWfddActivity.class);
@@ -356,22 +304,15 @@ public class JbywFxcActivity extends AppCompatActivity {
     };
 
     private void delImage() {
-        int pos = spImageList.getSelectedItemPosition();
-        if (pos < 0 || bigList == null || bigList.size() <= pos)
+        int pos = adapter.getSelectIndex();
+        if (pos < 0) {
+            GlobalMethod.showErrorDialog("请选择一张照片", this);
             return;
-        File bf = new File(bigList.get(pos));
-        bf.delete();
-        bigList.remove(pos);
-        VioFxcFileBean zp = zpList.get(pos);
-        File mf = new File(zp.getWjdz());
-        mf.delete();
-        zpList.remove(pos);
-        imageIndex = zpList.size() - 1;
-        if (zpList.isEmpty()) {
-            mImageView.setImageBitmap(null);
-            mImageView.destroyDrawingCache();
-        } else
-            threadReferImageView();
+        }
+        List<String> imgList = adapter.getList();
+        imgList.remove(pos);
+        adapter.setImageList(imgList);
+        adapter.notifyDataSetChanged();
     }
 
     private DialogInterface.OnClickListener delImageDialog = new DialogInterface.OnClickListener() {
@@ -381,7 +322,6 @@ public class JbywFxcActivity extends AppCompatActivity {
             delImage();
         }
     };
-    private ProgressDialog progressDialog;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -392,9 +332,7 @@ public class JbywFxcActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (GlobalData.connCata == ConnCata.OFFCONN
-                || GlobalData.connCata == ConnCata.UNKNOW)
-            menu.removeItem(R.id.menu_upload);
+        menu.removeItem(R.id.menu_upload);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -414,10 +352,6 @@ public class JbywFxcActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(edWfdd.getText())
                         || TextUtils.isEmpty(edWfsj.getText())) {
                     GlobalMethod.showErrorDialog("违法时间和违法地点是必填项", self);
-                    return true;
-                }
-                if (bigList.size() >= 3) {
-                    GlobalMethod.showErrorDialog("最多可拍摄3张照片，请删除一张后再拍摄", self);
                     return true;
                 }
                 startTakePhoto();
@@ -450,10 +384,11 @@ public class JbywFxcActivity extends AppCompatActivity {
                     return true;
                 }
                 fxczf = temp;
-                QueryVehHandler qvHandler = new QueryVehHandler(this);
-                QueryVehThread thread = new QueryVehThread(qvHandler,
-                        fxczf.getHpzl(), fxczf.getHphm());
-                thread.start();
+                saveFxcIntoDb();
+                //QueryVehHandler qvHandler = new QueryVehHandler(this);
+                //QueryVehThread thread = new QueryVehThread(qvHandler,
+                //       fxczf.getHpzl(), fxczf.getHphm());
+                //thread.start();
             }
             return true;
             case R.id.menu_del_image:
@@ -461,11 +396,11 @@ public class JbywFxcActivity extends AppCompatActivity {
                     GlobalMethod.showErrorDialog("记录已保存，不能删除图片", self);
                     return true;
                 }
-                int pos = spImageList.getSelectedItemPosition();
-                if (pos < 0 || bigList == null || bigList.size() <= pos)
-                    return true;
                 GlobalMethod.showDialogTwoListener("系统提示", "是否删除图片，该操作将无法恢复", "删除",
                         "取消", delImageDialog, self);
+                return true;
+            case R.id.menu_show_image:
+                showSelectImage();
                 return true;
             default:
                 break;
@@ -473,16 +408,27 @@ public class JbywFxcActivity extends AppCompatActivity {
         return false;
     }
 
+    private void showSelectImage() {
+        int index = adapter.getSelectIndex();
+        if (index < 0) {
+            GlobalMethod.showErrorDialog("请选择一张图片", this);
+            return;
+        }
+        String file = adapter.getImg(index);
+        showImageActivity(file);
+    }
+
     private void saveFxcIntoDb() {
-        long row = FxczfDao.insertFxczfDb(fxczf, GlobalMethod.getBoxStore(self));
-        Log.e("save fxc", "fxc id: " + row);
+        long id = FxczfDao.insertFxczfDb(fxczf, GlobalMethod.getBoxStore(self));
+        Log.e("save fxc", "fxc id: " + id);
         String result = "";
-        if (row > 0) {
+        List<String> zpList = adapter.getList();
+        if (id > 0) {
             for (int i = 0; i < zpList.size(); i++) {
-                String smallZp = zpList.get(i).getWjdz();
+                String smallZp = zpList.get(i);
                 VioFxcFileBean file = new VioFxcFileBean();
                 file.setWjdz(smallZp);
-                file.setFxcId(row);
+                file.setFxcId(id);
                 file.setScbj(0);
                 long l = FxczfDao.insertFxcFile(file, GlobalMethod.getBoxStore(self));
                 result += l + ",";
@@ -491,68 +437,8 @@ public class JbywFxcActivity extends AppCompatActivity {
         }
         Log.e("save file", "file id: " + result);
         Log.e("fxc", result);
-        GlobalMethod.showDialog("系统提示", row > 0 ? "非现场保存成功" : "非现场保存失败",
+        GlobalMethod.showDialog("系统提示", id > 0 ? "非现场保存成功" : "非现场保存失败",
                 "确定", self);
-    }
-
-    static class QueryVehHandler extends Handler {
-
-        private final WeakReference<JbywFxcActivity> myActivity;
-
-        public QueryVehHandler(JbywFxcActivity activity) {
-            myActivity = new WeakReference<JbywFxcActivity>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            JbywFxcActivity ac = myActivity.get();
-            if (ac != null) {
-                ac.queryVehHandler(msg);
-            }
-        }
-    }
-
-    /**
-     * 查询返回后根据情况决定是否提示民警
-     *
-     * @param msg
-     */
-    private void queryVehHandler(Message msg) {
-        Bundle b = msg.getData();
-        String s = b.getString("veh", "");
-        if (TextUtils.isEmpty(s)) {
-            saveFxcIntoDb();
-            return;
-        }
-        JSONObject json = null;
-        try {
-            json = new JSONObject(s);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        if (json == null) {
-            saveFxcIntoDb();
-            return;
-        }
-        String err = json.optString("err", "");
-        String bdjg = json.optString("bdjg", "");
-        String mes = "";
-        if (!TextUtils.isEmpty(err) && TextUtils.equals("未查询到机动车信息", err)) {
-            //如果出现未查询到机动车信息，提示民警注意
-            mes = "未查询到机动车信息，是否保存？";
-        } else if (!TextUtils.isEmpty(bdjg)) {
-            mes = bdjg + "，是否保存？";
-        }
-        if (!TextUtils.isEmpty(mes)) {
-            GlobalMethod.showDialogTwoListener("系统提示", mes, "保存", "不保存", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    saveFxcIntoDb();
-                }
-            }, self);
-            return;
-        }
-        saveFxcIntoDb();
     }
 
     private VioFxczfBean getFxcFromView() {
@@ -576,7 +462,7 @@ public class JbywFxcActivity extends AppCompatActivity {
         temp.setWfxw(edWfxw.getText().toString());
         temp.setWfsj(edWfsj.getText().toString());
         temp.setTzsh(tzsbh);
-        temp.setPhotos(zpList == null ? "0" : String.valueOf(zpList.size()));
+        temp.setPhotos(adapter.getItemCount() + "");
         temp.setCjjg(GlobalData.grxx.get(GlobalConstant.KSBMBH));
         temp.setFzjg(hp.length() > 2 ? hp.substring(0, 2) : "");
         temp.setTzrq(temp.getWfsj());
@@ -649,11 +535,9 @@ public class JbywFxcActivity extends AppCompatActivity {
             if (TextUtils.equals("13446", temp.getWfxw()))
                 return "不是严管路段，请不要使用13446代码！";
         }
-
-        if (isCheckImage) {
-            if (zpList == null || zpList.size() < 2) {
-                return "至少需要2张照片";
-            }
+        int photos = Integer.valueOf(temp.getPhotos());
+        if (isCheckImage && (photos < 2 || photos > 3)) {
+            return "图片需2或3张";
         }
         return null;
     }
@@ -664,7 +548,6 @@ public class JbywFxcActivity extends AppCompatActivity {
         // super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == CAMER_REQUEST) {
-                //
                 camerResult();
             } else if (requestCode == REQCODE_WFDD) {
                 Bundle b = data.getExtras();
@@ -675,12 +558,6 @@ public class JbywFxcActivity extends AppCompatActivity {
                 String wfxw = data.getStringExtra("wfxw");
                 if (!TextUtils.isEmpty(wfxw))
                     edWfxw.setText(wfxw);
-            }
-        } else {
-            if (requestCode == CAMER_REQUEST) {
-                while (bigList.size() > zpList.size()) {
-                    bigList.remove(bigList.size() - 1);
-                }
             }
         }
 
@@ -693,118 +570,6 @@ public class JbywFxcActivity extends AppCompatActivity {
         }
     };
 
-    /**
-     * 多线程刷新图片
-     */
-    private void threadReferImageView() {
-        Handler handler = new ChangeImageHandler(JbywFxcActivity.this);
-        ChangeImageThread thread = new ChangeImageThread(handler);
-        thread.start();
-    }
-
-    /**
-     * 查询机动车信息线程类
-     */
-    class QueryVehThread extends Thread {
-        private Handler mVehHandler;
-        private String hpzl;
-        private String hphm;
-
-        public QueryVehThread(Handler h, String hpzl, String hphm) {
-            this.mVehHandler = h;
-            this.hphm = hphm;
-            this.hpzl = hpzl;
-        }
-
-        @Override
-        public void run() {
-            if (GlobalData.connCata == ConnCata.OFFCONN)
-                GlobalData.connCata = ConnCata.INSIDECONN;
-            RestfulDao dao = RestfulDaoFactory.getDao();
-            WebQueryResult<String> s = dao.jycxQueryVeh(hpzl, hphm);
-            if (s.getStatus() == HttpURLConnection.HTTP_OK) {
-                Message msg = mVehHandler.obtainMessage();
-                Bundle b = new Bundle();
-                b.putString("veh", s.getResult());
-                msg.setData(b);
-                mVehHandler.sendMessage(msg);
-            }
-        }
-    }
-
-
-    private Bitmap currentSmallImage;
-
-    class ChangeImageThread extends Thread {
-        private Handler mHandler;
-
-        public ChangeImageThread(Handler mHandler) {
-            this.mHandler = mHandler;
-        }
-
-        @Override
-        public void run() {
-            Log.e("ChangeImageThread", "on run");
-            boolean isOk = false;
-            if (imageIndex > -1 && zpList != null && !zpList.isEmpty()) {
-                VioFxcFileBean zp = zpList.get(imageIndex);
-                File smallFn = new File(zp.getWjdz());
-                Log.e("ChangeImageThread", "file " + smallFn.getAbsolutePath());
-                if (smallFn.exists()) {
-                    currentSmallImage = GlobalMethod.getImageFromFile(smallFn
-                            .getAbsolutePath());
-                }
-                isOk = currentSmallImage != null;
-            }
-            Message msg = mHandler.obtainMessage();
-            Bundle b = new Bundle();
-            b.putBoolean("isOk", isOk);
-            msg.setData(b);
-            mHandler.sendMessage(msg);
-            Log.e("ChangeImageThread", "isOk " + isOk);
-
-        }
-    }
-
-    static class ChangeImageHandler extends Handler {
-
-        private final WeakReference<JbywFxcActivity> myActivity;
-
-        public ChangeImageHandler(JbywFxcActivity activity) {
-            myActivity = new WeakReference<JbywFxcActivity>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            JbywFxcActivity ac = myActivity.get();
-            if (ac != null) {
-                Bundle data = msg.getData();
-                if (data != null && data.getBoolean("isOk"))
-                    ac.showSmallImage();
-            }
-        }
-    }
-
-    private void showSmallImage() {
-        if (currentSmallImage != null) {
-            mImageView.setImageBitmap(currentSmallImage);
-        }
-    }
-
-    private void referImageList() {
-        if (zpList == null)
-            zpList = new ArrayList<VioFxcFileBean>();
-        List<String> list = new ArrayList<String>();
-        for (int i = 0; i < zpList.size(); i++) {
-            Log.e("jbywFxc", zpList.get(i).getWjdz());
-            list.add("第" + (i + 1) + "张图片");
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(self,
-                android.R.layout.simple_spinner_item, list);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spImageList.setAdapter(adapter);
-        spImageList.setSelection(imageIndex);
-    }
 
     private void startTakePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -817,7 +582,7 @@ public class JbywFxcActivity extends AppCompatActivity {
                 ex.printStackTrace();
             }
             if (photoFile != null) {
-                bigList.add(photoFile.getAbsolutePath());
+                photoName = photoFile.getAbsolutePath();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Uri photoURI = FileProvider.getUriForFile(self, "com.jwt.update.fileprovider", photoFile);
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
@@ -832,14 +597,12 @@ public class JbywFxcActivity extends AppCompatActivity {
     }
 
     private void camerResult() {
-        if (bigList == null || bigList.isEmpty())
+        if (TextUtils.isEmpty(photoName))
             return;
-        String mCurrentPhotoPath = bigList.get(bigList.size() - 1);
-        File image = new File(mCurrentPhotoPath);
-        Log.e("mCurrentPhotoPath", mCurrentPhotoPath);
+        File image = new File(photoName);
+        Log.e("mCurrentPhotoPath", photoName);
         if (!image.exists()) {
             Toast.makeText(self, "照片拍摄失败", Toast.LENGTH_LONG).show();
-            bigList.remove(bigList.size() - 1);
             return;
         }
         File dir = image.getParentFile();
@@ -851,23 +614,20 @@ public class JbywFxcActivity extends AppCompatActivity {
         String text = "拍摄时间："
                 + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
         text += " 拍摄地点：" + edWfdd.getText();
-        Bitmap smallImage = GlobalMethod.compressBitmap(mCurrentPhotoPath, 800,
-                text);
+        Bitmap smallImage = GlobalMethod.compressBitmap(photoName, 800, text);
         if (smallImage == null) {
             Toast.makeText(self, "照片压缩失败", Toast.LENGTH_LONG).show();
-            bigList.remove(bigList.size() - 1);
             return;
         }
         boolean isSave = GlobalMethod.savePicIntoFile(smallImage, smallF);
         if (!isSave) {
             Toast.makeText(self, "照片保存失败", Toast.LENGTH_LONG).show();
-            bigList.remove(bigList.size() - 1);
             return;
         }
-        VioFxcFileBean zp = new VioFxcFileBean();
-        zp.setWjdz(smallF.getAbsolutePath());
-        zpList.add(zp);
-        imageIndex = zpList.size() - 1;
+        List<String> smallPhotoList = adapter.getList();
+        smallPhotoList.add(smallF.getAbsolutePath());
+        adapter.setImageList(smallPhotoList);
+        adapter.notifyDataSetChanged();
         showImageActivity(smallF.getAbsolutePath());
 
     }

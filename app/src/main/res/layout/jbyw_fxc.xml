@@ -48,7 +48,6 @@
         android:layout_alignBaseline="@+id/textView2"
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/spin_hpqz"
-        android:gravity="center"
         android:inputType="textCapCharacters" />
 
 
@@ -132,39 +131,14 @@
         android:gravity="center"
         android:inputType="text|number" />
 
-    <Button
-        android:id="@+id/btn_show_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/but_wfxw"
-        android:text="@string/show_photo" />
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/gridView1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/btn_show_image"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/edit_wfxw"
-        android:text="@string/image_list" />
-
-    <Spinner
-        android:id="@+id/spin_image_list"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/btn_show_image"
-        android:layout_toLeftOf="@+id/btn_show_image"
-        android:layout_toRightOf="@+id/textView6" />
-
-    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/imgview_1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/btn_show_image"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:contentDescription="@string/image_content"
-        android:scaleType="fitCenter" />
+        android:layout_margin="8dp"
+        android:layout_below="@+id/edit_wfxw"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
 
 </RelativeLayout>

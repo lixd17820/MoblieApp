@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textView1"
+            style="@style/rel_tv"
+            android:layout_centerVertical="true"
+            android:text="报修项目 " />
+
+        <Spinner
+            android:id="@+id/spin_rep_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textView2"
+            style="@style/rel_tv"
+            android:text="报修地点 " />
+
+        <EditText
+            android:id="@+id/edit_rep_bxdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+        </EditText>
+
+        <Button
+            android:id="@+id/btn_rep_bxdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="查找.." />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textView3"
+            style="@style/rel_tv"
+            android:layout_centerVertical="true"
+            android:text="相对方向 " />
+
+        <Spinner
+            android:id="@+id/spin_rep_side"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView4"
+        style="@style/rel_tv"
+        android:text="报修内容 " />
+
+    <EditText
+        android:id="@+id/edit_rep_bxnr"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:lines="3"
+        android:gravity="left"
+        android:inputType="textMultiLine" >
+
+        <requestFocus />
+    </EditText>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/gridView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_below="@+id/tv_scbj"
+        android:clipToPadding="false"
+        android:layout_weight="1"
+        android:scrollbars="vertical" />
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5px"
+        android:background="#aaa"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_rep_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="保存" />
+
+        <Button
+            android:id="@+id/btn_rep_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="上传" />
+
+        <Button
+            android:id="@+id/btn_rep_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="拍照" />
+
+        <Button
+            android:id="@+id/btn_show_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="看图" />
+    </LinearLayout>
+
+</LinearLayout>

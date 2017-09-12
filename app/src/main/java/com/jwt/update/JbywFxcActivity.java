@@ -574,13 +574,8 @@ public class JbywFxcActivity extends AppCompatActivity {
     private void startTakePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = GlobalMethod.createImageFile(JbywFxcActivity.this,
+            File photoFile = GlobalMethod.createImageFile(JbywFxcActivity.this,
                         false);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
             if (photoFile != null) {
                 photoName = photoFile.getAbsolutePath();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

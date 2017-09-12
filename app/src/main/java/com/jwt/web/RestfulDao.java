@@ -10,7 +10,7 @@ import com.jwt.bean.GcmBbInfoBean;
 import com.jwt.bean.GcmBbddBean;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.MjJobBean;
-import com.jwt.bean.RepairBean;
+import com.jwt.pojo.RepairBean;
 import com.jwt.bean.SchoolZtzBean;
 import com.jwt.bean.SpringKcdjBean;
 import com.jwt.bean.SpringWhpdjBean;

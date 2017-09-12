@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jwt.update">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -101,6 +102,8 @@
         <activity android:name=".AcdPhotoListActivity" />
         <activity android:name=".QzcsxmActivity"></activity>
         <activity android:name=".JbywFxcShowActivity" />
+        <activity android:name=".RepairJtssActivity" />
+        <activity android:name=".RepairShowListActivity" />
     </application>
 
 </manifest>

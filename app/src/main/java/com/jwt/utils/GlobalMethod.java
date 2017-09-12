@@ -1282,8 +1282,7 @@ public class GlobalMethod {
      * @return
      * @throws IOException
      */
-    public static File createImageFile(Activity context, boolean isPrivate)
-            throws IOException {
+    public static File createImageFile(Activity context, boolean isPrivate) {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 .format(new Date());
         String imageFileName = "JPEG_" + timeStamp;

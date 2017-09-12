@@ -325,12 +325,7 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
     private void startTakePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = GlobalMethod.createImageFile(activity, false);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            File photoFile = GlobalMethod.createImageFile(activity, false);
             if (photoFile != null) {
                 photoName = photoFile.getAbsolutePath();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

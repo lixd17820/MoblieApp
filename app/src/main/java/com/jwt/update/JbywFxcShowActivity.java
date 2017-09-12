@@ -82,12 +82,12 @@ public class JbywFxcShowActivity extends AppCompatActivity {
             for (VioFxcFileBean f : zpList)
                 images.add(f.getWjdz());
         }
-        tvHpzl.setText(GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList, fxczf.getHpzl()));
-        tvHphm.setText(fxczf.getHphm());
-        tvWfdd.setText(fxczf.getWfdz());
-        tvWfsj.setText(fxczf.getWfsj());
-        tvWfxw.setText(fxczf.getWfxw());
-        tvScbj.setText(fxczf.getScbj());
+        tvHpzl.setText("号牌种类：" + GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList, fxczf.getHpzl()));
+        tvHphm.setText("号牌号码：" + fxczf.getHphm());
+        tvWfdd.setText("违法地点：" + fxczf.getWfdz());
+        tvWfsj.setText("违法时间：" + fxczf.getWfsj());
+        tvWfxw.setText("违法代码：" + fxczf.getWfxw());
+        tvScbj.setText("是否上传：" + ("0".equals(fxczf.getScbj()) ? "未上传" : "已上传"));
         //初始化图片列表
         RecyclerView gridView = (RecyclerView) findViewById(R.id.gridView1);
         gridView.setHasFixedSize(true);

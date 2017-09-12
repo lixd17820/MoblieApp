@@ -1,11 +1,15 @@
-package com.jwt.bean;
+package com.jwt.pojo;
 
 import java.io.Serializable;
 
-@SuppressWarnings("serial")
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+
+@Entity
 public class RepairBean implements Serializable {
 
-	private long id;
+	@Id
+	long id;
 	private String xtbh;
 	private String item;
 	private String xzqh;

@@ -1,15 +1,19 @@
-package com.jwt.zapc;
+package com.jwt.pojo;
 
 import java.io.Serializable;
 
 import android.text.TextUtils;
 
 import com.jwt.bean.CommTwoRowSelUpInf;
+import com.jwt.dao.ZaPcdjDao;
 
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
 
+@Entity
 public class ZapcGzxxBean implements Serializable, CommTwoRowSelUpInf {
-
-    private String id;
+    @Id
+    long id;
     private String gzxxbh;
     private String xffs;
     private String djdw;
@@ -22,11 +26,11 @@ public class ZapcGzxxBean implements Serializable, CommTwoRowSelUpInf {
     private String csbj;
     private String zqmj;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -131,15 +135,13 @@ public class ZapcGzxxBean implements Serializable, CommTwoRowSelUpInf {
 
     @Override
     public String getUpText() {
-        //return "开始时间：" + ZaPcdjDao.changeDptModNor(kssj).substring(0, 16);
-        return "";
+        return "开始时间：" + ZaPcdjDao.changeDptModNor(kssj).substring(0, 16);
     }
 
     @Override
     public String getDownText() {
-        //return (TextUtils.isEmpty(jssj) ? "工作未结束" : "结束时间："
-        //		+ ZaPcdjDao.changeDptModNor(jssj).substring(0, 16));
-        return "";
+        return (TextUtils.isEmpty(jssj) ? "工作未结束" : "结束时间："
+        		+ ZaPcdjDao.changeDptModNor(jssj).substring(0, 16));
     }
 
     @Override

@@ -1,12 +1,20 @@
-package com.jwt.zapc;
+package com.jwt.pojo;
+
+import com.jwt.dao.ZaPcdjDao;
+import com.jwt.utils.GlobalMethod;
 
 import java.io.Serializable;
 
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
 
+@Entity
 public class ZapcRypcxxBean implements Serializable, Zapcxx {
 
+    @Id
+    long id;
     private String pcrybh; // 盘查人员编号
-    private String gzbh; // 工作编号
+    private long gzbh; // 工作编号
     private String rycljg;// 人员处理结果
     private String rypcyy;// 人员盘查原因
     private String rypcdd;// 人员盘查地点
@@ -15,7 +23,9 @@ public class ZapcRypcxxBean implements Serializable, Zapcxx {
     private String rypcsj;// 人员盘查时间
     private String jccfx;// 进出城方向
     private String scbj;
-    private ZapcRyjbxxBean ryjbxx;// 人员基本信息
+    private long ryjbxxId;// 人员基本信息
+    private String gmsfzh;
+    private String xm;
 
     public String getPcrybh() {
         return pcrybh;
@@ -25,11 +35,11 @@ public class ZapcRypcxxBean implements Serializable, Zapcxx {
         this.pcrybh = pcrybh;
     }
 
-    public String getGzbh() {
+    public long getGzbh() {
         return gzbh;
     }
 
-    public void setGzbh(String gzbh) {
+    public void setGzbh(long gzbh) {
         this.gzbh = gzbh;
     }
 
@@ -89,14 +99,12 @@ public class ZapcRypcxxBean implements Serializable, Zapcxx {
         this.jccfx = jccfx;
     }
 
-    public ZapcRyjbxxBean getRyjbxx() {
-        if (ryjbxx == null)
-            ryjbxx = new ZapcRyjbxxBean();
-        return ryjbxx;
+    public long getRyjbxxId() {
+        return ryjbxxId;
     }
 
-    public void setRyjbxx(ZapcRyjbxxBean ryjbxx) {
-        this.ryjbxx = ryjbxx;
+    public void setRyjbxxId(long ryjbxxId) {
+        this.ryjbxxId = ryjbxxId;
     }
 
     public String getScbj() {
@@ -105,11 +113,6 @@ public class ZapcRypcxxBean implements Serializable, Zapcxx {
 
     public void setScbj(String scbj) {
         this.scbj = scbj;
-    }
-
-    @Override
-    public int getId() {
-        return pcrybh == null ? -1 : Integer.valueOf(pcrybh);
     }
 
     @Override
@@ -124,14 +127,37 @@ public class ZapcRypcxxBean implements Serializable, Zapcxx {
 
     @Override
     public String getXxms() {
-//		return "盘查时间：" + ZaPcdjDao.changeDptModNor(rypcsj) + "\n"
-//				+ ryjbxx.getGmsfhm() + " " + ryjbxx.getXm();
-        return "";
+        return "盘查时间：" + ZaPcdjDao.changeDptModNor(rypcsj) + "\n"
+                + GlobalMethod.ifNull(xm) + "\t" + GlobalMethod.ifNull(getGmsfzh());
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getGmsfzh() {
+        return gmsfzh;
+    }
+
+    public void setGmsfzh(String gmsfzh) {
+        this.gmsfzh = gmsfzh;
+    }
+
+    public String getXm() {
+        return xm;
+    }
+
+    public void setXm(String xm) {
+        this.xm = xm;
     }
 
     @Override
     public String getGlgzbh() {
-        return gzbh;
+        return gzbh + "";
     }
 
     @Override

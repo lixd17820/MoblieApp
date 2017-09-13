@@ -7,12 +7,14 @@ import android.util.Log;
 import com.jwt.event.DownSpeedEvent;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
+import com.jwt.pojo.FrmDptCode;
 import com.jwt.pojo.FrmRoadItem;
 import com.jwt.pojo.FrmRoadSeg;
 import com.jwt.pojo.SeriousStreetBean;
 import com.jwt.pojo.SysParaValue;
 import com.jwt.pojo.VioWfdmCode;
 import com.jwt.pojo.WfxwForce;
+import com.jwt.pojo.ZapcLxxx;
 import com.jwt.update.App;
 import com.jwt.utils.DictName;
 import com.jwt.utils.GlobalConstant;
@@ -69,7 +71,7 @@ public class UpdateDictThread extends Thread {
         // int state = LOGIN_STATE;
         RestfulDao dao = RestfulDaoFactory.getDao();
         DictName[] vs = DictName.values();
-        int add = 9;
+        int add = 11;
         int len = vs.length;
         int total = len + add;
 
@@ -99,6 +101,8 @@ public class UpdateDictThread extends Thread {
         long roadItemCount = frmRoadItemBox.count();
         long roadSegCount = frmRoadSegBox.count();
         long sysParaCount = vioSysParaBox.count();
+        long dptCodeCount = bs.boxFor(FrmDptCode.class).count();
+        long lxxxCount = bs.boxFor(ZapcLxxx.class).count();
         EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, len + 4, "下载违法代码..."));
         if (wfdmCount <= 0 || savedVer.optInt(wfdmVersion) < version.optInt(wfdmVersion)) {
             WebQueryResult<String> dict2 = dao.updateOtherDict("wfdm", "1");
@@ -140,6 +144,19 @@ public class UpdateDictThread extends Thread {
             ThreadMethod.saveStreeDataInDb(dict2, box);
             ParserJson.putJsonVal(savedVer, streeVersion, version.optInt(streeVersion));
         }
+        //大平台字典
+        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, len + 10, "下载大平台字典表..."));
+        if (dptCodeCount <= 0 || savedVer.optInt(dptVersion) < version.optInt(dptVersion)) {
+            WebQueryResult<String> dict2 = dao.downloadSqlValue("select xtlb,dmlb,dmz,dmsm1,dmsm2,dmlbsm,zt from frm_dpt_code", "");
+            ThreadMethod.saveDptCodeInDb(dict2, bs.boxFor(FrmDptCode.class));
+            ParserJson.putJsonVal(savedVer, dptVersion, version.optInt(dptVersion));
+        }
+        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, len + 11, "下载盘查路线..."));
+        if (lxxxCount <= 0 || savedVer.optInt(lxxxVersion) < version.optInt(lxxxVersion)) {
+            WebQueryResult<String> dict2 = dao.downloadSqlValue("select xldm,xlxl,trffbh from v_jwt_zapc_lxxx", "");
+            ThreadMethod.saveZapcLxxxInDb(dict2, bs.boxFor(ZapcLxxx.class));
+            ParserJson.putJsonVal(savedVer, lxxxVersion, version.optInt(lxxxVersion));
+        }
         //保存版本号的数据
         SharedPreferences.Editor editor = sharedPreferences.edit();//获取编辑器
         editor.putString(dataVersion, savedVer.toString());
@@ -151,7 +168,7 @@ public class UpdateDictThread extends Thread {
     private static String codeVersion = "codeVersion",
             roadVersion = "roadVersion", wfdmVersion = "wfdmVersion",
             forceVersion = "forceVersion", sysVersion = "sysVersion",
-            streeVersion = "streeVersion";
+            streeVersion = "streeVersion", dptVersion = "dptVersion", lxxxVersion = "lxxxVersion";
 
     /**
      * 保存数据到字典表数据库中
@@ -161,7 +178,7 @@ public class UpdateDictThread extends Thread {
     private void downloadFrmCode(RestfulDao dao, DictName[] vs, int add, JSONObject savedVer, JSONObject version) {
         int servceVersion = version.optInt(codeVersion);
         boolean isNeed = savedVer.optInt(codeVersion) < servceVersion;
-        if(isNeed)
+        if (isNeed)
             frmCodeBox.removeAll();
         int total = vs.length + add;
         EventBus.getDefault().post(new DownSpeedEvent("联网下载数据", total, 0, "联网下载中"));

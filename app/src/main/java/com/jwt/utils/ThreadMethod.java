@@ -1,11 +1,13 @@
 package com.jwt.utils;
 
+import com.jwt.pojo.FrmDptCode;
 import com.jwt.pojo.FrmRoadItem;
 import com.jwt.pojo.FrmRoadSeg;
 import com.jwt.pojo.SeriousStreetBean;
 import com.jwt.pojo.SysParaValue;
 import com.jwt.pojo.VioWfdmCode;
 import com.jwt.pojo.WfxwForce;
+import com.jwt.pojo.ZapcLxxx;
 import com.jwt.web.WebQueryResult;
 
 import org.json.JSONArray;
@@ -126,6 +128,44 @@ public class ThreadMethod {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 SeriousStreetBean c = ParserJson.parseJsonToObj(obj, SeriousStreetBean.class);
+                codes.add(c);
+            }
+            if (codes != null && codes.size() > 0) {
+                box.put(codes);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveDptCodeInDb(WebQueryResult<String> data, Box<FrmDptCode> box) {
+        box.removeAll();
+        String re = data.getResult();
+        List<FrmDptCode> codes = new ArrayList<>();
+        try {
+            JSONArray array = new JSONArray(re);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                FrmDptCode c = ParserJson.parseJsonToObj(obj, FrmDptCode.class);
+                codes.add(c);
+            }
+            if (codes != null && codes.size() > 0) {
+                box.put(codes);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveZapcLxxxInDb(WebQueryResult<String> data, Box<ZapcLxxx> box) {
+        box.removeAll();
+        String re = data.getResult();
+        List<ZapcLxxx> codes = new ArrayList<>();
+        try {
+            JSONArray array = new JSONArray(re);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                ZapcLxxx c = ParserJson.parseJsonToObj(obj, ZapcLxxx.class);
                 codes.add(c);
             }
             if (codes != null && codes.size() > 0) {

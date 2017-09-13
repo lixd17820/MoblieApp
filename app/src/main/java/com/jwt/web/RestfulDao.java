@@ -36,10 +36,10 @@ import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.TypeCenvert;
 import com.jwt.utils.ZipUtils;
-import com.jwt.zapc.ZapcGzxxBean;
+import com.jwt.pojo.ZapcGzxxBean;
 import com.jwt.zapc.ZapcReturn;
-import com.jwt.zapc.ZapcRypcxxBean;
-import com.jwt.zapc.ZapcWppcxxBean;
+import com.jwt.pojo.ZapcRypcxxBean;
+import com.jwt.pojo.ZapcWppcxxBean;
 
 
 import org.json.JSONException;

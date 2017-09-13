@@ -1,10 +1,19 @@
-package com.jwt.zapc;
+package com.jwt.pojo;
+
+import com.jwt.dao.ZaPcdjDao;
+import com.jwt.utils.GlobalData;
+import com.jwt.utils.GlobalMethod;
 
 import java.io.Serializable;
 
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
 
+@Entity
 public class ZapcWppcxxBean implements Serializable, Zapcxx {
 
+	@Id
+	long id;
 	private String xlpcwpbh; // '巡逻盘查物品编号';
 	private String bpcwpgzqkbh; // '盘查物品工作情况编号';
 	private String bpcwprybh; // '盘查物品人员编号';
@@ -189,15 +198,19 @@ public class ZapcWppcxxBean implements Serializable, Zapcxx {
 	}
 
 	@Override
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@Override
 	public String getGlgzbh() {
 		return bpcwpgzqkbh;
 	}
 
-	@Override
-	public int getId() {
-		// TODO Auto-generated method stub
-		return xlpcwpbh == null ? -1 : Integer.valueOf(xlpcwpbh);
-	}
 
 	@Override
 	public int getPcZl() {
@@ -211,12 +224,12 @@ public class ZapcWppcxxBean implements Serializable, Zapcxx {
 
 	@Override
 	public String getXxms() {
-//		return "盘查时间："
-//				+ ZaPcdjDao.changeDptModNor(bpcwppcsj)
-//				+ "\n"
-//				+ GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList,
-//						clhpzl) + "\t车号：" + bhy;
-		return "";
+		return "盘查时间："
+				+ ZaPcdjDao.changeDptModNor(bpcwppcsj)
+				+ "\n"
+				+ GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList,
+						clhpzl) + "\t车号：" + bhy;
+		//return "";
 	}
 
 	public String getScbj() {

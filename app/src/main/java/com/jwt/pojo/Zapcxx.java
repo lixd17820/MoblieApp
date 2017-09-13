@@ -1,11 +1,11 @@
-package com.jwt.zapc;
+package com.jwt.pojo;
 
 public interface Zapcxx {
 
 	public static final int PCRYXXZL = 0;
 	public static final int PCWPXXZL = 1;
 
-	public int getId();
+	public long getId();
 
 	public String getGlgzbh();
 

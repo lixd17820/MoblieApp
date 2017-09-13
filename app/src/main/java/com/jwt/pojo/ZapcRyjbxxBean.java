@@ -1,8 +1,14 @@
-package com.jwt.zapc;
+package com.jwt.pojo;
 
 import java.io.Serializable;
 
+import io.objectbox.annotation.Entity;
+import io.objectbox.annotation.Id;
+
+@Entity
 public class ZapcRyjbxxBean implements Serializable {
+	@Id
+	long id;
 	private String rybh;// 人员编号
 	private String gmsfhm;// 公民身份号码
 	private String xm;// 姓名
@@ -30,6 +36,10 @@ public class ZapcRyjbxxBean implements Serializable {
 	private String xzzqh;// 现住址区划
 	private String xzzxz;// 现住址详址
 	private String scbj;
+
+	public long getId() {
+		return id;
+	}
 
 	public String getRybh() {
 		return rybh;

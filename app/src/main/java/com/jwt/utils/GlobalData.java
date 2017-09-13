@@ -12,6 +12,7 @@ import android.content.ContentResolver;
 import android.text.TextUtils;
 
 import com.jwt.bean.KeyValueBean;
+import com.jwt.dao.ZaPcdjDao;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
 import com.jwt.update.App;
@@ -188,6 +189,8 @@ public class GlobalData {
         for (KeyValueBean kv : sjxmList) {
             kv.setKey("1" + kv.getKey());
         }
+        //加载大平台字典库
+        ZaPcdjDao.initZapcData(boxStore);
         isInitLoadData = true;
         return count;
     }

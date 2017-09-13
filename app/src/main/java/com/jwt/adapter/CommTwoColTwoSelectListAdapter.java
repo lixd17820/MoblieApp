@@ -16,12 +16,14 @@ import android.widget.TextView;
 public class CommTwoColTwoSelectListAdapter extends
 		ArrayAdapter<TwoColTwoSelectBean> {
 
-	Activity context;
+	private Activity context;
+	private List<TwoColTwoSelectBean> list;
 
 	public CommTwoColTwoSelectListAdapter(Activity _context,
-			List<TwoColTwoSelectBean> objects) {
-		super(_context, R.layout.comm_two_line_select_item, objects);
+			List<TwoColTwoSelectBean> list) {
+		super(_context, R.layout.comm_two_line_select_item, list);
 		this.context = _context;
+		this.list = list;
 	}
 
 	@Override
@@ -46,5 +48,9 @@ public class CommTwoColTwoSelectListAdapter extends
 		}
 		return row;
 
+	}
+
+	public List<TwoColTwoSelectBean> getList(){
+		return list;
 	}
 }

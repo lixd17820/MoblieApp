@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_relative_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+  <LinearLayout
+        android:id="@+id/bottom_but"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#aaa"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="3dip" >
+
+        <Button
+            android:id="@+id/But_save_ryxx"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="提交" />
+
+
+        <Button
+            android:id="@+id/But_end_pc"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="退出" />
+    </LinearLayout>
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_but"
+        android:layout_alignParentTop="true" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/TextView02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:text="盘查地点" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/Edit_pc_pcdd"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView02"
+                android:layout_toRightOf="@+id/TextView02" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/TextView03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_pcdd"
+                android:layout_toLeftOf="@+id/Edit_pc_pcdd"
+                android:text="盘查原因" >
+            </TextView>
+
+            <Spinner
+                android:id="@+id/Spin_pc_pcyy"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView03"
+                android:layout_toRightOf="@+id/TextView03" >
+            </Spinner>
+
+            <TextView
+                android:id="@+id/TextView04"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Spin_pc_pcyy"
+                android:layout_toLeftOf="@+id/Spin_pc_pcyy"
+                android:text="身份证号" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/Edit_pc_sfzh"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView04"
+                android:layout_toLeftOf="@+id/But_pc_cxry"
+                android:layout_toRightOf="@+id/TextView04"
+                android:hint="身份证号"
+                android:inputType="textCapCharacters" />
+
+            <Button
+                android:id="@+id/But_pc_cxry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView04"
+                android:text="查询..." >
+            </Button>
+
+            <TextView
+                android:id="@+id/TextView22"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_sfzh"
+                android:layout_toLeftOf="@+id/Edit_pc_sfzh"
+                android:text="被盘查人" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/Edit_pc_xm"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView22"
+                android:layout_toLeftOf="@+id/CheckBox_country"
+                android:layout_toRightOf="@+id/TextView22" />
+
+            <CheckBox
+                android:id="@+id/CheckBox_country"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView22"
+                android:text="全国人口" >
+            </CheckBox>
+
+            <TextView
+                android:id="@+id/TextView05"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_xm"
+                android:layout_toLeftOf="@+id/Edit_pc_sfzh"
+                android:text="性别" />
+
+            <Spinner
+                android:id="@+id/Spin_pc_xb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView05"
+                android:layout_toRightOf="@+id/TextView05" />
+
+            <TextView
+                android:id="@+id/TextView06"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView05"
+                android:layout_toRightOf="@+id/Spin_pc_xb"
+                android:text="身高" />
+
+            <EditText
+                android:id="@+id/Edit_pc_sg"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView05"
+                android:layout_toLeftOf="@+id/TextView07"
+                android:layout_toRightOf="@+id/TextView06"
+                android:hint="身高" />
+
+            <TextView
+                android:id="@+id/TextView07"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView05"
+                android:text="CM" />
+
+            <TextView
+                android:id="@+id/TextView08"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_sg"
+                android:layout_toLeftOf="@+id/Spin_pc_xb"
+                android:text="出身日期" />
+
+            <EditText
+                android:id="@+id/Edit_pc_csrq"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView08"
+                android:layout_toLeftOf="@+id/But_pc_csrq"
+                android:layout_toRightOf="@+id/TextView08"
+                android:hint="出身日期" />
+
+            <Button
+                android:id="@+id/But_pc_csrq"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView08"
+                android:text="修改日期" />
+
+            <TextView
+                android:id="@+id/TextView09"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_csrq"
+                android:layout_toLeftOf="@+id/Edit_pc_csrq"
+                android:text="文化程度" />
+
+            <Spinner
+                android:id="@+id/Spin_pc_whcd"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView09"
+                android:layout_toRightOf="@+id/TextView09" />
+
+            <TextView
+                android:id="@+id/TextView12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Spin_pc_whcd"
+                android:layout_toLeftOf="@+id/Spin_pc_whcd"
+                android:text="婚姻状况" />
+
+            <Spinner
+                android:id="@+id/Spin_pc_hy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView12"
+                android:layout_toRightOf="@+id/TextView12" />
+
+            <TextView
+                android:id="@+id/TextView11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/Spin_pc_hy"
+                android:layout_toRightOf="@+id/Spin_pc_hy"
+                android:text="兵役" />
+
+            <Spinner
+                android:id="@+id/Spin_pc_byzk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView11"
+                android:layout_toRightOf="@+id/TextView11" >
+            </Spinner>
+
+            <TextView
+                android:id="@+id/TextView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Spin_pc_byzk"
+                android:layout_toLeftOf="@+id/Spin_pc_hy"
+                android:text="宗教信仰" >
+            </TextView>
+
+            <Spinner
+                android:id="@+id/Spin_pc_zjxy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView13"
+                android:layout_toRightOf="@+id/TextView13" >
+            </Spinner>
+
+            <TextView
+                android:id="@+id/TextView10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/Spin_pc_zjxy"
+                android:layout_toRightOf="@+id/Spin_pc_zjxy"
+                android:text="民族" />
+
+            <Spinner
+                android:id="@+id/Spin_pc_mz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView10"
+                android:layout_toRightOf="@+id/TextView10" />
+
+            <TextView
+                android:id="@+id/TextView15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Spin_pc_zjxy"
+                android:layout_toLeftOf="@+id/Spin_pc_zjxy"
+                android:text="户籍区划" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_pcry_hjqh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView15"
+                android:layout_toLeftOf="@+id/But_pc_hjqh"
+                android:layout_toRightOf="@+id/TextView15"
+                android:hint="户籍区划" >
+            </EditText>
+
+            <Button
+                android:id="@+id/But_pc_hjqh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView15"
+                android:text="查询详细" >
+            </Button>
+
+            <TextView
+                android:id="@+id/TextView16"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/edit_pcry_hjqh"
+                android:layout_toLeftOf="@+id/edit_pcry_hjqh"
+                android:text="详细住址" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/Edit_pc_xxzz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView16"
+                android:layout_toRightOf="@+id/TextView16"
+                android:hint="详细住址" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/TextView17"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_xxzz"
+                android:layout_toLeftOf="@+id/Edit_pc_xxzz"
+                android:text="服务处所" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/Edit_pc_fwcs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView17"
+                android:layout_toRightOf="@+id/TextView17"
+                android:hint="服务处所" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/TextView18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_fwcs"
+                android:layout_toLeftOf="@+id/Edit_pc_fwcs"
+                android:text="联系电话" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/Edit_pc_lxdh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView18"
+                android:layout_toLeftOf="@+id/TextView19"
+                android:layout_toRightOf="@+id/TextView18"
+                android:hint="联系电话" />
+
+            <TextView
+                android:id="@+id/TextView19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView18"
+                android:layout_toLeftOf="@+id/Spin_pc_jcfx"
+                android:text="方向" />
+
+            <Spinner
+                android:id="@+id/Spin_pc_jcfx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/TextView18" >
+            </Spinner>
+
+            <TextView
+                android:id="@+id/TextView20"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Edit_pc_lxdh"
+                android:layout_toLeftOf="@+id/Edit_pc_lxdh"
+                android:text="比对结果" >
+            </TextView>
+
+            <Spinner
+                android:id="@+id/Spin_pc_bdjg"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView20"
+                android:layout_toRightOf="@+id/TextView20" >
+            </Spinner>
+
+            <TextView
+                android:id="@+id/TextView21"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/Spin_pc_bdjg"
+                android:layout_toLeftOf="@+id/Spin_pc_bdjg"
+                android:text="处理结果" >
+            </TextView>
+
+            <Spinner
+                android:id="@+id/Spin_pc_cljg"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/TextView21"
+                android:layout_toRightOf="@+id/TextView21" >
+            </Spinner>
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

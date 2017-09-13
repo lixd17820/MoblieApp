@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:id="@+id/bottom_but"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#aaa"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="3dip" >
+
+        <Button
+            android:id="@+id/But_save_wpxx"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="提交" />
+
+        <Button
+            android:id="@+id/But_end_pc"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="返回" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/bottom_but" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textView1"
+                style="@style/rel_tv"
+                android:layout_alignParentLeft="true"
+                android:layout_marginTop="10dip"
+                android:text="号牌种类 " />
+
+            <Button
+                android:id="@+id/but_wp_cxjdc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/textView1"
+                android:text="查询..." />
+
+            <Spinner
+                android:id="@+id/spin_wp_hpzl"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/textView1"
+                android:layout_toLeftOf="@+id/but_wp_cxjdc"
+                android:layout_toRightOf="@+id/textView1" />
+
+            <TextView
+                android:id="@+id/textView2"
+                style="@style/rel_tv"
+                android:layout_below="@+id/but_wp_cxjdc"
+                android:layout_toLeftOf="@+id/spin_wp_hpzl"
+                android:text="车牌号码 " />
+
+            <Spinner
+                android:id="@+id/spin_wp_hpqz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView2"
+                android:layout_toRightOf="@+id/textView2" >
+            </Spinner>
+
+            <EditText
+                android:id="@+id/edit_wp_hphm"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/spin_wp_hpqz"
+                android:layout_toRightOf="@+id/spin_wp_hpqz"
+                android:hint="车牌号码"
+                android:inputType="textCapCharacters" />
+
+            <TextView
+                android:id="@+id/textView3"
+                style="@style/rel_tv"
+                android:layout_below="@+id/edit_wp_hphm"
+                android:layout_toLeftOf="@+id/spin_wp_hpqz"
+                android:text="车辆品牌 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_wp_clpp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView3"
+                android:layout_toRightOf="@+id/textView3"
+                android:hint="车辆品牌" >
+            </EditText>
+            
+            <TextView
+                android:id="@+id/textView11"
+                style="@style/rel_tv"
+                android:layout_below="@+id/edit_wp_clpp"
+                android:layout_toLeftOf="@+id/edit_wp_clpp"
+                android:text="车辆型号 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_wp_clxh"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView11"
+                android:layout_toRightOf="@+id/textView11"
+                android:hint="车辆型号" >
+            </EditText>
+            <TextView
+                android:id="@+id/textView12"
+                style="@style/rel_tv"
+                android:layout_below="@+id/edit_wp_clxh"
+                android:layout_toLeftOf="@+id/edit_wp_clxh"
+                android:text="车所有人 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_wp_syr"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView12"
+                android:layout_toRightOf="@+id/textView12"
+                android:hint="车所有人" >
+            </EditText>
+            <TextView
+                android:id="@+id/textView13"
+                style="@style/rel_tv"
+                android:layout_below="@+id/edit_wp_syr"
+                android:layout_toLeftOf="@+id/edit_wp_syr"
+                android:text="证件号码 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_wp_sfzmhm"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView13"
+                android:layout_toRightOf="@+id/textView13"
+                android:hint="证件号码" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/textView4"
+                style="@style/rel_tv"
+                android:layout_below="@+id/edit_wp_sfzmhm"
+                android:layout_toLeftOf="@+id/edit_wp_sfzmhm"
+                android:text="发动机号 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_wp_fdjh"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView4"
+                android:layout_toRightOf="@+id/textView4"
+                android:hint="发动机号" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/textView5"
+                style="@style/rel_tv"
+                android:layout_below="@+id/edit_wp_fdjh"
+                android:layout_toLeftOf="@+id/edit_wp_fdjh"
+                android:text="识别代码 " >
+            </TextView>
+
+            <EditText
+                android:id="@+id/edit_wp_sbdm"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView5"
+                android:layout_toRightOf="@+id/textView5"
+                android:hint="识别代码" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/textView6"
+                style="@style/rel_tv"
+                android:layout_below="@+id/edit_wp_sbdm"
+                android:layout_toLeftOf="@+id/edit_wp_sbdm"
+                android:text="盘查原因 " >
+            </TextView>
+
+            <Spinner
+                android:id="@+id/spin_wp_pcyy"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView6"
+                android:layout_toRightOf="@+id/textView6" >
+            </Spinner>
+
+            <TextView
+                android:id="@+id/textView7"
+                style="@style/rel_tv"
+                android:layout_below="@+id/spin_wp_pcyy"
+                android:layout_toLeftOf="@+id/spin_wp_pcyy"
+                android:text="处理结果 " >
+            </TextView>
+
+            <Spinner
+                android:id="@+id/spin_wp_cljg"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/textView7"
+                android:layout_toRightOf="@+id/textView7" >
+            </Spinner>
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

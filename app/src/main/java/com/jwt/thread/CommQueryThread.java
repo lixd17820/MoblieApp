@@ -9,6 +9,7 @@ import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.SchoolZtzBean;
 import com.jwt.bean.TruckCheckBean;
 import com.jwt.bean.WfxwCllxCheckBean;
+import com.jwt.event.CommEvent;
 import com.jwt.globalquery.GlobalQueryResult;
 import com.jwt.jbyw.VioDrvBean;
 import com.jwt.jbyw.VioVehBean;
@@ -23,8 +24,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.List;
-
-import io.objectbox.annotation.Entity;
 
 /**
  * Created by lixiaodong on 2017/9/8.
@@ -45,6 +44,7 @@ public class CommQueryThread extends Thread {
     public static final int JSON_QUERY_VEH = 702;
     public static final int QUERY_SCHOOL = 600;
     public static final int CHECK_DRV_VEH = 800;
+    public static final String RESULT_QYMC = "RESULT_QYMC";
     private int queryCata;
     private String[] params;
     private ProgressDialog progressDialog;
@@ -94,7 +94,16 @@ public class CommQueryThread extends Thread {
             EventBus.getDefault().post(wr);
         } else if (queryCata == QUERY_FXCZF_RKQK) {
             WebQueryResult<String> re = dao.queryFxcRkqk(params[0]);
-            EventBus.getDefault().post(re);
+            String err = GlobalMethod.getErrorMessageFromWeb(re);
+            CommEvent event = new CommEvent();
+            if(!TextUtils.isEmpty(err)){
+                event.setStatus(0);
+                event.setMessage(err);
+            }else{
+                event.setStatus(200);
+                event.setMessage(re.getResult());
+            }
+            EventBus.getDefault().post(event);
         } else if (queryCata == DEL_PHOTO_FILE) {
             int row = 0;
             if (params != null && params.length > 0) {

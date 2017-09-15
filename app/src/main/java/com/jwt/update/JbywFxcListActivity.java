@@ -26,18 +26,23 @@ import com.jwt.adapter.OnSpinnerItemSelected;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.TwoColTwoSelectBean;
 import com.jwt.dao.FxczfDao;
+import com.jwt.event.CommEvent;
 import com.jwt.pojo.VioFxcFileBean;
 import com.jwt.pojo.VioFxczfBean;
 import com.jwt.printer.BlueToothPrint;
 import com.jwt.printer.JdsPrintBean;
 import com.jwt.printer.PrintJdsTools;
+import com.jwt.thread.CommQueryThread;
 import com.jwt.thread.FxcListUploadThread;
-import com.jwt.thread.QueryDrvVehThread;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.GlobalSystemParam;
 import com.jwt.web.WebQueryResult;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -78,6 +83,7 @@ public class JbywFxcListActivity extends CommTwoRowSelectAcbarListActivity {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         self = this;
+        EventBus.getDefault().register(this);
         setContentView(R.layout.fxczf_show_list);
         btnUpload = (Button) findViewById(R.id.btn_two);
         btnUpload.setText("上传");
@@ -458,37 +464,24 @@ public class JbywFxcListActivity extends CommTwoRowSelectAcbarListActivity {
             if (ac != null) {
                 if (catalog == HANDLER_CATALOG_UPLOAD_FXCZF)
                     ac.handleUploadMessage(msg);
-                else if (catalog == HANDLER_CATALOG_QUERY_RKQK)
-                    ac.handlerQueryRkqk(msg);
-                else if (catalog == HANDLER_CATALOG_DEL_FILE) {
+                else if (catalog == HANDLER_CATALOG_QUERY_RKQK) {
+                    //ac.handlerQueryRkqk(msg);
+                }else if (catalog == HANDLER_CATALOG_DEL_FILE) {
                     ac.referView();
                 }
             }
         }
     }
 
-    /**
-     * 入库情况查询
-     *
-     * @param msg
-     */
-    private void handlerQueryRkqk(Message msg) {
-        Bundle data = msg.getData();
-        if (data == null) {
-            GlobalMethod.showErrorDialog("查询出现错误", self);
-            return;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void rkqkEvent(CommEvent event){
+        if(event.getStatus() != 200){
+            if (TextUtils.isEmpty(event.getMessage())) {
+                GlobalMethod.showErrorDialog("无查询结果", self);
+                return;
+            }
         }
-        WebQueryResult<String> re = (WebQueryResult<String>) data.get(QueryDrvVehThread.RESULT_FXCZF_RKQK);
-        String err = GlobalMethod.getErrorMessageFromWeb(re);
-        if (!TextUtils.isEmpty(err)) {
-            GlobalMethod.showErrorDialog(err, self);
-            return;
-        }
-        if (TextUtils.isEmpty(re.getResult())) {
-            GlobalMethod.showErrorDialog("无查询结果", self);
-            return;
-        }
-        GlobalMethod.showDialog("入库情况", re.getResult(), "知道了", self);
+        GlobalMethod.showDialog("入库情况", event.getMessage(), "知道了", self);
     }
 
     public void handleUploadMessage(Message msg) {
@@ -576,9 +569,11 @@ public class JbywFxcListActivity extends CommTwoRowSelectAcbarListActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         if (btp != null) {
             btp.closeConn();
         }
+
     }
 
 }

@@ -10,6 +10,7 @@ import com.jwt.pojo.WfxwForce_;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,17 +30,22 @@ public class WfdmDao {
     }
 
     public static String getQzcslxMs(String qzcslx) {
-        String lx = "";
+        List<String> name = getQzcslxMsList(qzcslx);
+        if(name == null || name.isEmpty())
+            return "";
+        return GlobalMethod.join(name, ",");
+    }
+
+    public static List<String> getQzcslxMsList(String qzcslx) {
+        List<String> name = new ArrayList<>();
         if (!TextUtils.isEmpty(qzcslx)) {
             for (int i = 0; i < qzcslx.length(); i++) {
                 String key = qzcslx.substring(i, i + 1);
-                lx += GlobalMethod.getStringFromKVListByKey(
-                        GlobalData.qzcslxList, key) + ", ";
+                name.add(GlobalMethod.getStringFromKVListByKey(
+                        GlobalData.qzcslxList, key));
             }
         }
-        if (lx.length() > 0)
-            lx = lx.substring(0, lx.length() - 1);
-        return lx;
+        return name;
     }
 
     public static List<WfxwForce> queryQzcsByCond(String where, BoxStore bs) {

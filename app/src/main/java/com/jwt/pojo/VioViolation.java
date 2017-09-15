@@ -60,6 +60,8 @@ public class VioViolation implements Serializable {
     private String scz;
     private String zjlx;
     private String otherItem;
+    private String picFile;
+    private int picScbj;
 
     // Constructors
 
@@ -435,5 +437,21 @@ public class VioViolation implements Serializable {
 
     public void setOtherItem(String otherItem) {
         this.otherItem = otherItem;
+    }
+
+    public String getPicFile() {
+        return picFile;
+    }
+
+    public void setPicFile(String picFile) {
+        this.picFile = picFile;
+    }
+
+    public int getPicScbj() {
+        return picScbj;
+    }
+
+    public void setPicScbj(int picScbj) {
+        this.picScbj = picScbj;
     }
 }

@@ -4,29 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.ntga.jwt.VioQzcsActivity">
     <item
-        android:id="@+id/save_quite"
+        android:id="@+id/query_force"
         android:orderInCategory="100"
         ntgajwt:showAsAction="ifRoom|withText"
-        android:title="保存记录" />
+        android:title="查强制代码" />
     <item
-        android:id="@+id/pre_print"
+        android:id="@+id/query_wfxw"
         android:orderInCategory="100"
         ntgajwt:showAsAction="ifRoom|withText"
-        android:title="打印文书" />
-    <item
-        android:id="@+id/print_preview"
-        android:orderInCategory="100"
-        ntgajwt:showAsAction="ifRoom|withText"
-        android:title="打印预览" />
-    <item
-        android:id="@+id/con_vio"
-        android:orderInCategory="100"
-        ntgajwt:showAsAction="ifRoom|withText"
-        android:title="连续处罚" />
-    <item
-        android:id="@+id/sys_config"
-        android:orderInCategory="100"
-        ntgajwt:showAsAction="ifRoom|withText"
-        android:title="系统参数" />
-
+        android:title="查违法代码" />
 </menu>

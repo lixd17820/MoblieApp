@@ -1,5 +1,8 @@
 package com.jwt.bean;
 
+import com.jwt.bean.TruckVehicleBean;
+import com.jwt.pojo.TruckDriverBean;
+
 import java.io.Serializable;
 
 

@@ -9,12 +9,14 @@ import com.jwt.adapter.TwoLineSelectAdapter;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.TwoLineSelectBean;
 import com.jwt.dao.ViolationDAO;
+import com.jwt.event.VioUploadEvent;
 import com.jwt.jbyw.JdsPreviewActivity;
 import com.jwt.pojo.VioViolation;
 import com.jwt.pojo.VioViolation_;
 import com.jwt.printer.BlueToothPrint;
 import com.jwt.printer.JdsPrintBean;
 import com.jwt.printer.PrintJdsTools;
+import com.jwt.thread.UploadVioThread;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
@@ -39,6 +41,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Spinner;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import io.objectbox.query.QueryBuilder;
 
@@ -68,6 +74,7 @@ public class JbywPrintJdsList extends ActionBarListActivity {
         super.onCreate(savedInstanceState);
         wslbs = createWslbs();
         self = this;
+        EventBus.getDefault().register(this);
         setContentView(R.layout.jwt_print_jds);
         // 删除过多
         ViolationDAO.delOldViolation(GlobalConstant.MAX_RECORDS,
@@ -182,8 +189,7 @@ public class JbywPrintJdsList extends ActionBarListActivity {
                     GlobalMethod.showErrorDialog("文书已上传,无需重复上传", self);
                     return true;
                 }
-                UploadViolationThread thread = new UploadViolationThread(
-                        uploadVioHandler, punish);
+                UploadVioThread thread = new UploadVioThread(punish, JbywPrintJdsList.this, true);
                 thread.doStart();
                 break;
             case R.id.menu_jds_detail:
@@ -228,35 +234,21 @@ public class JbywPrintJdsList extends ActionBarListActivity {
     /**
      * 上传处罚决定书的控制操作
      */
-    private Handler uploadVioHandler = new Handler() {
-        @SuppressWarnings("unchecked")
-        public void handleMessage(Message m) {
-            Bundle b = m.getData();
-            WebQueryResult<ZapcReturn> rs = (WebQueryResult<ZapcReturn>) b
-                    .getSerializable("queryResult");
-            String err = GlobalMethod.getErrorMessageFromWeb(rs);
-            if (TextUtils.isEmpty(err)) {
-                ZapcReturn upRe = rs.getResult();
-                if (upRe != null && TextUtils.equals(upRe.getCgbj(), "1")
-                        && upRe.getPcbh() != null && upRe.getPcbh().length > 0) {
-                    GlobalMethod.showToast("决定书已上传", self);
-                    ViolationDAO.setVioUploadStatus(upRe.getPcbh()[0], true,
-                            self.getContentResolver());
-                    String wslb = GlobalMethod.getKeyFromSpinnerSelected(spinWslb,
-                            GlobalConstant.KEY);
-                    puList = getViolationByConds(wslb);
-                    getList(puList);
-                    ((TwoLineSelectAdapter) getListView().getAdapter())
-                            .notifyDataSetChanged();
-                } else {
-                    GlobalMethod.showToast("文书上传失败", self);
-                }
-
-            } else {
-                GlobalMethod.showErrorDialog(err, self);
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void uploadVioHandler(VioUploadEvent event) {
+        if (event.scbj == 1) {
+            GlobalMethod.showToast("决定书已上传", self);
+            ViolationDAO.setVioUploadStatus(event.id, true, GlobalMethod.getBoxStore(self));
+            String wslb = GlobalMethod.getKeyFromSpinnerSelected(spinWslb,
+                    GlobalConstant.KEY);
+            puList = getViolationByConds(wslb);
+            getList(puList);
+            ((TwoLineSelectAdapter) getListView().getAdapter())
+                    .notifyDataSetChanged();
+        } else {
+            GlobalMethod.showErrorDialog(event.message, self);
         }
-    };
+    }
 
     private int getSelectItem() {
         int position = -1;
@@ -271,51 +263,10 @@ public class JbywPrintJdsList extends ActionBarListActivity {
         return position;
     }
 
-    /**
-     * 异步上传违法决定书
-     *
-     * @author lenovo
-     */
-    private class UploadViolationThread extends Thread {
-
-        private Handler mHandler;
-        private ProgressDialog progressDialog;
-        VioViolation vio;
-
-        public UploadViolationThread(Handler handler, VioViolation vio) {
-            this.mHandler = handler;
-            this.vio = vio;
-        }
-
-        public void doStart() {
-            // 显示进度对话框
-            progressDialog = ProgressDialog.show(self, "提示", "正在发送文书,请稍等...",
-                    true);
-            progressDialog.setCancelable(true);
-            this.start();
-        }
-
-        /**
-         * 线程运行
-         */
-        @Override
-        public void run() {
-            // WebQueryResult<LoginMessage> rs =
-            // ViolationDAO.uploadViolation(vio);
-            WebQueryResult<ZapcReturn> rs = ViolationDAO.uploadViolation(vio,
-                    GlobalMethod.getBoxStore(JbywPrintJdsList.this));
-            Message msg = mHandler.obtainMessage();
-            Bundle b = new Bundle();
-            b.putSerializable("queryResult", rs);
-            msg.setData(b);
-            mHandler.sendMessage(msg);
-            progressDialog.dismiss();
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         if (btp != null) {
             btp.closeConn();
         }

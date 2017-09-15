@@ -825,30 +825,30 @@ public class GlobalMethod {
     // return err;
     // }
 
-    //    public static <E> JSONObject getErrorMessageFromJson(WebQueryResult<E> re, String sjson) {
-//        JSONObject json = null;
-//        try {
-//            json = new JSONObject(sjson);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        if (json == null) {
-//            re.setStMs("查询出现错误");
-//            return null;
-//        }
-//        String err = json.optString("err");
-//        if (!TextUtils.isEmpty(json.optString("err"))) {
-//            if (TextUtils.isDigitsOnly(err)) {
-//                re.setStatus(Integer.valueOf(err));
-//            } else {
-//                re.setStMs(err);
-//            }
-//            return null;
-//        }
-//        re.setStatus(200);
-//        return json;
-//    }
-//
+    public static <E> JSONObject getErrorMessageFromJson(WebQueryResult<E> re, String sjson) {
+        JSONObject json = null;
+        try {
+            json = new JSONObject(sjson);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (json == null) {
+            re.setStMs("查询出现错误");
+            return null;
+        }
+        String err = json.optString("err");
+        if (!TextUtils.isEmpty(json.optString("err"))) {
+            if (TextUtils.isDigitsOnly(err)) {
+                re.setStatus(Integer.valueOf(err));
+            } else {
+                re.setStMs(err);
+            }
+            return null;
+        }
+        re.setStatus(200);
+        return json;
+    }
+
     public static <E> String getErrorMessageFromWeb(WebQueryResult<E> webResult) {
         String err = "";
         if (webResult == null)

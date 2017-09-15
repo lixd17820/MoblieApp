@@ -7,13 +7,21 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -22,14 +30,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.jwt.adapter.OnSpinnerItemSelected;
+import com.jwt.adapter.TwoLineSelectAdapter;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.dao.ViolationDAO;
 import com.jwt.dao.WfddDao;
 import com.jwt.dao.WfdmDao;
 import com.jwt.dao.WsglDAO;
+import com.jwt.event.VioUploadEvent;
 import com.jwt.jbyw.JdsPreviewActivity;
 import com.jwt.jbyw.VioDrvBean;
 import com.jwt.jbyw.VioVehBean;
@@ -40,6 +51,7 @@ import com.jwt.printer.BlueToothPrint;
 import com.jwt.printer.JdsPrintBean;
 import com.jwt.printer.PrintJdsTools;
 import com.jwt.thread.CommQueryThread;
+import com.jwt.thread.UploadVioThread;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
@@ -55,6 +67,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -161,6 +174,8 @@ public abstract class ViolationActivity extends AppCompatActivity {
     private final String CFZL = "cfzl";
     private final String WSLB = "wslb";
     protected String wslb, cfzl;
+    protected final int CAMER_REQUEST = 1111;
+    protected String photoName = "";
 
 
     @Override
@@ -637,6 +652,9 @@ public abstract class ViolationActivity extends AppCompatActivity {
                 String fzjg = b.getString("fzjg");
                 edFzjgms.setText(fzjg);
             }
+            if (requestCode == CAMER_REQUEST) {
+                camerResult();
+            }
         } else {
             // edWfdd.setText("");
         }
@@ -694,6 +712,8 @@ public abstract class ViolationActivity extends AppCompatActivity {
                 .getText().toString()));
         vio.setBzz(edBzz.getText().toString());
         vio.setScz(edScz.getText().toString());
+        String zjlx = GlobalMethod.getKeyFromSpinnerSelected(spZjlx, GlobalConstant.KEY);
+        vio.setZjlx(zjlx);
         //保存三个字段
         String zzmm = GlobalMethod.getKeyFromSpinnerSelected(spZzmm,
                 GlobalConstant.KEY);
@@ -853,25 +873,15 @@ public abstract class ViolationActivity extends AppCompatActivity {
     }
 
     /**
-     * 异步上传违法决定书
-     *
-     * @author lenovo
+     * 上传处罚决定书的控制操作
      */
-    protected class UploadViolationThread extends Thread {
-
-        private VioViolation vio;
-
-        public UploadViolationThread(VioViolation vio) {
-            this.vio = vio;
-        }
-
-        /**
-         * 线程运行
-         */
-        @Override
-        public void run() {
-            WebQueryResult<ZapcReturn> rs = ViolationDAO.uploadViolation(vio, GlobalMethod.getBoxStore(self));
-            EventBus.getDefault().post(rs);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void uploadVioHandler(VioUploadEvent event) {
+        if (event.scbj == 1) {
+            GlobalMethod.showToast("决定书已上传", self);
+            ViolationDAO.setVioUploadStatus(event.id, true, GlobalMethod.getBoxStore(self));
+        } else {
+            GlobalMethod.showToast(event.message, self);
         }
     }
 
@@ -1103,10 +1113,11 @@ public abstract class ViolationActivity extends AppCompatActivity {
             int checkResult = obj.optInt("checkResult");
             if (checkResult == 111) {
                 String err = saveViolation();
-                if (TextUtils.isEmpty(err))
+                if (TextUtils.isEmpty(err)) {
                     GlobalMethod.showDialog("系统信息", violation.getJdsbh()
                             + getViolationTitle() + "文书保存成功!", "确定", self);
-                else
+                    new UploadVioThread(violation, self, false).start();
+                } else
                     GlobalMethod.showErrorDialog(err, self);
                 return;
             }
@@ -1147,6 +1158,8 @@ public abstract class ViolationActivity extends AppCompatActivity {
     protected abstract String saveAndCheckVio();
 
     protected abstract String showWfdmDetail(VioWfdmCode w);
+
+    protected abstract int getCfzl();
 
     /**
      * 初始化决定书对象，类中就使用一个对象,不同的处罚加入不同的特定字段
@@ -1218,6 +1231,65 @@ public abstract class ViolationActivity extends AppCompatActivity {
         return true;
     }
 
+    protected void startTakePhoto() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = GlobalMethod.createImageFile(this,
+                    false);
+            if (photoFile != null) {
+                photoName = photoFile.getAbsolutePath();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Uri photoURI = FileProvider.getUriForFile(self, "com.jwt.update.fileprovider", photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                            photoURI);
+                } else {
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                }
+                Log.e("fxc photo", photoFile.getAbsolutePath());
+                startActivityForResult(takePictureIntent, CAMER_REQUEST);
+            }
+        }
+    }
+
+    private void camerResult() {
+        if (TextUtils.isEmpty(photoName))
+            return;
+        File image = new File(photoName);
+        Log.e("mCurrentPhotoPath", photoName);
+        if (!image.exists()) {
+            Toast.makeText(self, "照片拍摄失败", Toast.LENGTH_LONG).show();
+            return;
+        }
+        File dir = image.getParentFile();
+        String fn = image.getName();
+        dir = new File(dir, "vio");
+        if (!dir.exists())
+            dir.mkdirs();
+        File smallF = new File(dir, fn);
+        String text = "拍摄时间："
+                + new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+        Bitmap smallImage = GlobalMethod.compressBitmap(photoName, 800, text);
+        if (smallImage == null) {
+            Toast.makeText(self, "照片压缩失败", Toast.LENGTH_LONG).show();
+            return;
+        }
+        boolean isSave = GlobalMethod.savePicIntoFile(smallImage, smallF);
+        if (!isSave) {
+            Toast.makeText(self, "照片保存失败", Toast.LENGTH_LONG).show();
+            return;
+        }
+        //showImageActivity(smallF.getAbsolutePath());
+        violation.setPicFile(smallF.getAbsolutePath());
+        ViolationDAO.saveViolationIntoDB(violation, GlobalMethod.getBoxStore(self));
+        Toast.makeText(self, "照片保存成功", Toast.LENGTH_LONG).show();
+    }
+
+    protected void showImageActivity(String file) {
+        Intent intent = new Intent(self, ShowImageActivity.class);
+        intent.putExtra("image", file);
+        startActivity(intent);
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.e(TAG, "onSaveInstanceState");
@@ -1250,6 +1322,52 @@ public abstract class ViolationActivity extends AppCompatActivity {
         if (ss.containsKey(WSLB))
             wslb = ss.getString(WSLB);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.violation_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case (R.id.save_quite):
+                return menuSaveViolation();
+            case (R.id.print_preview):
+                // 预览打印
+                return menuPreviewViolation();
+            case (R.id.pre_print):
+                // 单据已保存，打印决定书
+                return menuPrintViolation();
+            case R.id.con_vio:
+                if (violation != null && isViolationSaved)
+                    showConVio(violation);
+                else
+                    GlobalMethod.showToast("请保存当前决定书", self);
+                return true;
+            case R.id.sys_config:
+                Intent intent = new Intent(self, ConfigParamSetting.class);
+                startActivity(intent);
+                return true;
+            case R.id.take_photo:
+                if (violation != null && isViolationSaved && violation.getId() > 0)
+                    startTakePhoto();
+                else
+                    GlobalMethod.showToast("请保存当前决定书", self);
+                return true;
+            case R.id.show_image:
+                if (violation != null && isViolationSaved && violation.getId() > 0 && !TextUtils.isEmpty(violation.getPicFile())) {
+                    showImageActivity(violation.getPicFile());
+                }
+                return true;
+            case R.id.upload_image:
+                return true;
+        }
+        return false;
     }
 
 }

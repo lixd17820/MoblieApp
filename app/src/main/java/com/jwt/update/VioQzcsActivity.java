@@ -102,40 +102,6 @@ public class VioQzcsActivity extends ViolationActivity {
         return "强制措施";
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.force_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case (R.id.save_quite):
-                return menuSaveViolation();
-            case (R.id.print_preview):
-                // 预览打印
-                return menuPreviewViolation();
-
-            case (R.id.pre_print):
-                // 单据已保存，打印决定书
-                return menuPrintViolation();
-            case R.id.con_vio:
-                if (violation != null && isViolationSaved)
-                    showConVio(violation);
-                else
-                    GlobalMethod.showToast("请保存当前决定书", self);
-
-                return true;
-            case R.id.sys_config:
-                Intent intent = new Intent(self, ConfigParamSetting.class);
-                startActivity(intent);
-                return true;
-        }
-        return false;
-    }
 
     protected String showWfdmDetail(VioWfdmCode w) {
         String s = w.getWfxw() + ": " + w.getWfms();
@@ -144,6 +110,11 @@ public class VioQzcsActivity extends ViolationActivity {
                 + (TextUtils.isEmpty(w.getQzcslx()) ? "无" : w.getQzcslx());
         s += "| " + (WfdmDao.isYxWfdm(w) ? "有效代码" : "无效代码");
         return s;
+    }
+
+    @Override
+    protected int getCfzl() {
+        return GlobalConstant.QZCSPZ;
     }
 
     private List<WfxwBzz> wfxws = new ArrayList<>();
@@ -176,23 +147,33 @@ public class VioQzcsActivity extends ViolationActivity {
         wfxws = xm.wfxw;
         qzxm = xm.qzcsxms;
         sjxm = xm.sjxms;
-        String s = "违法代码：";
+        String s = "违法代码：\n";
+        List<String> wbzs = new ArrayList<>();
         for (WfxwBzz w : wfxws) {
-            s += w.getWfxw() + ", ";
+            String temp = "\t\t" + w.getWfxw();
+            if (!TextUtils.isEmpty(w.getBzz())) {
+                temp += "\t标准值：" + w.getBzz();
+            }
+            if (!TextUtils.isEmpty(w.getScz())) {
+                temp += "\t实测值：" + w.getScz();
+            }
+            wbzs.add(temp);
         }
-        s += "\n强制措施项目：";
-        for (int i = 0; i < qzxm.length(); i++) {
-            String w = qzxm.substring(i, i + 1);
-            s += "\n" + GlobalMethod.getStringFromKVListByKey(GlobalData.qzcslxList, w);
+        s += GlobalMethod.join(wbzs, "\n");
+        s += "\n\n强制措施项目";
+        List<String> qzxmList = WfdmDao.getQzcslxMsList(qzxm);
+        for (String x : qzxmList) {
+            s += "\n\t\t" + x;
         }
         if (!TextUtils.isEmpty(sjxm)) {
-            s += "\n收缴项目：";
+            s += "\n\n收缴项目：";
             for (int i = 0; i < sjxm.length(); i++) {
                 String w = sjxm.substring(i, i + 1);
-                s += "\n" + GlobalMethod.getStringFromKVListByKey(GlobalData.sjxmList, w);
+                s += "\n\t\t" + GlobalMethod.getStringFromKVListByKey(GlobalData.sjxmList, "1" + w);
             }
         }
         tvQzcsDetail.setText(s);
+        //violation.setQzcslx(qzxm);
     }
 
     @Override

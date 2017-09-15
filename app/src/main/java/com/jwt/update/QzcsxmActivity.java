@@ -1,11 +1,15 @@
 package com.jwt.update;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -119,7 +123,7 @@ public class QzcsxmActivity extends AppCompatActivity {
             GlobalMethod.showErrorDialog("违法代码不可开具强制措施，请到系统配置->强制措施代码模块中查询！", this);
             return;
         }
-        String qz ="";
+        String qz = "";
         String sj = "";
         for (int i = 0; i < selQzcsxm.size(); i++) {
             if (selQzcsxm.get(i)) {
@@ -127,7 +131,7 @@ public class QzcsxmActivity extends AppCompatActivity {
                 if (xm > 9)
                     sj += (xm - 10);
                 else
-                    qz += xm ;
+                    qz += xm;
             }
         }
         if (qz.isEmpty()) {
@@ -218,12 +222,15 @@ public class QzcsxmActivity extends AppCompatActivity {
 
     private void queryAndShowWfxw(String wfdm) {
         VioWfdmCode w = WfdmDao.queryWfxwByWfdm(wfdm, GlobalMethod.getBoxStore(this));
-        String xm = GlobalMethod.getStringFromKVListByKey(GlobalData.qzcslxList, w.getQzcslx());
         if (w != null) {
             String s = w.getWfxw() + ": " + w.getWfms();
             // 强制措施将显示收缴或扣留项目
-            s += "\n强制措施  "
-                    + (TextUtils.isEmpty(xm) ? "无" : xm);
+            s += "\n强制措施  " ;
+            if(!TextUtils.isEmpty(w.getQzcslx())){
+                s += WfdmDao.getQzcslxMs(w.getQzcslx());
+            }else{
+                s += "无";
+            }
             s += "| " + (WfdmDao.isYxWfdm(w) ? "有效代码" : "无效代码");
             tvWfxwms.setText(s);
         } else {
@@ -265,8 +272,11 @@ public class QzcsxmActivity extends AppCompatActivity {
         ImageView img = (ImageView) v.findViewById(R.id.image1);
         Integer xm = qzcsxmList.get(pos);
         boolean isSel = selQzcsxm.get(pos);
-        tv.setText(GlobalMethod.getStringFromKVListByKey(
-                xm < 10 ? GlobalData.qzcslxList : GlobalData.sjxmList, xm + ""));
+        boolean isQz = xm < 10;
+        String name = GlobalMethod.getStringFromKVListByKey(
+                isQz ? GlobalData.qzcslxList : GlobalData.sjxmList, xm + "");
+        name = (isQz ? "  强制措施  -->  ":"  收缴项目  -->  ") + name;
+        tv.setText(name);
         img.setImageResource(isSel ? R.drawable.ic_check_box_black_24dp :
                 R.drawable.ic_check_blank_black_24dp);
         qzcsxmView.addView(v);
@@ -332,5 +342,30 @@ public class QzcsxmActivity extends AppCompatActivity {
                 R.drawable.ic_check_blank_black_24dp);
         Log.e("click view", isSel + "");
         selQzcsxm.set(pos, isSel);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.force_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case (R.id.query_force): {
+                Intent intent = new Intent(this, ConfigWfdmForceActivity.class);
+                startActivity(intent);
+            }
+            return true;
+            case (R.id.query_wfxw): {
+                Intent intent = new Intent(this, ConfigWfdmActivity.class);
+                startActivity(intent);
+            }
+            return true;
+        }
+        return false;
     }
 }

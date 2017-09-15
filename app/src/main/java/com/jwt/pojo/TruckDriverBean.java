@@ -1,11 +1,11 @@
-package com.jwt.bean;
+package com.jwt.pojo;
 
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class TruckDriverBean implements Serializable {
 
-	private String id;
+	long id;
 	private String vehId;
 	private String xm;
 	private String dabh;
@@ -15,11 +15,11 @@ public class TruckDriverBean implements Serializable {
 	private String sjhm;
 	private String lxdz;
 
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

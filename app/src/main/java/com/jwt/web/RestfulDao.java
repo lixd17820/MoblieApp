@@ -16,7 +16,7 @@ import com.jwt.bean.SpringKcdjBean;
 import com.jwt.bean.SpringWhpdjBean;
 import com.jwt.bean.TTViolation;
 import com.jwt.bean.TruckCheckBean;
-import com.jwt.bean.TruckDriverBean;
+import com.jwt.pojo.TruckDriverBean;
 import com.jwt.bean.TruckVehicleBean;
 import com.jwt.bean.UpdateFile;
 import com.jwt.globalquery.CxMenus;
@@ -70,6 +70,7 @@ import okhttp3.Response;
 
 public abstract class RestfulDao {
 
+
     private boolean isDebug = false;
 
     public final static int GET = 0;
@@ -94,6 +95,7 @@ public abstract class RestfulDao {
     private String UPLOADREP = URL_PATH + "uploadRepair";
     protected String UPLOAD_REP_PIC = URL_PATH + "uploadRepairPic";
     private String UPLOADVIO = URL_PATH + "uploadVio";
+    private String UPLOADVIO_MOBILE = URL_PATH + "uploadViolationMobile";
     private String GAIN_VIO_BILL = URL_PATH + "gainVioBill";
     private String BACK_VIO_BILL = URL_PATH + "backVioBill";
 
@@ -468,6 +470,22 @@ public abstract class RestfulDao {
             e.printStackTrace();
         }
         return re;
+    }
+
+    /**
+     * 上传简易处罚
+     *
+     * @param vio
+     * @return
+     */
+    public WebQueryResult<String> uploadViolationMobile(JSONObject vio) {
+        try {
+            WebQueryResult<String> re = httpTextClient(getUrl() + UPLOADVIO_MOBILE, POST, "param", vio.toString());
+            return re;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -1370,6 +1388,7 @@ public abstract class RestfulDao {
             Log.e("ResultDao", "code: " + code);
             if (response.isSuccessful()) {
                 String s = response.body().string();
+                Log.e("ResultDao", "return: " + s);
                 web.setResult(s);
             }
         } catch (IOException e) {

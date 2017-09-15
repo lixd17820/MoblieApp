@@ -79,12 +79,7 @@ public class VioJycxActivity extends ViolationActivity {
         rl.setVisibility(View.GONE);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.punish_menu, menu);
-        return true;
-    }
+
 
     @Override
     protected String saveAndCheckVio() {
@@ -123,32 +118,7 @@ public class VioJycxActivity extends ViolationActivity {
         return err;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()) {
-            case (R.id.save_quite):
-                return menuSaveViolation();
-            case (R.id.print_preview):
-                // 预览打印
-                return menuPreviewViolation();
-
-            case (R.id.pre_print):
-                // 单据已保存，打印决定书
-                return menuPrintViolation();
-            case R.id.con_vio:
-                if (violation != null && isViolationSaved)
-                    showConVio(violation);
-                else
-                    GlobalMethod.showToast("请保存当前决定书", self);
-                return true;
-            case R.id.sys_config:
-                Intent intent = new Intent(self, ConfigParamSetting.class);
-                startActivity(intent);
-                return true;
-        }
-        return false;
-    }
 
     @Override
     public void onBackPressed() {
@@ -163,6 +133,11 @@ public class VioJycxActivity extends ViolationActivity {
         s += "| 警告 " + (TextUtils.equals(w.getJgbj(), "1") ? "是" : "否");
         s += "|" + (WfdmDao.isYxWfdm(w) ? "有效代码" : "无效代码");
         return s;
+    }
+
+    @Override
+    protected int getCfzl() {
+        return GlobalConstant.JYCFJDS;
     }
 
     @Override

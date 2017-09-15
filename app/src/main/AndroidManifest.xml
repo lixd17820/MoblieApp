@@ -99,7 +99,7 @@
         <activity android:name=".AcdSsZrTjjgActivity" />
         <activity android:name=".AcdTakePhotoActivity" />
         <activity android:name=".AcdPhotoListActivity" />
-        <activity android:name=".QzcsxmActivity"/>
+        <activity android:name=".QzcsxmActivity" />
         <activity android:name=".JbywFxcShowActivity" />
         <activity android:name=".RepairJtssActivity" />
         <activity android:name=".RepairShowListActivity" />
@@ -108,6 +108,7 @@
         <activity android:name=".ZapcGzxxListActivity" />
         <activity android:name=".ZapcJdcActivity" />
         <activity android:name=".ZapcXzqhListActitivy" />
+        <activity android:name=".JbywSchoolVehActivity" />
     </application>
 
 </manifest>

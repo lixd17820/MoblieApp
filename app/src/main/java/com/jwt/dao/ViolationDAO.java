@@ -4,6 +4,8 @@ import android.content.ContentResolver;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.jwt.bean.KeyValueBean;
+import com.jwt.bean.WfxwBzz;
 import com.jwt.pojo.VioViolation;
 import com.jwt.pojo.VioViolation_;
 import com.jwt.pojo.FrmCode;
@@ -12,12 +14,16 @@ import com.jwt.pojo.VioWfdmCode;
 import com.jwt.update.JbywPrintJdsDetailActivity;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.ParserJson;
+import com.jwt.web.RestfulDao;
+import com.jwt.web.RestfulDaoFactory;
 import com.jwt.web.WebQueryResult;
 import com.jwt.zapc.ZapcReturn;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -122,9 +128,23 @@ public class ViolationDAO {
         return obj.toString();
     }
 
-    public static WebQueryResult<ZapcReturn> uploadViolation(VioViolation vio,
+    public static WebQueryResult<String> uploadViolation(VioViolation vio,
                                                              BoxStore bs) {
-        return null;
+        RestfulDao dao = RestfulDaoFactory.getDao();
+        JSONObject vobj = ParserJson.objToJson(vio);
+        try {
+            JSONArray array = new JSONArray(vio.getWfxw());
+            vobj.put("wfxw", array);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            JSONObject temp = new JSONObject(vio.getGzxm());
+            vobj.put("gzxm", temp);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return dao.uploadViolationMobile(vobj);
     }
 
     public static long saveViolationIntoDB(VioViolation violation, BoxStore bs) {
@@ -141,12 +161,20 @@ public class ViolationDAO {
         return c > 0;
     }
 
-    public static void setVioUploadStatus(String s, boolean b, ContentResolver contentResolver) {
-    }
-
     public static void uploadViolationRkxx(String jdsbh, String cwms, JbywPrintJdsDetailActivity jbywPrintJdsDetailActivity) {
     }
 
     public static void delOldViolation(int maxRecords, BoxStore boxStore) {
+    }
+
+    public static ArrayList<KeyValueBean> getAllFrmCode(String jtfs, String dmz, String dmsm1, BoxStore boxStore) {
+        return null;
+    }
+
+    public static void setVioUploadStatus(long id, boolean b, BoxStore boxStore) {
+        Box<VioViolation> box = boxStore.boxFor(VioViolation.class);
+        VioViolation v = box.get(id);
+        v.setScbj(b ? "1" : "0");
+        box.put(v);
     }
 }

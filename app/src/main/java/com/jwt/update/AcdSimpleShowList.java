@@ -306,8 +306,7 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
         final List<AcdSimpleHumanBean> humans = AcdSimpleDao
                 .queryHumanByCond(acd.getId(), GlobalMethod.getBoxStore(self));
         UploadAcdHandler handler = new UploadAcdHandler(this);
-        CommUploadThread thread = new CommUploadThread(handler,
-                CommUploadThread.UPLOAD_ACD, new Object[]{acd, humans}, self);
+        CommUploadThread thread = new CommUploadThread(CommUploadThread.UPLOAD_ACD, new Object[]{acd, humans}, self);
         thread.doStart();
     }
 

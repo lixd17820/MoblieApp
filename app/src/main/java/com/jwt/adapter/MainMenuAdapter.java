@@ -72,7 +72,6 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.MenuVi
             lp.height = (parent.getMeasuredHeight() - (margin * 2 * cols)) / cols;
         }
         lp.setMargins(0, margin, 0, margin);
-        Log.e("height", lp.height + "");
         view.setLayoutParams(lp);
         return new MenuViewHolder(view, clickListener);
     }

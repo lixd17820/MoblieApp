@@ -21,11 +21,16 @@ import com.jwt.adapter.MainMenuAdapter;
 import com.jwt.adapter.MainMenuAdapter.MenuClickListener;
 import com.jwt.bean.MenuGridBean;
 import com.jwt.bean.MenuOptionBean;
+import com.jwt.event.MenuPosEvent;
 import com.jwt.utils.ConnCata;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.MenuParser;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -41,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         self = this;
+        EventBus.getDefault().register(this);
         String mjxx = GlobalMethod.getSavedInfo(self, "mjxx");
         if (TextUtils.isEmpty(mjxx)) {
             Intent intent = new Intent(self, LoginActivity.class);
@@ -104,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra(m.getDataName(), m.getData());
                     }
                     intent.putExtra("title", m.getMenuName());
+                    intent.putExtra("position", position);
                     startActivity(intent);
                 }
             }
@@ -158,6 +165,22 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void menuBackEvent(MenuPosEvent event) {
+        int pos = event.getPos();
+        Log.e("Main activity", "return " + pos);
+        boolean isBadge = event.isBadge();
+        MenuOptionBean m = menuOptionList.get(pos);
+        m.setBadge(isBadge);
+        menusAdapter.notifyItemChanged(pos);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }
 

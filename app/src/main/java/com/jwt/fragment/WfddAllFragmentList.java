@@ -3,6 +3,8 @@ package com.jwt.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jwt.adapter.OneLineSelectAdapter;
 import com.jwt.adapter.TextWatcherImpl;
 import com.jwt.bean.KeyValueBean;
@@ -20,9 +22,12 @@ import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -239,10 +244,11 @@ public class WfddAllFragmentList extends ListFragment {
                     editLdmc.setText(curWfdd.getLdmc() + "0公里0米");
                     dDialog.show();
                 } else {
-                    if (ptDialog == null)
-                        createPtDialog();
-                    editPtLdmc.setText(curWfdd.getLdmc());
-                    ptDialog.show();
+                    //if (ptDialog == null)
+                    //    createPtDialog();
+                    //editPtLdmc.setText(curWfdd.getLdmc());
+                    //ptDialog.show();
+                    showDialog(curWfdd.getLdmc());
                 }
             } else if (v == btnFind) {
                 wfddList.clear();
@@ -277,6 +283,53 @@ public class WfddAllFragmentList extends ListFragment {
             }
         }
     };
+
+    private void showDialog(String preText) {
+        new MaterialDialog.Builder(self)
+                .content("请输入自定义地点：")
+                .positiveText("确定")
+                .input("请输入自定义地点名称", preText, false, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        Log.e("dialog", dialog.getInputEditText().getText().toString());
+                        String ldmc = dialog.getInputEditText().getText().toString();
+                        if (TextUtils.isEmpty(ldmc)) {
+                            Toast.makeText(self, "路段名称不能为空", Toast.LENGTH_LONG)
+                                    .show();
+                            return;
+                        }
+                        FavorWfdd favor = new FavorWfdd();
+                        favor.setDldm(curWfdd.getDldm());
+                        favor.setFavorLdmc(ldmc);
+                        favor.setLddm(curWfdd.getLddm());
+                        favor.setMs("000");
+                        favor.setSysLdmc(curWfdd.getLdmc());
+                        favor.setXzqh(curWfdd.getXzqh());
+                        if (isAddFavor) {
+                            int re = WfddDao.addFavorWfdd(favor, GlobalMethod.getBoxStore(self));
+                            Toast.makeText(self, re > 0 ? "自选路段加入成功" : "存在重复自选地点名称", Toast.LENGTH_LONG)
+                                    .show();
+                        } else {
+                            Intent i = new Intent();
+                            Bundle b = new Bundle();
+                            b.putString(
+                                    "wfddDm",
+                                    favor.getXzqh() + favor.getDldm()
+                                            + favor.getLddm() + favor.getMs());
+                            b.putString("wfddMc", favor.getFavorLdmc());
+                            i.putExtras(b);
+                            self.setResult(Activity.RESULT_OK, i);
+                            self.finish();
+                        }
+                    }
+                }).show();
+    }
 
     private void referView() {
         wfddLineList.clear();

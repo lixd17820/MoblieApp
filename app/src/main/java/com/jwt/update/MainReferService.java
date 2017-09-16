@@ -45,6 +45,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.objectbox.Box;
 import me.leolin.shortcutbadger.ShortcutBadger;
@@ -144,19 +146,24 @@ public class MainReferService extends Service {
 //            }
 //        }, 20 * 60 * 1000, 60 * 60 * 1000);
 
-        // 与服务器进行UDP通讯，发送心跳包或GPS包
-//        new Timer("getMessage").scheduleAtFixedRate(
-//                new TimerTask() {
-//                    @Override
-//                    public void run() {
-//                        sendGpsUpdateInfo();
-//                    }
-//                }, 60 * 1000, GlobalSystemParam.uploadFreq * 60 * 1000
-//        );
         //启动报警
         initMqtt();
-
+        checkMqtt();
     }
+
+    /**
+     * 验证报警是否打开，每五分钟验证一次
+     */
+    private void checkMqtt() {
+        new Timer("check mqtt").scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (client != null)
+                    doClientConnection();
+            }
+        }, 60 * 1000, 5 * 60 * 1000);
+    }
+
 
     private void initMqtt() {
         //
@@ -198,7 +205,11 @@ public class MainReferService extends Service {
      * 连接MQTT服务器
      */
     private void doClientConnection() {
-        if (!client.isConnected() && isConnectIsNomarl()) {
+        boolean isConn = client.isConnected();
+        boolean isNetWork = isConnectIsNomarl();
+        Log.e("Main server", (isConn ? "已连接" : "无连接") + "/" + (isNetWork ? "有网络" : "无网络"));
+        if (!isConn && isNetWork) {
+            Log.e("Main server", "开始连接服务器");
             try {
                 client.connect(conOpt, null, iMqttActionListener);
             } catch (MqttException e) {
@@ -271,9 +282,9 @@ public class MainReferService extends Service {
         @Override
         public void connectionLost(Throwable arg0) {
             // 失去连接，重连
-            if (client != null && !client.isConnected()) {
-                doClientConnection();
-            }
+            //if (client != null && !client.isConnected()) {
+            //    doClientConnection();
+            //}
         }
     };
 

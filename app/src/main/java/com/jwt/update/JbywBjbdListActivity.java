@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.jwt.adapter.BjbdAdapter;
+import com.jwt.event.MenuPosEvent;
 import com.jwt.pojo.Bjbd;
 import com.jwt.pojo.Bjbd_;
 import com.jwt.utils.GlobalConstant;
@@ -46,6 +47,8 @@ public class JbywBjbdListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_jbyw_bjbd_list);
         setTitle("报警信息");
         EventBus.getDefault().register(this);
+        int position = getIntent().getIntExtra("position",0);
+        EventBus.getDefault().post(new MenuPosEvent(position));
         btnSendMes = (Button) findViewById(R.id.button_send);
         editMessage = (EditText) findViewById(R.id.edit_message);
         btnSendMes.setOnClickListener(new View.OnClickListener() {
@@ -100,7 +103,11 @@ public class JbywBjbdListActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        GlobalData.isBadger = true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
 

@@ -17,6 +17,11 @@ public class OutRestfulDao extends RestfulDao {
     }
 
     @Override
+    public String getMqttUrl() {
+       return "tcp://www.ntjxj.com:1521";
+    }
+
+    @Override
     public String getPicUrl() {
         return getUrl() + PIC_URL;
     }

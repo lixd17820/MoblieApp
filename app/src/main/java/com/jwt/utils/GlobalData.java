@@ -2,6 +2,8 @@ package com.jwt.utils;
 
 import java.security.Key;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,6 +19,8 @@ import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
 import com.jwt.update.App;
 
+import org.w3c.dom.Text;
+
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
 import io.objectbox.query.QueryBuilder;
@@ -29,6 +33,8 @@ public class GlobalData {
     // 保存决定书时验证驾驶员和机动车的方式,初始化为本地车和证
     //public static int drvCheckFs = 2;
     //public static int vehCheckFs = 2;
+
+    public static String myTopic = "clgj.320601";
 
     public static boolean isBadger = true;
 
@@ -94,6 +100,11 @@ public class GlobalData {
 
     // 工作日志中警务状态的列表
     public static ArrayList<KeyValueBean> qwztList = null;
+
+    //集成平台中报警种类字典表
+    public static ArrayList<KeyValueBean> bjzlList = new ArrayList<>();
+    //南通市管理部门六位数字典表
+    public static ArrayList<KeyValueBean> glbmList = new ArrayList<>();
 
     public static Map<String, String> grxx = null;
 
@@ -191,6 +202,32 @@ public class GlobalData {
         }
         //加载大平台字典库
         ZaPcdjDao.initZapcData(boxStore);
+        //加载预定报警
+        String bmbh = GlobalData.grxx.get(GlobalConstant.YBMBH);
+        if (!TextUtils.isEmpty(bmbh) && bmbh.length() > 6)
+            bmbh = bmbh.substring(0, 6);
+        myTopic = "clgj." + bmbh;
+        //加载管理部门
+        if (glbmList == null)
+            glbmList = new ArrayList<>();
+        glbmList.clear();
+        for (Map.Entry<String, String> entry : GlobalConstant.fxjgMap.entrySet()) {
+            glbmList.add(new KeyValueBean(entry.getKey(), entry.getValue()));
+        }
+        Collections.sort(glbmList, new Comparator<KeyValueBean>() {
+            @Override
+            public int compare(KeyValueBean o1, KeyValueBean o2) {
+                return Integer.valueOf(o1.getKey())-Integer.valueOf(o2.getKey());
+            }
+        });
+        //加载报警种类
+        if (bjzlList == null)
+            bjzlList = new ArrayList<>();
+        bjzlList.clear();
+        bjzlList.add(new KeyValueBean("1", "车辆所有人驾驶证异常"));
+        bjzlList.add(new KeyValueBean("2", "逾期未年检车辆"));
+        bjzlList.add(new KeyValueBean("3", "重点关注大客车"));
+        //
         isInitLoadData = true;
         return count;
     }

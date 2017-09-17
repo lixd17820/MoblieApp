@@ -62,10 +62,4 @@
         android:inputType="text" >
     </EditText>
 
-    <Button
-        android:id="@+id/btn_wfdd_dialog_favor_ok"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_ok" />
-
 </LinearLayout>

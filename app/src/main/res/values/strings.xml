@@ -119,4 +119,9 @@
     <string name="add">Add</string>
     <string name="click_to_remove">Click a note to remove it</string>
     <string name="bjbd_config">配置报警</string>
+    <string name="bjbd_fw">报警范围</string>
+    <string name="bjbd_zl">报警种类</string>
+    <string name="choose">选择</string>
+    <string name="conn_status">连接状态</string>
+    <string name="open_conn">打开连接</string>
 </resources>

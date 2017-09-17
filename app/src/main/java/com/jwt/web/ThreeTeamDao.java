@@ -40,6 +40,11 @@ public class ThreeTeamDao extends RestfulDao {
     }
 
     @Override
+    public String getMqttUrl() {
+        return "tcp://127.0.0.1:8099";
+    }
+
+    @Override
     public String getPicUrl() {
         return getUrl() + PIC_URL;
     }

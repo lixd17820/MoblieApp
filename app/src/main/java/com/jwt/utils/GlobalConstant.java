@@ -27,7 +27,7 @@ public class GlobalConstant {
         fxjgMap.put("320607", "七大队");
         fxjgMap.put("320608", "高一大队");
         fxjgMap.put("320609", "九大队");
-        fxjgMap.put("320610", "科技大队");
+        fxjgMap.put("320610", "十大队");
         fxjgMap.put("320611", "高二大队");
         fxjgMap.put("320612", "高三大队");
         fxjgMap.put("320613", "高四大队");
@@ -40,7 +40,7 @@ public class GlobalConstant {
         fxjgMap.put("320682", "如皋大队");
         fxjgMap.put("320683", "通州大队");
         fxjgMap.put("320684", "海门大队");
-        fxjgMap.put("320615", "高五大队");
+
         xsfxMap = new HashMap<String, String>();
         xsfxMap.put("0", "由北向南");
         xsfxMap.put("1", "由西向东");

@@ -53,8 +53,7 @@ public class WfddAllFragmentList extends ListFragment {
 
     private ContentResolver resolver;
 
-    private Dialog dDialog = null;
-    private Dialog ptDialog = null;
+    private MaterialDialog mdialog = null;
 
     private WfddBean curWfdd;
 
@@ -87,58 +86,16 @@ public class WfddAllFragmentList extends ListFragment {
         referView();
     }
 
-    private void createPtDialog() {
-        ptDialog = new Dialog(self);
-        ptDialog.setContentView(R.layout.wfdd_gsd_no_dlmc);
-        ptDialog.setTitle("编辑普通道路名称信息");
-        editPtLdmc = (EditText) ptDialog.findViewById(R.id.edit_wfdd_ldmc);
-        ptDialog.findViewById(R.id.btn_wfdd_dialog_favor_ok)
-                .setOnClickListener(new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(View v) {
-                        String ldmc = editPtLdmc.getText().toString();
-                        if (TextUtils.isEmpty(ldmc)) {
-                            Toast.makeText(self, "路段名称不能为空", Toast.LENGTH_LONG)
-                                    .show();
-                            return;
-                        }
-                        FavorWfdd favor = new FavorWfdd();
-                        favor.setDldm(curWfdd.getDldm());
-                        favor.setFavorLdmc(ldmc);
-                        favor.setLddm(curWfdd.getLddm());
-                        favor.setMs("000");
-                        favor.setSysLdmc(curWfdd.getLdmc());
-                        favor.setXzqh(curWfdd.getXzqh());
-                        ptDialog.dismiss();
-                        if (isAddFavor) {
-                            int re = WfddDao.addFavorWfdd(favor, GlobalMethod.getBoxStore(self));
-                            Toast.makeText(self, re > 0 ? "自选路段加入成功" : "存在重复自选地点名称", Toast.LENGTH_LONG)
-                                    .show();
-                        } else {
-                            Intent i = new Intent();
-                            Bundle b = new Bundle();
-                            b.putString(
-                                    "wfddDm",
-                                    favor.getXzqh() + favor.getDldm()
-                                            + favor.getLddm() + favor.getMs());
-                            b.putString("wfddMc", favor.getFavorLdmc());
-                            i.putExtras(b);
-                            self.setResult(Activity.RESULT_OK, i);
-                            self.finish();
-                        }
-                    }
-                });
-    }
-
-    private void createDlmcDialog() {
-
-        dDialog = new Dialog(self);
-        dDialog.setContentView(R.layout.wfdd_gsd_dlmc);
-        dDialog.setTitle("编辑国省道名称信息");
-        editGls = (EditText) dDialog.findViewById(R.id.edit_wfdd_gls);
-        editMs = (EditText) dDialog.findViewById(R.id.edit_wfdd_ms);
-        editLdmc = (EditText) dDialog.findViewById(R.id.edit_wfdd_ldmc);
+    private void createMDialog() {
+        mdialog = new MaterialDialog.Builder(self)
+                .title("自定义国省道路")
+                .customView(R.layout.wfdd_gsd_dlmc, true)
+                .positiveText("确定")
+                .onPositive(sc).build();
+        editGls = (EditText) mdialog.findViewById(R.id.edit_wfdd_gls);
+        editMs = (EditText) mdialog.findViewById(R.id.edit_wfdd_ms);
+        editLdmc = (EditText) mdialog.findViewById(R.id.edit_wfdd_ldmc);
         editGls.addTextChangedListener(new TextWatcherImpl() {
 
             @Override
@@ -156,72 +113,62 @@ public class WfddAllFragmentList extends ListFragment {
                         + s + "米");
             }
         });
-        dDialog.findViewById(R.id.btn_wfdd_dialog_favor_ok).setOnClickListener(
-                new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        String gls = editGls.getText().toString();
-                        String ms = editMs.getText().toString();
-                        String ldmc = editLdmc.getText().toString();
-                        if (TextUtils.isEmpty(gls)
-                                || !TextUtils.isDigitsOnly(gls)
-                                || gls.length() > 4) {
-                            Toast.makeText(self, "公里数不能为空或不是数字",
-                                    Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        if (TextUtils.isEmpty(ms)
-                                || !TextUtils.isDigitsOnly(ms)
-                                || ms.length() > 3) {
-                            Toast.makeText(self, "米数不能为空或不是数字",
-                                    Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        if (TextUtils.isEmpty(ldmc)) {
-                            Toast.makeText(self, "路段名称不能为空", Toast.LENGTH_LONG)
-                                    .show();
-                            return;
-                        }
-                        gls = GlobalMethod.paddingZero(gls, 4);
-                        ms = GlobalMethod.paddingZero(ms, 3);
-                        FavorWfdd favor = new FavorWfdd();
-                        favor.setDldm(curWfdd.getDldm());
-                        favor.setFavorLdmc(ldmc);
-                        favor.setLddm(gls);
-                        favor.setMs(ms);
-                        favor.setSysLdmc(curWfdd.getLdmc()
-                                + Integer.valueOf(gls) + "公里"
-                                + Integer.valueOf(ms) + "米");
-                        favor.setXzqh(curWfdd.getXzqh());
-                        dDialog.dismiss();
-                        if (isAddFavor) {
-                            int re = WfddDao.addFavorWfdd(favor, GlobalMethod.getBoxStore(self));
-                            Toast.makeText(self, re > 0 ? "自选路段加入成功" : "存在重复自选地点名称", Toast.LENGTH_LONG)
-                                    .show();
-                        } else {
-                            Intent i = new Intent();
-                            Bundle b = new Bundle();
-                            b.putString(
-                                    "wfddDm",
-                                    favor.getXzqh() + favor.getDldm()
-                                            + favor.getLddm() + favor.getMs());
-                            b.putString("wfddMc", favor.getFavorLdmc());
-                            i.putExtras(b);
-                            self.setResult(Activity.RESULT_OK, i);
-                            self.finish();
-                        }
-                    }
-                });
-
-        // Button okDialogButton = (Button) jpgDialog
-        // .findViewById(R.id.okdialogbutton);
-        // okDialogButton.setOnClickListener(new View.OnClickListener() {
-        // public void onClick(View v) {
-        // jpgDialog.dismiss();
-        // }
-        // });
     }
+
+    MaterialDialog.SingleButtonCallback sc = new MaterialDialog.SingleButtonCallback() {
+        @Override
+        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+            String gls = editGls.getText().toString();
+            String ms = editMs.getText().toString();
+            String ldmc = editLdmc.getText().toString();
+            if (TextUtils.isEmpty(gls)
+                    || !TextUtils.isDigitsOnly(gls)
+                    || gls.length() > 4) {
+                Toast.makeText(self, "公里数不能为空或不是数字",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (TextUtils.isEmpty(ms)
+                    || !TextUtils.isDigitsOnly(ms)
+                    || ms.length() > 3) {
+                Toast.makeText(self, "米数不能为空或不是数字",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (TextUtils.isEmpty(ldmc)) {
+                Toast.makeText(self, "路段名称不能为空", Toast.LENGTH_LONG)
+                        .show();
+                return;
+            }
+            gls = GlobalMethod.paddingZero(gls, 4);
+            ms = GlobalMethod.paddingZero(ms, 3);
+            FavorWfdd favor = new FavorWfdd();
+            favor.setDldm(curWfdd.getDldm());
+            favor.setFavorLdmc(ldmc);
+            favor.setLddm(gls);
+            favor.setMs(ms);
+            favor.setSysLdmc(curWfdd.getLdmc()
+                    + Integer.valueOf(gls) + "公里"
+                    + Integer.valueOf(ms) + "米");
+            favor.setXzqh(curWfdd.getXzqh());
+            if (isAddFavor) {
+                int re = WfddDao.addFavorWfdd(favor, GlobalMethod.getBoxStore(self));
+                Toast.makeText(self, re > 0 ? "自选路段加入成功" : "存在重复自选地点名称", Toast.LENGTH_LONG)
+                        .show();
+            } else {
+                Intent i = new Intent();
+                Bundle b = new Bundle();
+                b.putString(
+                        "wfddDm",
+                        favor.getXzqh() + favor.getDldm()
+                                + favor.getLddm() + favor.getMs());
+                b.putString("wfddMc", favor.getFavorLdmc());
+                i.putExtras(b);
+                self.setResult(Activity.RESULT_OK, i);
+                self.finish();
+            }
+        }
+    };
 
     private View.OnClickListener ck = new View.OnClickListener() {
 
@@ -234,20 +181,15 @@ public class WfddAllFragmentList extends ListFragment {
                     Toast.makeText(self, "请选择一条记录", Toast.LENGTH_LONG).show();
                     return;
                 }
-                // FavorWfdd favor = new FavorWfdd();
                 curWfdd = wfddList.get(index);
                 if (curWfdd.isGsd()) {
-                    if (dDialog == null)
-                        createDlmcDialog();
+                    if (mdialog == null)
+                        createMDialog();
                     editGls.setText("0");
                     editMs.setText("0");
                     editLdmc.setText(curWfdd.getLdmc() + "0公里0米");
-                    dDialog.show();
+                    mdialog.show();
                 } else {
-                    //if (ptDialog == null)
-                    //    createPtDialog();
-                    //editPtLdmc.setText(curWfdd.getLdmc());
-                    //ptDialog.show();
                     showDialog(curWfdd.getLdmc());
                 }
             } else if (v == btnFind) {

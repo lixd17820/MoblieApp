@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,7 +30,10 @@ import com.jwt.pojo.Bjbd_;
 import com.jwt.pojo.FrmCode;
 import com.jwt.thread.LogoutJwtNewThread;
 import com.jwt.utils.ConnCata;
+import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
+import com.jwt.utils.GlobalMethod;
+import com.jwt.utils.GlobalSystemParam;
 import com.jwt.utils.ParserJson;
 import com.jwt.web.RestfulDao;
 import com.jwt.web.RestfulDaoFactory;
@@ -45,6 +49,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,10 +81,6 @@ public class MainReferService extends Service {
     //Mqtt client
     private static MqttAndroidClient client;
     private MqttConnectOptions conOpt;
-    private String url = "tcp://www.ntjxj.com:1521";
-    public static String myTopic = "clgj.320601";
-    private String clientId = "test";
-
     //
     private Box<Bjbd> bjbdBox;
 
@@ -98,6 +101,7 @@ public class MainReferService extends Service {
      * 登出系统
      */
     public void logoutJwt() {
+        GlobalData.isBadger = true;
         LogoutJwtNewThread logout = new LogoutJwtNewThread(logoutHandler);
         logout.doStart();
     }
@@ -165,9 +169,13 @@ public class MainReferService extends Service {
     }
 
 
-    private void initMqtt() {
+    public void initMqtt() {
         //
-        client = new MqttAndroidClient(this, url, clientId);
+        String jybh = GlobalData.grxx.get(GlobalConstant.YHBH);
+        RestfulDao dao = RestfulDaoFactory.getDao();
+        String url = dao.getMqttUrl();
+        Log.e("main url", url);
+        client = new MqttAndroidClient(this, url, jybh);
         // 设置MQTT监听并且接受消息
         client.setCallback(mqttCallback);
         conOpt = new MqttConnectOptions();
@@ -182,41 +190,59 @@ public class MainReferService extends Service {
         // 密码
         conOpt.setPassword("password".toCharArray());
         // last will message
-//        boolean doConnect = true;
-//        String message = "{\"terminal_uid\":\"" + clientId + "\"}";
-//        String topic = myTopic;
-//        Integer qos = 0;
-//        Boolean retained = false;
-//        if ((!message.equals("")) || (!topic.equals(""))) {
-//            try {
-//                conOpt.setWill(topic, message.getBytes(), qos.intValue(), retained.booleanValue());
-//            } catch (Exception e) {
-//                Log.e(TAG, "报警连接错误", e);
-//                doConnect = false;
-//                iMqttActionListener.onFailure(null, e);
-//            }
-//        }
-//        if (doConnect) {
-        doClientConnection();
-        //       }
+        boolean doConnect = isConn();
+        if (doConnect) {
+            doClientConnection();
+        }
+    }
+
+    private boolean isConn() {
+        String message = "{\"terminal_uid\":\"" + 32061247 + "\"}";
+        String topic = "info";
+        Integer qos = 0;
+        Boolean retained = false;
+        if ((!message.equals("")) || (!topic.equals(""))) {
+            try {
+                conOpt.setWill(topic, message.getBytes(), qos.intValue(), retained.booleanValue());
+            } catch (Exception e) {
+                Log.e(TAG, "报警连接错误", e);
+                iMqttActionListener.onFailure(null, e);
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * 连接MQTT服务器
      */
-    private void doClientConnection() {
+    public void doClientConnection() {
         boolean isConn = client.isConnected();
         boolean isNetWork = isConnectIsNomarl();
         Log.e("Main server", (isConn ? "已连接" : "无连接") + "/" + (isNetWork ? "有网络" : "无网络"));
-        if (!isConn && isNetWork) {
+        if (!isConn && isNetWork && (GlobalSystemParam.isReciveBj || GlobalSystemParam.isReciveText)) {
             Log.e("Main server", "开始连接服务器");
             try {
                 client.connect(conOpt, null, iMqttActionListener);
-            } catch (MqttException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+    }
+
+    public void closeMqttConn(){
+        if(client.isConnected()){
+            try {
+                client.disconnect();
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean isMqttConn(){
+        return client.isConnected();
     }
 
     // MQTT是否连接成功
@@ -225,14 +251,7 @@ public class MainReferService extends Service {
         @Override
         public void onSuccess(IMqttToken arg0) {
             Log.e(TAG, "报警服务连接成功 ");
-            try {
-                // 订阅myTopic话题
-                String[] topics = {myTopic, "info"};
-                int[] ops = {1, 1};
-                client.subscribe(topics, ops);
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
+            subscribeTopic();
         }
 
         @Override
@@ -242,6 +261,55 @@ public class MainReferService extends Service {
             Log.e(TAG, "连接失败 ");
         }
     };
+
+    public void subscribeTopic() {
+        try {
+            //消除所有订阅
+            String[] untopics = new String[GlobalData.glbmList.size() * 2];
+            for (int i = 0; i < GlobalData.glbmList.size(); i++) {
+                String glbm = GlobalData.glbmList.get(i).getKey();
+                untopics[i * 2] = "clgj." + glbm;
+                untopics[i * 2 + 1] = "info." + glbm;
+            }
+            //for (String un : untopics) {
+            //    Log.e("MainReferServer", "取消订阅" + un);
+            //}
+            client.unsubscribe(untopics);
+            // 订阅myTopic话题
+            List<String> list = new ArrayList<>();
+            if (GlobalSystemParam.isReciveBj) {
+                String bjfw = GlobalMethod.getSavedInfo(this, "bjfw");
+                if (!TextUtils.isEmpty(bjfw)) {
+                    String[] array = bjfw.split(",");
+                    if (array != null && array.length > 0) {
+                        for (String s : array) {
+                            list.add("clgj." + s);
+                        }
+                    }
+                }
+            }
+            if (GlobalSystemParam.isReciveText) {
+                String bmbh = GlobalData.grxx.get(GlobalConstant.YBMBH);
+                if (!TextUtils.isEmpty(bmbh) && bmbh.length() > 6)
+                    list.add("info." + bmbh.substring(0, 6));
+            }
+            if (list == null || list.isEmpty())
+                return;
+            //Log.e("MainReferServer", list.size() + "个订阅");
+            String[] topics = new String[list.size()];
+            int[] ops = new int[topics.length];
+            for (int i = 0; i < topics.length; i++) {
+                topics[i] = list.get(i);
+                ops[i] = 1;
+            }
+            for (String un : topics) {
+                Log.e("MainReferServer", "订阅" + un);
+            }
+            client.subscribe(topics, ops);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
 
     // MQTT监听并且接受消息
     private MqttCallback mqttCallback = new MqttCallback() {
@@ -305,8 +373,7 @@ public class MainReferService extends Service {
         }
     }
 
-    public static void publish(String msg) {
-        String topic = myTopic;
+    public static void publish(String msg, String topic) {
         Integer qos = 0;
         Boolean retained = false;
         try {

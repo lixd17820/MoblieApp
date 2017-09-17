@@ -2,8 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_bjbd_config"
+        android:id="@+id/menu_bjzl"
         android:orderInCategory="100"
-        android:title="@string/bjbd_config"
+        android:title="@string/bjbd_zl"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_bjfw"
+        android:orderInCategory="100"
+        android:title="@string/bjbd_fw"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_conn_status"
+        android:orderInCategory="100"
+        android:title="@string/conn_status"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_open_conn"
+        android:orderInCategory="100"
+        android:title="@string/open_conn"
         app:showAsAction="ifRoom"/>
 </menu>

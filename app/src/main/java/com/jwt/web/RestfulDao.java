@@ -1527,6 +1527,8 @@ public abstract class RestfulDao {
 
     public abstract String getUrl();
 
+    public abstract String getMqttUrl();
+
     public abstract String getClassName();
 
     public abstract String getPicUrl();

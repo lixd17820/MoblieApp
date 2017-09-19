@@ -44,6 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -75,12 +77,12 @@ public class JbywFxcShowActivity extends AppCompatActivity {
         tvScbj = (TextView) findViewById(R.id.tv_scbj);
         tvWfsj = (TextView) findViewById(R.id.tv_wfsj);
         fxczf = (VioFxczfBean) getIntent().getSerializableExtra("fxc");
-        ArrayList<VioFxcFileBean> zpList = FxczfDao.queryFxczfFileByFId(
-                fxczf.getId(), GlobalMethod.getBoxStore(self));
+        if(fxczf == null)
+            return;
         List<String> images = new ArrayList<>();
-        if (zpList != null && !zpList.isEmpty()) {
-            for (VioFxcFileBean f : zpList)
-                images.add(f.getWjdz());
+        if(!TextUtils.isEmpty(fxczf.getPics())) {
+            String[] temp = fxczf.getPics().split(",");
+           images = Arrays.asList(temp);
         }
         tvHpzl.setText("号牌种类：" + GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList, fxczf.getHpzl()));
         tvHphm.setText("号牌号码：" + fxczf.getHphm());

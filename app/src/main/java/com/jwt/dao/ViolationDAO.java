@@ -128,7 +128,7 @@ public class ViolationDAO {
         return obj.toString();
     }
 
-    public static WebQueryResult<String> uploadViolation(VioViolation vio,
+    public static WebQueryResult<ZapcReturn> uploadViolation(VioViolation vio,
                                                              BoxStore bs) {
         RestfulDao dao = RestfulDaoFactory.getDao();
         JSONObject vobj = ParserJson.objToJson(vio);
@@ -175,6 +175,13 @@ public class ViolationDAO {
         Box<VioViolation> box = boxStore.boxFor(VioViolation.class);
         VioViolation v = box.get(id);
         v.setScbj(b ? "1" : "0");
+        box.put(v);
+    }
+
+    public static void setVioPicUploadStatus(long id, boolean b, BoxStore boxStore) {
+        Box<VioViolation> box = boxStore.boxFor(VioViolation.class);
+        VioViolation v = box.get(id);
+        v.setPicScbj(b ? 1 : 0);
         box.put(v);
     }
 }

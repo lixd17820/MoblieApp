@@ -1,5 +1,7 @@
 package com.jwt.dao;
 
+import android.text.TextUtils;
+
 import com.jwt.pojo.AcdPhotoBean;
 import com.jwt.pojo.AcdPhotoBean_;
 import com.jwt.pojo.AcdSimpleBean;
@@ -11,6 +13,7 @@ import com.jwt.jbyw.AcdWfxwBean;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
 import com.jwt.utils.GlobalConstant;
+import com.jwt.utils.GlobalMethod;
 
 import java.util.List;
 
@@ -58,7 +61,8 @@ public class AcdSimpleDao {
         return box.query().equal(AcdSimpleHumanBean_.id, id).build().findUnique();
     }
 
-    public static void saveAcdSimpleScbj(String sgbh, BoxStore boxStore) {
+    public static void saveAcdSimpleScbj(long id, BoxStore boxStore) {
+        Box<AcdSimpleBean> box = boxStore.boxFor(AcdSimpleBean.class);
     }
 
     public static AcdWfxwBean getAcdWfxwByWfdm(String wfdm, BoxStore boxStore) {
@@ -81,16 +85,13 @@ public class AcdSimpleDao {
         return null;
     }
 
-    public static int updateAcdPhotoRecode(long recID, long acdID, BoxStore boxStore) {
-        return 0;
-    }
-
-    public static int updateAcdPhotoRecodeScbj(long acdID, BoxStore boxStore) {
+    public static int updateAcdPhotoRecodeScbj(long id, long acdID, BoxStore boxStore) {
         Box<AcdPhotoBean> box = boxStore.boxFor(AcdPhotoBean.class);
-        AcdPhotoBean p = box.query().equal(AcdPhotoBean_.id, acdID).build().findUnique();
+        AcdPhotoBean p = box.get(id);
         if (p == null)
             return 0;
-        p.setSgsj("1");
+        p.setScbj(1);
+        p.setXtbh(acdID + "");
         box.put(p);
         return 1;
     }
@@ -108,8 +109,9 @@ public class AcdSimpleDao {
 
     public static List<AcdPhotoBean> getAllAcdPhoto(String wsbh, BoxStore boxStore) {
         Box<AcdPhotoBean> box = boxStore.boxFor(AcdPhotoBean.class);
-        //query = box.query();
-        return box.query().build().find();
+        if(TextUtils.isEmpty(wsbh))
+            return box.getAll();
+        return box.query().equal(AcdPhotoBean_.sgbh, wsbh).build().find();
     }
 
     public static void delAcdAndHuman(long id, BoxStore boxStore) {
@@ -131,5 +133,61 @@ public class AcdSimpleDao {
         Box<AcdSimpleBean> box = boxStore.boxFor(AcdSimpleBean.class);
         box.put(acdJbqk);
         return acdJbqk.getId();
+    }
+
+    public static String createRyxxStr(AcdSimpleHumanBean human) {
+        String delimiter1 = "$$";
+        String delimiter2 = "~~";
+        String ryxx = "";
+        ryxx += delimiter1;// 无需事故编号
+        ryxx += GlobalMethod.ifNull(human.getXzqh()) + delimiter1;
+        ryxx += (human.getRybh() + 1) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getXm()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getXb()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getSfzmhm()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getNl()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getZz()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getDh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getRylx()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getShcd()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getWfxw1()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getWfxw2()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getWfxw3()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getTk1()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getTk2()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getTk3()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getZyysdw()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJtfs()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getGlxzqh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getDabh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJl()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJszzl()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getZjcx()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getCclzrq()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJsrgxd()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getFzjg()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getSgzr()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getHphm()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getHpzl()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getClfzjg()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getFdjh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getClsbdh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJdcxh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getClpp()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getClxh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getCsys()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getCllx()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJdczt()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getSyq()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJdcsyr()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getClsyxz()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getBx()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getBxgs()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getBxpzh()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getClzzwp()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getClgxd()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getCjcxbj()) + delimiter1;
+        ryxx += GlobalMethod.ifNull(human.getJyw()) + delimiter1 + delimiter2;
+        return ryxx;
     }
 }

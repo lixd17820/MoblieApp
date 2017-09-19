@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,10 +16,12 @@ import android.view.View;
 import android.widget.Button;
 
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jwt.activity.ActionBarListActivity;
 import com.jwt.adapter.GzxxListAdapter;
 import com.jwt.adapter.SelectObjectBean;
 import com.jwt.dao.ZaPcdjDao;
+import com.jwt.event.ZapcUploadEvent;
 import com.jwt.pojo.ZapcRypcxxBean;
 import com.jwt.pojo.ZapcWppcxxBean;
 import com.jwt.pojo.Zapcxx;
@@ -34,32 +34,32 @@ import com.jwt.web.WebQueryResult;
 import com.jwt.pojo.ZapcGzxxBean;
 import com.jwt.zapc.ZapcReturn;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class ZapcGzxxListActivity extends ActionBarListActivity {
     private static final int ADDGZXX = 0;
-    private static final int MENU_DELETE_GZXX = 0;
     protected static final int MENU_DETAIL_GZXX = 2;
     protected static final int MENU_CONTINUE_GZXX = 3;
-    protected static final int MENU_DELETE_ALL_GZXX = 4;
-    private static final int MENU_OVER_GZXX = 5;
     private List<SelectObjectBean<ZapcGzxxBean>> gzxxs;
-    //private List<TwoColTwoSelectBean> selList;
     private Context self;
     private GzxxListAdapter adapter;
 
-    private ProgressDialog progressDialog;
     private Button btnAdd, btnCon, btnOver, btnUpload;
     private String zqmj;
+    private MaterialDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setTheme(R.style.AppTheme);
         zqmj = GlobalData.grxx.get(GlobalConstant.YHBH);
         self = this;
+        EventBus.getDefault().register(this);
         setContentView(R.layout.zapc_gzxx_list);
         setTitle(getIntent().getStringExtra("title"));
         gzxxs = new ArrayList<>();
@@ -90,7 +90,10 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
         btnOver.setOnClickListener(btnCilck);
         btnUpload.setOnClickListener(btnCilck);
         btnCon.setOnClickListener(btnCilck);
-
+        dialog = new MaterialDialog.Builder(self)
+                .title("正在上传")
+                .content("上传中...")
+                .progress(false, 150, true).build();
     }
 
     @Override
@@ -178,9 +181,8 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
                             .showErrorDialog("工作信息中不包含人员或物品，无需上传", self);
                     return;
                 }
-                UploadZapcThread thread = new UploadZapcThread(
-                        uploadHandler);
-                thread.doStart(gzxx);
+                dialog.show();
+                new UploadZapcThread().doStart(gzxx);
             } else {
                 ZapcGzxxBean gzxx = getUnOverGzxx();
                 if (v == btnAdd) {
@@ -192,7 +194,7 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
                             ZapcGzxxActivity.class);
                     startActivityForResult(intent, ADDGZXX);
                 } else if (v == btnCon) {
-                    if(gzxx == null){
+                    if (gzxx == null) {
                         GlobalMethod.showErrorDialog("盘查全部结束,不能继续盘查", self);
                         return;
                     }
@@ -275,11 +277,9 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
 
     class UploadZapcThread extends Thread {
 
-        private Handler mHandler;
         private ZapcGzxxBean curGzxx;
 
-        public UploadZapcThread(Handler handler) {
-            this.mHandler = handler;
+        public UploadZapcThread() {
         }
 
         /**
@@ -288,21 +288,16 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
         public void doStart(ZapcGzxxBean curGzxx) {
             this.curGzxx = curGzxx;
             // 显示进度对话框
-            progressDialog = new ProgressDialog(self);
-            progressDialog.setTitle("提示");
-            progressDialog.setMessage("系统正在上传请稍等...");
-            progressDialog.setCancelable(true);
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
             this.start();
         }
 
         private String checkZapcIsUpOk(WebQueryResult<ZapcReturn> wr) {
             String error = GlobalMethod.getErrorMessageFromWeb(wr);
-            if (TextUtils.isEmpty(error)
-                    && TextUtils.equals("1", wr.getResult().getCgbj()))
+            if (!TextUtils.isEmpty(error))
+                return error;
+            if (TextUtils.equals("1", wr.getResult().getCgbj()))
                 return "";
-            return error;
+            return "未上传成功";
         }
 
         /**
@@ -310,141 +305,98 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
          */
         @Override
         public void run() {
-            int total = 0;
-            int okTotal = 0;
+            ZapcUploadEvent event = new ZapcUploadEvent();
+            event.setDone(true);
+            event.setError(1);
+            List<Zapcxx> list = ZaPcdjDao.getPcxxByGzbh(curGzxx.getId(),
+                    GlobalMethod.getBoxStore(self));
+            if (list == null || list.isEmpty()) {
+                event.setMessage("没有人员和车辆信息，无需上传");
+                EventBus.getDefault().post(event);
+                return;
+            }
+            int total = list.size() + 1;
+            int step = 0;
             RestfulDao dao = RestfulDaoFactory.getDao();
             WebQueryResult<ZapcReturn> wr = dao.uploadZapcGzxx(curGzxx);
-            total++;
-            String totalError = "";
             String error = checkZapcIsUpOk(wr);
-            if (TextUtils.isEmpty(error)) {
-                // 从数据库中更新数据,重新刷新界面
-                ZapcReturn zr = wr.getResult();
-                if ("1".equals(zr.getCgbj())
-                        && !TextUtils.isEmpty(wr.getResult().getPcbh()[0])) {
-                    okTotal++;
-                    curGzxx.setGzxxbh(wr.getResult().getPcbh()[0]);
-                    ZaPcdjDao.updateGzxx(curGzxx, GlobalMethod.getBoxStore(self));
-                    // 获取盘查人员信息
-                    List<Zapcxx> list = ZaPcdjDao.getPcxxByGzbh(curGzxx.getId(),
-                            GlobalMethod.getBoxStore(self));
-                    // 上传物品或人员信息
-                    for (Zapcxx zapcxx : list) {
-                        // 区别对待物品和人员
-                        if (zapcxx.getPcZl() == Zapcxx.PCRYXXZL) {
-                            ZapcRypcxxBean ryxx = ZaPcdjDao.queryRyxxByBh(
-                                    zapcxx.getId(), GlobalMethod.getBoxStore(self));
-                            // 更新上传标记
-                            wr = dao.uploadZapcRypcxx(ryxx, curGzxx.getId() + "",
-                                    curGzxx.getKssj());
-                            total++;
-                            error = checkZapcIsUpOk(wr);
-                            if (TextUtils.isEmpty(error)
-                                    && "1".equals(wr.getResult().getCgbj())) {
-                                okTotal++;
-                                ZaPcdjDao.setPcryxxIsUpload(ryxx.getId(),
-                                        GlobalMethod.getBoxStore(self));
-                            } else {
-                                totalError += "上传人员信息" + error + "\n";
-                            }
-                        } else if (zapcxx.getPcZl() == Zapcxx.PCWPXXZL) {
-                            ZapcWppcxxBean wpxx = ZaPcdjDao.queryWpxxByBh(
-                                    zapcxx.getId(), GlobalMethod.getBoxStore(self));
-                            wr = dao.uploadZapcWpxx(wpxx, curGzxx.getId() + "",
-                                    curGzxx.getKssj());
-                            total++;
-                            error = checkZapcIsUpOk(wr);
-                            if (TextUtils.isEmpty(error)
-                                    && "1".equals(wr.getResult().getCgbj())) {
-                                okTotal++;
-                                ZaPcdjDao.setWpxxIsUpload(wpxx.getId(), GlobalMethod.getBoxStore(self));
-                            } else {
-                                totalError += "上传物品信息" + error + "\n";
-                            }
+            if (!TextUtils.isEmpty(error)) {
+                event.setMessage(error);
+                EventBus.getDefault().post(event);
+                return;
+            }
+            EventBus.getDefault().post(new ZapcUploadEvent(total, ++step));
+            // 从数据库中更新数据,重新刷新界面
+            ZapcReturn zr = wr.getResult();
+            String cgbj = zr.getCgbj();
+            String pcbh = zr.getPcbh()[0];
+            int hasError = 0;
+            if ("1".equals(cgbj) && !TextUtils.isEmpty(pcbh)) {
+                // 上传物品或人员信息
+                for (Zapcxx zapcxx : list) {
+                    // 区别对待物品和人员
+                    step++;
+                    if (zapcxx.getPcZl() == Zapcxx.PCRYXXZL) {
+                        ZapcRypcxxBean ryxx = (ZapcRypcxxBean) zapcxx;
+                        // 更新上传标记
+                        wr = dao.uploadZapcRypcxx(ryxx, curGzxx.getId() + "",
+                                curGzxx.getKssj());
+                        error = checkZapcIsUpOk(wr);
+                        if (TextUtils.isEmpty(error)
+                                && "1".equals(wr.getResult().getCgbj())) {
+                            ZaPcdjDao.setPcryxxIsUpload(ryxx.getId(),
+                                    GlobalMethod.getBoxStore(self));
+                        } else {
+                            hasError++;
+                        }
+                    } else if (zapcxx.getPcZl() == Zapcxx.PCWPXXZL) {
+                        ZapcWppcxxBean wpxx = (ZapcWppcxxBean) zapcxx;
+                        wr = dao.uploadZapcWpxx(wpxx, curGzxx.getId() + "",
+                                curGzxx.getKssj());
+                        error = checkZapcIsUpOk(wr);
+                        if (TextUtils.isEmpty(error)
+                                && "1".equals(wr.getResult().getCgbj())) {
+                            ZaPcdjDao.setWpxxIsUpload(wpxx.getId(), GlobalMethod.getBoxStore(self));
+                            EventBus.getDefault().post(new ZapcUploadEvent(total, step));
+                        } else {
+                            hasError++;
                         }
                     }
+                    EventBus.getDefault().post(new ZapcUploadEvent(total, step));
                 }
             } else {
-                // 上传失败
-                totalError += "上传工作信息" + error + "\n";
+                event.setMessage("工作信息上传失败，无盘查编号");
+                EventBus.getDefault().post(event);
+                return;
             }
-            if (total > 0 && total == okTotal && TextUtils.isEmpty(totalError)) {
-                curGzxx.setCsbj("1");
-                ZaPcdjDao.updateGzxx(curGzxx, GlobalMethod.getBoxStore(self));
-            }
-            if (progressDialog.isShowing())
-                progressDialog.dismiss();
-            Message msg = mHandler.obtainMessage();
-            Bundle b = new Bundle();
-            b.putString("error", "上传" + total + "条记录，成功" + okTotal + "条");
-            msg.setData(b);
-            mHandler.sendMessage(msg);
-
-            // int state = 0;
-            // int errorMessage = 0;
-            // int row = 0;
-            // for (CommKeySelectedBean ks : gzxxs) {
-            // ZapcGzxxBean gzxx = (ZapcGzxxBean) ks.getKey();
-            // if (!TextUtils.isEmpty(gzxx.getJssj())
-            // && !"1".equals(gzxx.getCsbj())) {
-            // // 上传工作信息
-            // WebQueryResult<ZapcReturn> re = dao.uploadZapcGzxx(gzxx);
-            // // 成功则更新对象并存入数所库中
-            // if (checkWebResult(re)) {
-            // gzxx.setCsbj("1");
-            // gzxx.setGzxxbh(re.getResult().getPcbh()[0]);
-            // ZaPcdjDao.updateGzxx(gzxx, getContentResolver());
-            // // 更新相对应的盘查信息的工作编号
-            // ZaPcdjDao.updateRyWpGzxxbh(gzxx, getContentResolver());
-            // } else {
-            // // 失败则直接跳入下一个工作信息中，不再上传盘查信息
-            // sendData(errorMessage, state, ++row);
-            // continue;
-            // }
-            // sendData(errorMessage, state, ++row);
-            // List<Zapcxx> list = ZaPcdjDao.getPcxxByGzbh(gzxx,
-            // getContentResolver());
-            // if (list != null && list.size() > 0) {
-            //
-            // sendData(errorMessage, state, ++row);
-            // }
-            // }
-            // }
-            // sendData(0, 0, 100000);
+            curGzxx.setCsbj("1");
+            curGzxx.setGzxxbh(pcbh);
+            ZaPcdjDao.updateGzxx(curGzxx, GlobalMethod.getBoxStore(self));
+            event.setError(0);
+            String message = "上传成功" + (hasError > 0 ? "，但是有" + hasError + "处错误" : "");
+            event.setMessage(message);
+            EventBus.getDefault().post(event);
         }
-
-        /**
-         * 验证接口数据返回状态
-         *
-         * @param re
-         * @return
-         */
-        // private boolean checkWebResult(WebQueryResult<ZapcReturn> re) {
-        // return re.getStatus() == HttpStatus.SC_OK && re.getResult() != null
-        // && TextUtils.equals(re.getResult().getCgbj(), "1")
-        // && re.getResult().getPcbh() != null
-        // && re.getResult().getPcbh().length > 0;
-        // }
-
-        // private void sendData(int err, int what, int step) {
-        // Message msg = mHandler.obtainMessage();
-        // msg.arg1 = err;
-        // msg.what = what;
-        // msg.arg2 = step;
-        // mHandler.sendMessage(msg);
-        // }
     }
 
-    Handler uploadHandler = new Handler() {
-
-        @Override
-        public void handleMessage(Message msg) {
-            Bundle b = msg.getData();
-            String totalError = b.getString("error");
-            GlobalMethod.showDialog("系统提示", totalError, "确定", self);
-            referListSel();
-            adapter.notifyDataSetChanged();
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void zapcUploadEvent(ZapcUploadEvent event) {
+        if (event.isDone()) {
+            dialog.dismiss();
+            if (event.getError() > 0) {
+                GlobalMethod.showErrorDialog(event.getMessage(), self);
+            } else {
+                GlobalMethod.showDialog("系统提示", event.getMessage(), "确定", self);
+            }
+            return;
         }
-    };
+        dialog.setMaxProgress(event.getTotal());
+        dialog.setProgress(event.getStep());
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 }

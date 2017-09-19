@@ -28,6 +28,7 @@ import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.TwoColTwoSelectBean;
 import com.jwt.dao.AcdSimpleDao;
 import com.jwt.dao.WsglDAO;
+import com.jwt.event.AcdUploadEvent;
 import com.jwt.jbyw.JdsPreviewActivity;
 import com.jwt.pojo.AcdPhotoBean;
 import com.jwt.pojo.AcdSimpleBean;
@@ -41,6 +42,10 @@ import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.web.WebQueryResult;
 import com.jwt.zapc.ZapcReturn;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
 
@@ -62,6 +67,7 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         self = this;
+        EventBus.getDefault().register(this);
         if (GlobalData.grxx == null)
             GlobalData.initGlobalData(GlobalMethod.getBoxStore(self));
         zqmj = GlobalData.grxx.get(GlobalConstant.YHBH);
@@ -114,14 +120,13 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
                             acdSimple.getWsbh(), GlobalMethod.getBoxStore(self)
                     );
                     if (v == btnTakePic) {
-                        if (photoList.isEmpty()) {
+                        if (photoList == null || photoList.isEmpty()) {
                             AcdPhotoBean acd = new AcdPhotoBean();
                             acd.setScbj(0);
                             acd.setSgbh(acdSimple.getWsbh());
                             acd.setSgdd(acdSimple.getSgdd());
                             acd.setSgsj(acdSimple.getSgfssj());
-                            Intent intent = new Intent(self,
-                                    AcdTakePhotoActivity.class);
+                            Intent intent = new Intent(self, AcdTakePhotoActivity.class);
                             intent.putExtra(AcdSimpleDao.PHOTO_BEAN, acd);
                             intent.putExtra(AcdSimpleDao.OPER_MOD,
                                     AcdSimpleDao.ACD_MOD_MODITY);
@@ -131,7 +136,7 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
                                     "已拍照片，无需重复拍照，如需重拍，请到列表中删除后再拍", self);
                         }
                     } else if (v == btnShowPhoto) {
-                        if (!photoList.isEmpty()) {
+                        if (photoList != null && !photoList.isEmpty()) {
                             AcdPhotoBean acd = photoList.get(0);
                             Intent intent = new Intent(self,
                                     AcdTakePhotoActivity.class);
@@ -305,8 +310,8 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
         }
         final List<AcdSimpleHumanBean> humans = AcdSimpleDao
                 .queryHumanByCond(acd.getId(), GlobalMethod.getBoxStore(self));
-        UploadAcdHandler handler = new UploadAcdHandler(this);
-        CommUploadThread thread = new CommUploadThread(CommUploadThread.UPLOAD_ACD, new Object[]{acd, humans}, self);
+        CommUploadThread thread = new CommUploadThread(CommUploadThread.UPLOAD_ACD,
+                new Object[]{acd, humans}, self);
         thread.doStart();
     }
 
@@ -343,45 +348,14 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
         return false;
     }
 
-    static class UploadAcdHandler extends Handler {
-
-        private final WeakReference<AcdSimpleShowList> myActivity;
-
-        public UploadAcdHandler(AcdSimpleShowList activity) {
-            myActivity = new WeakReference<AcdSimpleShowList>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            AcdSimpleShowList ac = myActivity.get();
-            if (ac != null) {
-                ac.uploadAcdMsg(msg);
-            }
-        }
-    }
-
-    private void uploadAcdMsg(Message msg) {
-        Bundle data = msg.getData();
-        if (data == null)
-            return;
-        AcdSimpleBean acd = (AcdSimpleBean) data
-                .getSerializable(CommUploadThread.UPLOAD_ACD_BEAN);
-        WebQueryResult<ZapcReturn> re = (WebQueryResult<ZapcReturn>) data
-                .getSerializable(CommUploadThread.RESULT_UPLOAD_ACD);
-        if (acd == null || re == null)
-            return;
-        String err = GlobalMethod.getErrorMessageFromWeb(re);
-        if (TextUtils.isEmpty(err)) {
-            ZapcReturn result = re.getResult();
-            if (TextUtils.equals("1", result.getCgbj())) {
-                AcdSimpleDao.saveAcdSimpleScbj(acd.getSgbh(), GlobalMethod.getBoxStore(self));
-                referListView();
-                GlobalMethod.showDialog("系统提示", "简易程序事故上传成功", "确定", self);
-            } else {
-                GlobalMethod.showErrorDialog("上传失败", self);
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void AcdUpBackEvent(AcdUploadEvent event) {
+        if (event.getScbj() == 1) {
+            GlobalMethod.getBoxStore(self).boxFor(AcdSimpleBean.class).put(event.getAcd());
+            referListView();
+            GlobalMethod.showDialog("系统提示", "简易程序事故上传成功", "确定", self);
         } else {
-            GlobalMethod.showErrorDialog(err, self);
+            GlobalMethod.showErrorDialog(event.getMessage(), self);
         }
     }
 
@@ -425,6 +399,7 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         if (btp != null) {
             btp.closeConn();
         }

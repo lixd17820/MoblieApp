@@ -86,9 +86,6 @@ public class JbywFxcActivity extends AppCompatActivity {
 
     private int operMod = ADD_NEW;
 
-    private static final String STATE_IMAGE_INDEX = "imageIndex";
-    private static final String STATE_ZP_LIST = "zpList";
-    private static final String STATE_BIG_LIST = "bigList";
     private static final String STATE_KV_WFDD = "kvWfdd";
     private static final String STATE_IS_SAVE_FILE_BOL = "isSaveFile";
     private static final String STATE_IS_SAVE_TEXT_BOL = "isSaveText";
@@ -420,23 +417,9 @@ public class JbywFxcActivity extends AppCompatActivity {
 
     private void saveFxcIntoDb() {
         long id = FxczfDao.insertFxczfDb(fxczf, GlobalMethod.getBoxStore(self));
-        Log.e("save fxc", "fxc id: " + id);
-        String result = "";
-        List<String> zpList = adapter.getList();
         if (id > 0) {
-            for (int i = 0; i < zpList.size(); i++) {
-                String smallZp = zpList.get(i);
-                VioFxcFileBean file = new VioFxcFileBean();
-                file.setWjdz(smallZp);
-                file.setFxcId(id);
-                file.setScbj(0);
-                long l = FxczfDao.insertFxcFile(file, GlobalMethod.getBoxStore(self));
-                result += l + ",";
-            }
             isSaveFile = true;
         }
-        Log.e("save file", "file id: " + result);
-        Log.e("fxc", result);
         GlobalMethod.showDialog("系统提示", id > 0 ? "非现场保存成功" : "非现场保存失败",
                 "确定", self);
     }
@@ -469,6 +452,9 @@ public class JbywFxcActivity extends AppCompatActivity {
         temp.setZqmj(GlobalData.grxx.get(GlobalConstant.YHBH));
         temp.setSbbh(GlobalData.serialNumber);
         temp.setScbj("0");
+        List<String> pics = adapter.getList();
+        if (pics != null && !pics.isEmpty())
+            temp.setPics(GlobalMethod.join(pics, ","));
         return temp;
     }
 
@@ -575,7 +561,7 @@ public class JbywFxcActivity extends AppCompatActivity {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = GlobalMethod.createImageFile(JbywFxcActivity.this,
-                        false);
+                    false);
             if (photoFile != null) {
                 photoName = photoFile.getAbsolutePath();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

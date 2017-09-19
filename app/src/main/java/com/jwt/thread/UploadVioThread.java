@@ -59,16 +59,14 @@ public class UploadVioThread extends Thread {
      */
     @Override
     public void run() {
-
         // WebQueryResult<LoginMessage> rs =
         // ViolationDAO.uploadViolation(vio);
         VioUploadEvent event = new VioUploadEvent();
-        WebQueryResult<String> rs = ViolationDAO.uploadViolation(vio, GlobalMethod.getBoxStore(self));
+        WebQueryResult<ZapcReturn> rs = ViolationDAO.uploadViolation(vio, GlobalMethod.getBoxStore(self));
         String err = GlobalMethod.getErrorMessageFromWeb(rs);
         if (TextUtils.isEmpty(err)) {
-            String upRe = rs.getResult();
-            JSONObject obj = ParserJson.getJsonObject(upRe);
-            if (obj != null && "1".equals(obj.optString("cgbj"))) {
+            ZapcReturn upRe = rs.getResult();
+            if (upRe != null && "1".equals(upRe.getCgbj())) {
                 event.scbj = 1;
                 event.id = vio.getId();
             } else {

@@ -113,6 +113,8 @@ public class GlobalData {
      * 手机串号
      */
     public static String serialNumber;
+    public static String photoName;
+    public static int CAMER_REQUEST = 11111;
 
     public static ArrayList<KeyValueBean> getDictMap(DictName d) {
         ArrayList<KeyValueBean> map = dictMap.get(d);

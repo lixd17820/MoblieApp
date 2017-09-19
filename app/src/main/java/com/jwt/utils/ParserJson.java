@@ -168,7 +168,6 @@ public class ParserJson {
 
             } else if (type == DATE) {
                 String s = jsonObj.optString(name);
-                Log.e("parseJson", s);
                 if (s != null && !"".equals(s)) {
                     Date d = null;
                     if (s.trim().length() == 19)
@@ -181,7 +180,6 @@ public class ParserJson {
                         d = sdf_s.parse(s);
                     if (d != null)
                         field.set(objectCopy, d);
-                    Log.e("parseJson", sdf_l.format(d));
                 }
             }
         }

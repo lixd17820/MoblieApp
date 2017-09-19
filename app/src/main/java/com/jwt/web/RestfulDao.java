@@ -10,6 +10,8 @@ import com.jwt.bean.GcmBbInfoBean;
 import com.jwt.bean.GcmBbddBean;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.MjJobBean;
+import com.jwt.dao.AcdSimpleDao;
+import com.jwt.event.UploadEvent;
 import com.jwt.pojo.RepairBean;
 import com.jwt.bean.SchoolZtzBean;
 import com.jwt.bean.SpringKcdjBean;
@@ -42,6 +44,7 @@ import com.jwt.pojo.ZapcRypcxxBean;
 import com.jwt.pojo.ZapcWppcxxBean;
 
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -96,6 +99,9 @@ public abstract class RestfulDao {
     protected String UPLOAD_REP_PIC = URL_PATH + "uploadRepairPic";
     private String UPLOADVIO = URL_PATH + "uploadVio";
     private String UPLOADVIO_MOBILE = URL_PATH + "uploadViolationMobile";
+
+    private String UPLOADVIO_PIC = URL_PATH + "uploadViolationPic";
+
     private String GAIN_VIO_BILL = URL_PATH + "gainVioBill";
     private String BACK_VIO_BILL = URL_PATH + "backVioBill";
 
@@ -376,9 +382,9 @@ public abstract class RestfulDao {
         try {
             String xml = CommParserXml.objToXml(acd);
             String ryxx = "";
-            //for (AcdSimpleHumanBean human : humans) {
-            //   ryxx += AcdSimpleDao.createRyxxStr(human);
-            //}
+            for (AcdSimpleHumanBean human : humans) {
+               ryxx += AcdSimpleDao.createRyxxStr(human);
+            }
             Map<String, String> postParams = new HashMap<>();
             postParams.put("acd", xml);
             postParams.put("ryxx", ryxx);
@@ -478,10 +484,10 @@ public abstract class RestfulDao {
      * @param vio
      * @return
      */
-    public WebQueryResult<String> uploadViolationMobile(JSONObject vio) {
+    public WebQueryResult<ZapcReturn> uploadViolationMobile(JSONObject vio) {
         try {
             WebQueryResult<String> re = httpTextClient(getUrl() + UPLOADVIO_MOBILE, POST, "param", vio.toString());
-            return re;
+            return GlobalMethod.webXmlStrToObj(re, ZapcReturn.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -590,6 +596,7 @@ public abstract class RestfulDao {
         re.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
         long fileLen = file.length();
         String jwtUpUrl = getUrl() + UPLOAD_ACD_PHOTO;
+        Log.e("uploadAcdPhoto", url);
         byte[] data = TypeCenvert.long2Byte(xtbh);
         try {
             FileInputStream in = new FileInputStream(file);
@@ -615,6 +622,7 @@ public abstract class RestfulDao {
         if (!file.exists())
             return "";
         String jwtUpUrl = getUrl() + UPLOAD_FXC_PHOTO_MD5 + "?md5=" + md5.toLowerCase();
+        Log.e("uploadFxcPhotoAndMd5", jwtUpUrl);
         try {
             URL nurl = new URL(jwtUpUrl);
             URLConnection conn = nurl.openConnection();
@@ -658,6 +666,18 @@ public abstract class RestfulDao {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 上传违章决定书照片
+     *
+     * @param vio
+     * @return
+     */
+    public WebQueryResult<String> uploadVioPic(VioViolation vio) {
+        String url = getUrl() + UPLOADVIO_PIC + "?jdsbh=" + vio.getJdsbh() + "&wslb=" + vio.getWslb();
+        File pic = new File(vio.getPicFile());
+        return uploadFile(url, pic);
     }
 
     public boolean checkFxcTzsh(String tzsh) {
@@ -1398,6 +1418,45 @@ public abstract class RestfulDao {
         return web;
     }
 
+    public WebQueryResult<String> uploadFile(String url, File file) {
+        WebQueryResult<String> re = new WebQueryResult<String>(
+                HttpURLConnection.HTTP_BAD_REQUEST);
+        try {
+            long length = file.length();
+            long readLen = 0;
+            BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+            URL nurl = new URL(url);
+            URLConnection conn = nurl.openConnection();
+            conn.setDoOutput(true);
+            OutputStream out = conn.getOutputStream();
+            if (in != null) {
+                int len = 0;
+                byte[] buffer = new byte[1024 * 8];
+                while ((len = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, len);
+                    readLen += len;
+                }
+            }
+            out.flush();
+            out.close();
+            conn.connect();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    conn.getInputStream(), "utf-8"));
+            String s = null;
+            String result = "";
+            while ((s = reader.readLine()) != null) {
+                result += s;
+            }
+            if (!TextUtils.isEmpty(result)) {
+                re.setResult(result);
+                re.setStatus(HttpURLConnection.HTTP_OK);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return re;
+    }
+
     public WebQueryResult<String> uploadByte(String url, byte[] data,
                                              InputStream in, long inLength, Handler handler) {
         WebQueryResult<String> re = new WebQueryResult<String>(
@@ -1430,6 +1489,7 @@ public abstract class RestfulDao {
             while ((s = reader.readLine()) != null) {
                 result += s;
             }
+            Log.e("uploadByte", result);
             if (!TextUtils.isEmpty(result)) {
                 re.setResult(result);
                 re.setStatus(HttpURLConnection.HTTP_OK);

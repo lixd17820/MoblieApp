@@ -7,9 +7,12 @@ import java.util.List;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jwt.dao.AcdSimpleDao;
 import com.jwt.event.CommEvent;
+import com.jwt.event.FxcUploadEvent;
 import com.jwt.pojo.AcdPhotoBean;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.web.RestfulDao;
@@ -22,7 +25,7 @@ import org.greenrobot.eventbus.EventBus;
 
 public class AcdUploadPhotoThread extends Thread {
     private AcdPhotoBean acd;
-    private ProgressDialog progressDialog;
+
     private Context context;
     private int maxStep;
 
@@ -32,56 +35,52 @@ public class AcdUploadPhotoThread extends Thread {
     }
 
     public void doStart() {
-        progressDialog = ProgressDialog.show(context, "提示", "正在上传事故信息...",
-                true);
         maxStep = acd.getPhoto().split(",").length + 1;
-        progressDialog.setTitle("提示");
-        // progressDialog.setMessage("正在上传事故信息...");
-        progressDialog.setCancelable(false);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setMax(maxStep);
-        progressDialog.show();
         start();
     }
 
     @Override
     public void run() {
+        FxcUploadEvent event = new FxcUploadEvent();
+        event.isDone = true;
+        event.err = 1;
         int step = 0;
         RestfulDao dao = RestfulDaoFactory.getDao();
         WebQueryResult<ZapcReturn> rs = dao.uploadAcdRecode(acd);
         String err = GlobalMethod.getErrorMessageFromWeb(rs);
         if (!TextUtils.isEmpty(err)) {
-            EventBus.getDefault().post(new CommEvent(-1, err));
-            progressDialog.dismiss();
+            event.message = err;
+            EventBus.getDefault().post(event);
             return;
         } else {
-            progressDialog.setMessage("记录上传成功");
-            progressDialog.setProgress(++step);
+            EventBus.getDefault().post(new FxcUploadEvent(maxStep, ++step));
         }
         Long recID = Long.valueOf(rs.getResult().getPcbh()[0]);
-        List<String> files = Arrays.asList(acd.getPhoto().split(","));
-        for (int i = 0; i < files.size(); i++) {
-            File photo = new File(files.get(i));
+        Log.e("uploadacdphoto", "pcbh: " + recID);
+        String[] files = acd.getPhoto().split(",");
+        for (int i = 0; i < files.length; i++) {
+            File photo = new File(files[0]);
             if (!photo.exists()) {
-                EventBus.getDefault().post(new CommEvent(-1, "上传文件不存在"));
-                progressDialog.dismiss();
+                event.message = "上传文件不存在";
+                EventBus.getDefault().post(event);
                 return;
             }
+            Log.e("uploadacdphoto", photo.getAbsolutePath());
             WebQueryResult<ZapcReturn> re = dao.uploadAcdPhoto(photo, recID);
             String photoErr = GlobalMethod.getErrorMessageFromWeb(re);
-            if (!TextUtils.isEmpty(photoErr)) {
-                EventBus.getDefault().post(new CommEvent(-1, photoErr));
-                progressDialog.dismiss();
+            if (!TextUtils.isEmpty(photoErr) || !"1".equals(re.getResult().getCgbj())) {
+                event.message = "上传文件失败";
+                EventBus.getDefault().post(event);
                 return;
             } else {
-                progressDialog.setProgress(++step);
-                progressDialog.setMessage("图片上传成功");
+                EventBus.getDefault().post(new FxcUploadEvent(maxStep, ++step));
                 //sendData("图片上传成功", GlobalConstant.WHAT_PHOTO_OK, ++step * 25);
             }
         }
-        progressDialog.dismiss();
-        AcdSimpleDao.updateAcdPhotoRecode(recID, acd.getId(), GlobalMethod.getBoxStore(context));
-        AcdSimpleDao.updateAcdPhotoRecodeScbj(acd.getId(), GlobalMethod.getBoxStore(context));
+        event.err = 0;
+        event.message = "上传成功";
+        EventBus.getDefault().post(event);
+        AcdSimpleDao.updateAcdPhotoRecodeScbj(acd.getId(), recID, GlobalMethod.getBoxStore(context));
         EventBus.getDefault().post(new CommEvent(200, recID + ""));
         //Bundle data = new Bundle();
         //data.putLong("xtbh", recID);

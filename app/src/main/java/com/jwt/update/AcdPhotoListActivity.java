@@ -18,11 +18,14 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnCreateContextMenuListener;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jwt.activity.ActionBarSelectListActivity;
 import com.jwt.bean.TwoColTwoSelectBean;
 import com.jwt.dao.AcdSimpleDao;
 import com.jwt.event.CommEvent;
+import com.jwt.event.FxcUploadEvent;
 import com.jwt.pojo.AcdPhotoBean;
 import com.jwt.pojo.AcdSimpleBean;
 import com.jwt.thread.AcdUploadPhotoThread;
@@ -49,7 +52,7 @@ public class AcdPhotoListActivity extends ActionBarSelectListActivity {
 
     private Context self;
 
-    private ProgressDialog progressDialog;
+    private MaterialDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +77,10 @@ public class AcdPhotoListActivity extends ActionBarSelectListActivity {
 
         getListView().setOnCreateContextMenuListener(contextMenuListener);
         //setTitle(getIntent().getStringExtra("title"));
+        dialog = new MaterialDialog.Builder(self)
+                .title("正在上传")
+                .content("上传中...")
+                .progress(false, 5, true).build();
     }
 
     private OnCreateContextMenuListener contextMenuListener = new OnCreateContextMenuListener() {
@@ -176,6 +183,7 @@ public class AcdPhotoListActivity extends ActionBarSelectListActivity {
     protected void uploadAcd(AcdPhotoBean acd) {
         AcdUploadPhotoThread thread = new AcdUploadPhotoThread(acd, self);
         thread.doStart();
+        dialog.show();
     }
 
     /**
@@ -187,7 +195,7 @@ public class AcdPhotoListActivity extends ActionBarSelectListActivity {
         beanList.clear();
         for (AcdPhotoBean photo : photos) {
             String[] ps = photo.getPhoto().split(",");
-            String text1 = photo.getSgbh() + "|" + photo.getSgsj() + "|" + ps.length+"张";
+            String text1 = photo.getSgbh() + "|" + photo.getSgsj() + "|" + ps.length + "张";
             String text2 = getString(R.string.acd_position) + ":"
                     + photo.getSgdd();
             boolean isSc = photo.getScbj() == 1;
@@ -209,13 +217,22 @@ public class AcdPhotoListActivity extends ActionBarSelectListActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void uploadEvent(CommEvent event) {
-        if (event.getStatus() == 200) {
+    public void uploadEvent(FxcUploadEvent event) {
+        if (event.err > 0) {
+            dialog.dismiss();
+            GlobalMethod.showErrorDialog(event.message, self);
+            return;
+        }
+        if (event.isDone) {
+            Toast.makeText(self, "上传成功", Toast.LENGTH_LONG).show();
+            dialog.dismiss();
             changeDataFromDb();
             getCommAdapter().notifyDataSetChanged();
-        }else if(event.getStatus() < 0){
-            GlobalMethod.showErrorDialog(event.getMessage(),self);
+            return;
         }
+        dialog.setMaxProgress(event.total);
+        dialog.setProgress(event.step);
+
     }
 
     @Override

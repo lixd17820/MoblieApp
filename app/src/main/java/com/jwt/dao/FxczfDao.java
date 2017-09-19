@@ -83,6 +83,7 @@ public class FxczfDao {
         Box<VioFxczfBean> box = boxStore.boxFor(VioFxczfBean.class);
         VioFxczfBean f = box.query().equal(VioFxczfBean_.id, id).build().findUnique();
         f.setXtxh(xtbh);
+        f.setScbj("1");
         box.put(f);
     }
 
@@ -111,6 +112,6 @@ public class FxczfDao {
         long count = b.count();
         if (count > maxrow)
             return b.find(count - maxrow, maxrow);
-        return box.query().build().find();
+        return b.find();
     }
 }

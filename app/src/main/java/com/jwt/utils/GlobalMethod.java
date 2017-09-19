@@ -58,6 +58,7 @@ import com.jwt.bean.UpdateFile;
 import com.jwt.globalquery.ZhcxQueryResultBean;
 import com.jwt.update.App;
 import com.jwt.update.R;
+import com.jwt.update.ShowImageActivity;
 import com.jwt.web.WebQueryResult;
 
 import org.json.JSONException;
@@ -269,6 +270,12 @@ public class GlobalMethod {
         Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
         if (bitmap != null)
             bmImage.setImageBitmap(bitmap);
+    }
+
+    public static void showImageActivity(String file, Context s) {
+        Intent intent = new Intent(s, ShowImageActivity.class);
+        intent.putExtra("image", file);
+        s.startActivity(intent);
     }
 
 //    public static Dialog showPicFileDialog(Bitmap bitmap, Context context,

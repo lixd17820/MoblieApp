@@ -1580,7 +1580,7 @@ public class GlobalMethod {
     }
 
     public static boolean isOnline() {
-        return GlobalData.connCata != ConnCata.OFFCONN;
+        return true;
     }
 
     public static Point getDevicePixel(Activity context) {

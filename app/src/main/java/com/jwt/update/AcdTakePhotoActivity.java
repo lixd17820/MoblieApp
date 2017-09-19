@@ -443,8 +443,6 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean isOffConn = GlobalData.connCata == ConnCata.OFFCONN
-                || GlobalData.connCata == ConnCata.UNKNOW;
         boolean noMod = operMod == AcdSimpleDao.ACD_MOD_SHOW;
         if (noMod) {
             menu.removeItem(R.id.menu_upload);
@@ -452,7 +450,6 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
             menu.removeItem(R.id.save_file);
             menu.removeItem(R.id.menu_del_image);
         } else {
-            if (isOffConn)
                 menu.removeItem(R.id.menu_upload);
         }
         return super.onPrepareOptionsMenu(menu);

@@ -385,15 +385,10 @@ public class MainReferService extends Service {
     }
 
     private void testNetwork() {
-        serverConnCatalog = ConnCata.UNKNOW;
-        RestfulDao dao = RestfulDaoFactory.getDao(ConnCata.JWTCONN);
+        serverConnCatalog = ConnCata.OUTSIDECONN;
+
+        RestfulDao dao = RestfulDaoFactory.getDao(ConnCata.OUTSIDECONN);
         boolean isOK = dao.testNetwork();
-        if (isOK) {
-            this.serverConnCatalog = ConnCata.JWTCONN;
-            return;
-        }
-        dao = RestfulDaoFactory.getDao(ConnCata.OUTSIDECONN);
-        isOK = dao.testNetwork();
         if (isOK) {
             this.serverConnCatalog = ConnCata.OUTSIDECONN;
             return;

@@ -45,4 +45,5 @@ public class GlobalSystemParam {
     //是否接收同事信息
     public static boolean isReciveText = true;
 
+    public static ConnCata connCata = ConnCata.OUTSIDECONN;
 }

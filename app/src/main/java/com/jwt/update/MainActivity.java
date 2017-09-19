@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         }
         setUpViews();
         //测试数据
-        GlobalData.connCata = ConnCata.JWTCONN;
         PermissionGen.with(this)
                 .addRequestCode(100)
                 .permissions(Manifest.permission.READ_PHONE_STATE)

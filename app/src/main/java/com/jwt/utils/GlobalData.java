@@ -55,7 +55,7 @@ public class GlobalData {
      */
     //public static boolean isPreviewPhoto = false;
 
-    public static ConnCata connCata = ConnCata.OFFCONN;
+    public static ConnCata connCata = ConnCata.OUTSIDECONN;
 
     public static Map<DictName, ArrayList<KeyValueBean>> dictMap = new HashMap<>();
 

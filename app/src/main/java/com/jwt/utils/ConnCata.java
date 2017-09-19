@@ -1,8 +1,7 @@
 package com.jwt.utils;
 
 public enum ConnCata {
-	JWTCONN("移动2G", 0), OUTSIDECONN("电信3G", 1), INSIDECONN("公安三所", 2), OFFCONN(
-			"离线模式", 3), UNKNOW("未设定", 4);
+	 OUTSIDECONN("线路一", 0), INSIDECONN("线路二", 1);
 
 	private String name;
 	private int index;

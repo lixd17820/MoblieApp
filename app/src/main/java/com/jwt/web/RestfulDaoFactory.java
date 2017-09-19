@@ -11,7 +11,7 @@ public class RestfulDaoFactory {
     }
 
     public static RestfulDao getDao(ConnCata conn) {
-        if (conn == ConnCata.JWTCONN)
+        if (conn == ConnCata.OUTSIDECONN)
             return new OutRestfulDao();
         //else if (conn == ConnCata.INSIDECONN)
         return new ThreeTeamDao();

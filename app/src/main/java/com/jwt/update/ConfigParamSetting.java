@@ -47,11 +47,7 @@ public class ConfigParamSetting extends PreferenceActivity implements
 
 	private final int REQ_START_GPS = 0;
 
-	private String[] netValues = new String[] {
-			String.valueOf(ConnCata.JWTCONN.getIndex()),
-			String.valueOf(ConnCata.OUTSIDECONN.getIndex()),
-			String.valueOf(ConnCata.INSIDECONN.getIndex()),
-			String.valueOf(ConnCata.OFFCONN.getIndex()) };
+	private String[] netValues = new String[] {"0","1"};
 
 	// private String[] netStrs = new String[] { "中国移动连接", "中国电信连接", "公安部三所",
 	// "离线模式" };
@@ -79,6 +75,7 @@ public class ConfigParamSetting extends PreferenceActivity implements
         mSkipSpinner  = (CheckBoxPreference) findPreference("skip_spinner");
 		mNetWorkState.setEntries(getConnStrs());
 		mNetWorkState.setEntryValues(netValues);
+		mNetWorkState.setEnabled(false);
 		changePreviewPhoto();
 		changeNewWorkState();
 		changeGpsIsUpload();
@@ -235,43 +232,12 @@ public class ConfigParamSetting extends PreferenceActivity implements
 //		startService(new Intent(self, MainReferService.class));
 //	}
 
-	private boolean checkUser(ConnCata status) {
-		String yhbh = GlobalData.grxx.get(GlobalConstant.YHBH);
-		String mm = GlobalData.grxx.get(GlobalConstant.MM);
-		String sbid = GlobalData.serialNumber;
-		WebQueryResult<String> re = RestfulDaoFactory.getDao(status)
-				.checkUserAndUpdate(yhbh, mm, sbid);
-		String err = GlobalMethod.getErrorMessageFromWeb(re);
-		if (TextUtils.isEmpty(err)) {
-			LoginResultBean logInfo = null;
-			try {
-				logInfo = CommParserXml.parseXmlToObj(re.getResult(),
-						LoginResultBean.class);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			if (logInfo != null)
-				return yhbh.equals(logInfo.getMj().getYhbh());
-		}
-		return false;
-	}
+
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 		String key = preference.getKey();
 		if ("network_state".equals(key)) {
-			int connIndex = Integer.parseInt((String) newValue);
-			ConnCata newStatus = ConnCata.getValByIndex(connIndex);
-			// Log.e("net work", "" + newStatus);
-			if (newStatus == ConnCata.OFFCONN) {
-				GlobalData.connCata = ConnCata.OFFCONN;
-				changeNewWorkState();
-			} else {
-				// Log.e("net work", "" + newStatus);
-				CheckUserHander handler = new CheckUserHander(newStatus);
-				new CheckUserThread(handler).doStart(newStatus);
-
-			}
 		} else if (TextUtils.equals("preview_photo", key)) {
 			GlobalSystemParam.isPreviewPhoto = (Boolean) newValue;
 			changePreviewPhoto();
@@ -326,72 +292,6 @@ public class ConfigParamSetting extends PreferenceActivity implements
 			}
 		}
 
-	}
-
-	class CheckUserThread extends Thread {
-
-		private Handler mHandler;
-		private ConnCata newStatus;
-
-		public CheckUserThread(Handler handler) {
-			this.mHandler = handler;
-		}
-
-		/**
-		 * 启动线程
-		 * 
-		 * @param newStatus
-		 */
-		public void doStart(ConnCata newStatus) {
-			this.newStatus = newStatus;
-			// 显示进度对话框
-			progressDialog = new ProgressDialog(self);
-			progressDialog.setTitle("提示");
-			progressDialog.setMessage("系统正在通过网络验证用户...");
-			progressDialog.setCancelable(false);
-			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			progressDialog.show();
-			this.start();
-		}
-
-		/**
-		 * 线程运行，上传盘查，成功后发送信号给进度条
-		 */
-		@Override
-		public void run() {
-			// Log.e("net work", "" + newStatus);
-			boolean isOk = checkUser(newStatus);
-			Message msg = mHandler.obtainMessage();
-			Bundle b = new Bundle();
-			b.putBoolean("isOk", isOk);
-			msg.setData(b);
-			mHandler.sendMessage(msg);
-		}
-	}
-
-	class CheckUserHander extends Handler {
-
-		ConnCata newStatus;
-
-		public CheckUserHander(ConnCata newStatus) {
-			this.newStatus = newStatus;
-		}
-
-		@Override
-		public void handleMessage(Message msg) {
-			if (progressDialog != null && progressDialog.isShowing())
-				progressDialog.dismiss();
-			Bundle b = msg.getData();
-			boolean isOk = b.getBoolean("isOk");
-			if (isOk) {
-				GlobalData.connCata = newStatus;
-				changeNewWorkState();
-			} else {
-				Toast.makeText(self, "用户验证未通过，不能更改网络配置", Toast.LENGTH_LONG)
-						.show();
-			}
-
-		}
 	}
 
 }

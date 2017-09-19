@@ -50,6 +50,7 @@ import com.jwt.utils.Encrypt;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
+import com.jwt.utils.GlobalSystemParam;
 import com.jwt.utils.ParserJson;
 import com.jwt.web.WebQueryResult;
 
@@ -64,6 +65,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.objectbox.Box;
 import io.objectbox.query.Query;
 import kr.co.namee.permissiongen.PermissionFail;
@@ -130,7 +132,6 @@ public class LoginActivity extends AppCompatActivity {
 
         findViewById(R.id.but_login).setOnClickListener(loginClick);
         findViewById(R.id.but_login_cancel).setOnClickListener(cancelLogin);
-        GlobalData.connCata = ConnCata.JWTCONN;
         setTitle("系统登录");
 
         double version = GlobalMethod.getApkVerionName("com.jwt.update", self);
@@ -174,6 +175,24 @@ public class LoginActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    private long clickTime = 0;
+    private int count = 0;
+
+    @OnClick(R.id.tv_version)
+    public void tvClick() {
+        long cuTime = System.currentTimeMillis();
+        if (cuTime - clickTime < 500) {
+            count++;
+        } else {
+            count = 0;
+        }
+        clickTime = cuTime;
+        if (count >= 5) {
+            Toast.makeText(self, "已改变连接方式", Toast.LENGTH_SHORT).show();
+            GlobalData.connCata = ConnCata.INSIDECONN;
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -114,6 +115,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         self = this;
+        GlobalMethod.saveParam(self);
         ButterKnife.bind(this);
         EventBus.getDefault().register(this);
         findViewById(R.id.unless_linear).requestFocus();
@@ -366,6 +368,14 @@ public class LoginActivity extends AppCompatActivity {
     @PermissionFail(requestCode = 100)
     public void doFailSomething() {
         Toast.makeText(this, "Contact permission is not granted", Toast.LENGTH_SHORT).show();
+    }
+
+    private void printPer(SharedPreferences sp, String time) {
+        Map<String, ?> map = sp.getAll();
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            Log.e("config value", time + " " + entry.getKey() + "/" + entry.getValue().getClass().getName() + "/"
+                    + entry.getValue());
+        }
     }
 
 }

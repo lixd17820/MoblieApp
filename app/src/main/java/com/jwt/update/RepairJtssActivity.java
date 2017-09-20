@@ -32,6 +32,8 @@ import com.jwt.adapter.ImageListAdapter;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.dao.RepairDao;
 import com.jwt.pojo.RepairBean;
+import com.jwt.pojo.ZapcGzxxBean;
+import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.web.RestfulDao;
 import com.jwt.web.RestfulDaoFactory;
@@ -41,6 +43,7 @@ import com.jwt.zapc.ZapcReturn;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -64,6 +67,7 @@ public class RepairJtssActivity extends AppCompatActivity {
 
     private ImageListAdapter adapter;
     private String photoName = "";
+    private boolean isReadonly = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +82,8 @@ public class RepairJtssActivity extends AppCompatActivity {
         EditBxnr = (EditText) findViewById(R.id.edit_rep_bxnr);
         spinBxxm = (Spinner) findViewById(R.id.spin_rep_item);
         spinSide = (Spinner) findViewById(R.id.spin_rep_side);
-        RecyclerView gridView = (RecyclerView) findViewById(R.id.gridView1);
-        gridView.setHasFixedSize(true);
-        gridView.setLayoutManager(new GridLayoutManager(this, 2));
-        gridView.setAdapter(adapter = new ImageListAdapter(imgClick, new ArrayList<String>()));
+        List<String> pics = new ArrayList<String>();
+
         ArrayAdapter<String> itemAdapter = new ArrayAdapter<String>(self,
                 R.layout.spinner_item, bxItem);
         itemAdapter
@@ -92,9 +94,25 @@ public class RepairJtssActivity extends AppCompatActivity {
         sideAdapter
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinSide.setAdapter(sideAdapter);
-        repair = new RepairBean();
         kvBxdd = new KeyValueBean("", "");
+        RepairBean temp = (RepairBean) getIntent().getSerializableExtra("rep");
+        if (temp != null) {
+            repair = temp;
+            isReadonly = true;
+            editBxdd.setText(repair.getBxdd());
+            spinBxxm.setSelection(GlobalMethod.getPositionFromArray(bxItem, repair.getItem()));
+            spinSide.setSelection(GlobalMethod.getPositionFromArray(bxSide, repair.getSide()));
+            EditBxnr.setText(repair.getBxnr());
+            pics = Arrays.asList(repair.getPic().split(","));
+        } else {
+            repair = new RepairBean();
+        }
+
         setTitle("交通设施报修");
+        RecyclerView gridView = (RecyclerView) findViewById(R.id.gridView1);
+        gridView.setHasFixedSize(true);
+        gridView.setLayoutManager(new GridLayoutManager(this, 2));
+        gridView.setAdapter(adapter = new ImageListAdapter(imgClick, pics));
     }
 
     ImageListAdapter.ImageClickListener imgClick = new ImageListAdapter.ImageClickListener() {

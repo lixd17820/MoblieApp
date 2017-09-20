@@ -40,19 +40,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.objectbox.Box;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class JbywBjbdListActivity extends AppCompatActivity {
 
+    private static final int CONFIG_BJ = 100;
     private Button btnSendMes;
     private EditText editMessage;
     private BjbdAdapter adapter;
     private RecyclerView mRecycleView;
     private Box<Bjbd> bjbdBox;
-    private String[] glbmArray = null, bjzlArray = null;
+    private Set<String> bjzlArray = new HashSet<>();
     private Activity self;
 
     private List<Bjbd> bjbdList = new ArrayList<Bjbd>();
@@ -95,7 +98,7 @@ public class JbywBjbdListActivity extends AppCompatActivity {
         bjbdBox = ((App) getApplication()).getBoxStore().boxFor(Bjbd.class);
         long count = bjbdBox.count();
         if (count > 100) {
-            bjbdList = bjbdBox.query().build().find(count - 100, 100);
+            bjbdList = bjbdBox.query().build().find(0, count -100);
             bjbdBox.remove(bjbdList);
         }
         List<Bjbd> bjlist = bjbdBox.getAll();
@@ -115,14 +118,11 @@ public class JbywBjbdListActivity extends AppCompatActivity {
             mRecycleView.smoothScrollToPosition(adapter.getItemCount() - 1);
         ShortcutBadger.removeCount(this);
         GlobalData.isBadger = false;
-        String bjzl = GlobalMethod.getSavedInfo(self, "bjzl");
-        if (TextUtils.isEmpty(bjzl)) {
-            bjzlArray = new String[GlobalData.bjzlList.size()];
-            for (int i = 0; i < bjzlArray.length; i++) {
-                bjzlArray[i] = GlobalData.bjzlList.get(i).getValue();
+        if (GlobalSystemParam.recBjbdZl != null && !GlobalSystemParam.recBjbdZl.isEmpty()) {
+            for (String key : GlobalSystemParam.recBjbdZl) {
+                String name = GlobalMethod.getStringFromKVListByKey(GlobalData.bjzlList, key);
+                bjzlArray.add(name);
             }
-        } else {
-            bjzlArray = bjzl.split(",");
         }
         Intent serviceIntent = new Intent(this, MainReferService.class);
         bindService(serviceIntent, serviceConn, Context.BIND_AUTO_CREATE);
@@ -170,8 +170,8 @@ public class JbywBjbdListActivity extends AppCompatActivity {
 
     private boolean isRecBjbd(Bjbd bjbd) {
         if ("1".equals(bjbd.getType()) &&
-                (!GlobalSystemParam.isReciveBj || bjzlArray == null
-                        || GlobalMethod.getPositionFromArray(bjzlArray, bjbd.getBjyy()) < 0))
+                (!GlobalSystemParam.isReciveBj || bjzlArray == null ||
+                        !bjzlArray.contains(bjbd.getBjyy())))
             return false;
         //这是群发信息
         if ("0".equals(bjbd.getType()) && !GlobalSystemParam.isReciveText)
@@ -190,79 +190,10 @@ public class JbywBjbdListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.menu_bjzl: {
-                //显示报警的种类
-                String[] allBjzl = new String[GlobalData.bjzlList.size()];
-                List<Integer> sel = new ArrayList<>();
-                for (int i = 0; i < allBjzl.length; i++) {
-                    allBjzl[i] = GlobalData.bjzlList.get(i).getValue();
-                    if (bjzlArray != null && GlobalMethod.getPositionFromArray(bjzlArray, allBjzl[i]) > -1)
-                        sel.add(i);
-                }
-                Integer[] sels = sel.toArray(new Integer[sel.size()]);
-                new MaterialDialog.Builder(this)
-                        .title(R.string.bjbd_zl)
-                        .items(allBjzl)
-                        .itemsCallbackMultiChoice(sels, new MaterialDialog.ListCallbackMultiChoice() {
-                            @Override
-                            public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                                if (text != null && text.length > 0) {
-                                    List<String> s = new ArrayList<>();
-                                    for (CharSequence i : text) {
-                                        s.add(i.toString());
-                                    }
-                                    GlobalMethod.putSavedInfo(self, "bjzl", GlobalMethod.join(s, ","));
-                                    bjzlArray = s.toArray(new String[s.size()]);
-                                } else {
-                                    GlobalMethod.putSavedInfo(self, "bjzl", "");
-                                    bjzlArray = new String[0];
-                                }
-                                return true;
-                            }
-                        })
-                        .positiveText(R.string.choose)
-                        .show();
-            }
-            return true;
-            case R.id.menu_bjfw: {
-                //显示报警的范围，哪些大队的信息
-                String bjfw = GlobalMethod.getSavedInfo(self, "bjfw");
-                String[] saveBjfw = null;
-                Integer[] sels = null;
-                if (!TextUtils.isEmpty(bjfw)) {
-                    saveBjfw = bjfw.split(",");
-                    sels = new Integer[saveBjfw.length];
-                    for (int i = 0; i < saveBjfw.length; i++) {
-                        sels[i] = GlobalMethod.getPositionByKey(GlobalData.glbmList, saveBjfw[i]);
-                    }
-                }
-                glbmArray = new String[GlobalData.glbmList.size()];
-                for (int i = 0; i < glbmArray.length; i++) {
-                    glbmArray[i] = GlobalData.glbmList.get(i).getValue();
-                }
-                new MaterialDialog.Builder(this)
-                        .title(R.string.bjbd_fw)
-                        .items(glbmArray)
-                        .itemsCallbackMultiChoice(sels, new MaterialDialog.ListCallbackMultiChoice() {
-                            @Override
-                            public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                                if (text != null && text.length > 0) {
-                                    List<String> s = new ArrayList<>();
-                                    for (Integer i : which) {
-                                        s.add(GlobalData.glbmList.get(i).getKey());
-                                    }
-                                    GlobalMethod.putSavedInfo(self, "bjfw", GlobalMethod.join(s, ","));
-                                    glbmArray = s.toArray(new String[s.size()]);
-                                } else {
-                                    GlobalMethod.putSavedInfo(self, "bjfw", "");
-                                    glbmArray = new String[0];
-                                }
-                                mrService.subscribeTopic();
-                                return true;
-                            }
-                        })
-                        .positiveText(R.string.choose)
-                        .show();
+            case R.id.menu_bj_config: {
+                Intent intent = new Intent(self, ConfigParamSetting.class);
+                intent.putExtra("data", "2");
+                startActivityForResult(intent, CONFIG_BJ);
             }
             return true;
             case R.id.menu_open_conn: {
@@ -279,7 +210,7 @@ public class JbywBjbdListActivity extends AppCompatActivity {
             }
             return true;
             case R.id.menu_conn_status: {
-                String status = "目前报警连接状态：" +(mrService.isMqttConn()?"连接成功":"无连接");
+                String status = "目前报警连接状态：" + (mrService.isMqttConn() ? "连接成功" : "无连接");
                 new MaterialDialog.Builder(this)
                         .title("系统提示")
                         .content(status)
@@ -291,6 +222,14 @@ public class JbywBjbdListActivity extends AppCompatActivity {
                 break;
         }
         return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //if (requestCode == CONFIG_BJ) {
+        //    mrService.subscribeTopic();
+        //}
     }
 
     private ServiceConnection serviceConn = new ServiceConnection() {
@@ -306,4 +245,79 @@ public class JbywBjbdListActivity extends AppCompatActivity {
 
         }
     };
+//    case R.id.menu_bjzl: {
+//        //显示报警的种类
+//        String[] allBjzl = new String[GlobalData.bjzlList.size()];
+//        List<Integer> sel = new ArrayList<>();
+//        for (int i = 0; i < allBjzl.length; i++) {
+//            allBjzl[i] = GlobalData.bjzlList.get(i).getValue();
+//            if (bjzlArray != null && GlobalMethod.getPositionFromArray(bjzlArray, allBjzl[i]) > -1)
+//                sel.add(i);
+//        }
+//        Integer[] sels = sel.toArray(new Integer[sel.size()]);
+//        new MaterialDialog.Builder(this)
+//                .title(R.string.bjbd_zl)
+//                .items(allBjzl)
+//                .itemsCallbackMultiChoice(sels, new MaterialDialog.ListCallbackMultiChoice() {
+//                    @Override
+//                    public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
+//                        if (text != null && text.length > 0) {
+//                            List<String> s = new ArrayList<>();
+//                            for (CharSequence i : text) {
+//                                s.add(i.toString());
+//                            }
+//                            GlobalMethod.putSavedInfo(self, "bjzl", GlobalMethod.join(s, ","));
+//                            bjzlArray = s.toArray(new String[s.size()]);
+//                        } else {
+//                            GlobalMethod.putSavedInfo(self, "bjzl", "");
+//                            bjzlArray = new String[0];
+//                        }
+//                        return true;
+//                    }
+//                })
+//                .positiveText(R.string.choose)
+//                .show();
+//    }
+//            return true;
+//            case R.id.menu_bjfw: {
+//        //显示报警的范围，哪些大队的信息
+//        String bjfw = GlobalMethod.getSavedInfo(self, "bjfw");
+//        String[] saveBjfw = null;
+//        Integer[] sels = null;
+//        if (!TextUtils.isEmpty(bjfw)) {
+//            saveBjfw = bjfw.split(",");
+//            sels = new Integer[saveBjfw.length];
+//            for (int i = 0; i < saveBjfw.length; i++) {
+//                sels[i] = GlobalMethod.getPositionByKey(GlobalData.glbmList, saveBjfw[i]);
+//            }
+//        }
+//        glbmArray = new String[GlobalData.glbmList.size()];
+//        for (int i = 0; i < glbmArray.length; i++) {
+//            glbmArray[i] = GlobalData.glbmList.get(i).getValue();
+//        }
+//        new MaterialDialog.Builder(this)
+//                .title(R.string.bjbd_fw)
+//                .items(glbmArray)
+//                .itemsCallbackMultiChoice(sels, new MaterialDialog.ListCallbackMultiChoice() {
+//                    @Override
+//                    public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
+//                        if (text != null && text.length > 0) {
+//                            List<String> s = new ArrayList<>();
+//                            for (Integer i : which) {
+//                                s.add(GlobalData.glbmList.get(i).getKey());
+//                            }
+//                            GlobalMethod.putSavedInfo(self, "bjfw", GlobalMethod.join(s, ","));
+//                            glbmArray = s.toArray(new String[s.size()]);
+//                        } else {
+//                            GlobalMethod.putSavedInfo(self, "bjfw", "");
+//                            glbmArray = new String[0];
+//                        }
+//                        mrService.subscribeTopic();
+//                        return true;
+//                    }
+//                })
+//                .positiveText(R.string.choose)
+//                .show();
+//    }
+//            return true;
 }

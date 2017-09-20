@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:layout_marginTop="8dp"
         android:contentDescription="@string/select_img"
         android:tint="?attr/editTextColor"
         app:srcCompat="@drawable/ic_ok_black_24dp" />
@@ -22,8 +23,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="5dip"
         android:layout_centerVertical="true"
+        android:layout_marginRight="5dip"
+        android:layout_marginTop="8dp"
         android:tint="?attr/editTextColor"
         app:srcCompat="@drawable/ic_check_blank_black_24dp" />
 
@@ -32,8 +34,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imageView1"
         android:layout_toLeftOf="@+id/imageView2"
+        android:layout_toRightOf="@+id/imageView1"
         android:ellipsize="none"
         android:inputType="none"
         android:singleLine="true"
@@ -46,8 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/textView1"
-        android:layout_toRightOf="@+id/imageView1"
         android:layout_toLeftOf="@+id/imageView2"
+        android:layout_toRightOf="@+id/imageView1"
         android:ellipsize="none"
         android:singleLine="true"
         android:text="@string/item_line2"

@@ -50,6 +50,7 @@ import com.jwt.utils.ConnCata;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
+import com.jwt.utils.GlobalSystemParam;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -76,16 +77,13 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
     private SimpleDateFormat sdf;
     private Context self;
     private Activity activity;
-    private THmb dqbmb;
-    private ProgressDialog progressDialog;
+    private THmb dqbmb = null;
     private int operMod;
-    private boolean isSave;
     private KeyValueBean kvSgdd = null;
-    private AcdPhotoBean acdPhoto = new AcdPhotoBean();
+    private AcdPhotoBean acdPhoto = null;
 
     private static final String STATE_PHOTO_NAME = "photo_name";
     private static final String STATE_OPER_MOD_INT = "operMod";
-    private static final String STATE_IS_SAVE_BOL = "isSave";
     private static final String STATE_DQBMB = "dqbmb";
     private static final String STATE_ACD_PHOTO = "acdPhoto";
     private static final String STATE_KV_SGDD = "kvSgdd";
@@ -94,6 +92,7 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
     private RecyclerView gridView;
     private ImageListAdapter adapter;
     private String photoName = "";
+
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -107,10 +106,6 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
         }
         if (savedInstanceState.containsKey(STATE_OPER_MOD_INT)) {
             operMod = savedInstanceState.getInt(STATE_OPER_MOD_INT);
-        }
-
-        if (savedInstanceState.containsKey(STATE_IS_SAVE_BOL)) {
-            isSave = savedInstanceState.getBoolean(STATE_IS_SAVE_BOL);
         }
 
         if (savedInstanceState.containsKey(STATE_DQBMB)) {
@@ -131,7 +126,6 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
         // Serialize the current dropdown position.
         outState.putSerializable(STATE_DQBMB, dqbmb);
         outState.putInt(STATE_OPER_MOD_INT, operMod);
-        outState.putBoolean(STATE_IS_SAVE_BOL, isSave);
         outState.putString(STATE_PHOTO_NAME, photoName);
         if (kvSgdd != null) {
             outState.putSerializable(STATE_KV_SGDD, kvSgdd);
@@ -158,7 +152,14 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
         String zqmj = GlobalData.grxx.get(GlobalConstant.YHBH);
         if (TextUtils.isEmpty(zqmj))
             return;
-
+        btnChgSgsj = (Button) findViewById(R.id.btn_chg_sgsj);
+        btnChgSgrq = (Button) findViewById(R.id.btn_chg_sgrq);
+        btnChgSgdd = (Button) findViewById(R.id.btn_chg_sgdd);
+        edSgsj = (EditText) findViewById(R.id.edit_acd_sgsj);
+        edSgsj.setKeyListener(null);
+        spinSgdd = (Spinner) findViewById(R.id.spin_sgdd);
+        tvSgbh = (TextView) findViewById(R.id.tv_sgbh);
+        setTitle("事故图片采集");
         operMod = getIntent().getIntExtra(AcdSimpleDao.OPER_MOD,
                 AcdSimpleDao.ACD_MOD_NEW);
         Serializable temp = getIntent().getSerializableExtra(
@@ -166,20 +167,10 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
         if (temp != null)
             acdPhoto = (AcdPhotoBean) temp;
 
-        btnChgSgsj = (Button) findViewById(R.id.btn_chg_sgsj);
-        btnChgSgrq = (Button) findViewById(R.id.btn_chg_sgrq);
-        btnChgSgdd = (Button) findViewById(R.id.btn_chg_sgdd);
-        edSgsj = (EditText) findViewById(R.id.edit_acd_sgsj);
-        edSgsj.setKeyListener(null);
-        spinSgdd = (Spinner) findViewById(R.id.spin_sgdd);
-        gridView = (RecyclerView) findViewById(R.id.gridView1);
-        tvSgbh = (TextView) findViewById(R.id.tv_sgbh);
-        setTitle("事故图片采集");
         List<String> photoList = new ArrayList<String>();
         // 初始化照片文件列表
-        if (operMod == AcdSimpleDao.ACD_MOD_NEW) {
+        if (operMod == AcdSimpleDao.ACD_MOD_NEW && acdPhoto == null) {
             edSgsj.setText(sdf.format(new Date()));
-            isSave = false;
             dqbmb = WsglDAO.getCurrentJdsbh(GlobalConstant.ACDSIMPLEWS, zqmj,
                     GlobalMethod.getBoxStore(self));
             if (dqbmb == null) {
@@ -188,29 +179,32 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
                 return;
             }
             tvSgbh.setText(dqbmb.getDqhm());
-        } else if ((operMod == AcdSimpleDao.ACD_MOD_SHOW ||
-                operMod == AcdSimpleDao.ACD_MOD_MODITY) && acdPhoto != null) {
-            edSgsj.setText(acdPhoto.getSgsj());
-            kvSgdd = new KeyValueBean(acdPhoto.getSgdddm(), acdPhoto.getSgdd());
-            GlobalMethod.changeAdapter(spinSgdd, kvSgdd, activity, 0);
-            tvSgbh.setText(acdPhoto.getSgbh());
-            if (operMod == AcdSimpleDao.ACD_MOD_SHOW) {
-                //查看模式
-                String[] s = acdPhoto.getPhoto().split(",");
-                photoList = Arrays.asList(s);
-                isSave = true;
-            } else {
-                isSave = false;
-            }
+        } else if (acdPhoto != null) {
+            photoList = getAcdPhoto(acdPhoto);
         }
         edSgsj.setKeyListener(null);
-        gridView.setHasFixedSize(true);
-        gridView.setLayoutManager(new GridLayoutManager(this, 2));
-        gridView.setAdapter(adapter = new ImageListAdapter(click, photoList));
         btnChgSgsj.setOnClickListener(clListener);
         btnChgSgrq.setOnClickListener(clListener);
         btnChgSgdd.setOnClickListener(clListener);
 
+        gridView = (RecyclerView) findViewById(R.id.gridView1);
+        gridView.setHasFixedSize(true);
+        gridView.setLayoutManager(new GridLayoutManager(this, 2));
+        gridView.setAdapter(adapter = new ImageListAdapter(click, photoList));
+
+    }
+
+    private List<String> getAcdPhoto(AcdPhotoBean acdPhoto) {
+        List<String> photoList = new ArrayList<>();
+        edSgsj.setText(acdPhoto.getSgsj());
+        kvSgdd = new KeyValueBean(acdPhoto.getSgdddm(), acdPhoto.getSgdd());
+        GlobalMethod.changeAdapter(spinSgdd, kvSgdd, activity, 0);
+        tvSgbh.setText(acdPhoto.getSgbh());
+        String s = acdPhoto.getPhoto();
+        if (!TextUtils.isEmpty(s)) {
+            photoList = Arrays.asList(s.split(","));
+        }
+        return photoList;
     }
 
     ImageListAdapter.ImageClickListener click = new ImageListAdapter.ImageClickListener() {
@@ -272,9 +266,9 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
             GlobalMethod.showErrorDialog(err, self);
             return;
         }
-        if (!isSave) {
-            if (acdPhoto == null)
-                acdPhoto = new AcdPhotoBean();
+        if (acdPhoto == null)
+            acdPhoto = new AcdPhotoBean();
+        if (acdPhoto.getId() == 0) {
             List<String> photoList = adapter.getList();
             String photos = GlobalMethod.join(photoList, ",");
             Log.e("acdtakephoto", photos);
@@ -284,20 +278,15 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
                     GlobalConstant.VALUE));
             acdPhoto.setSgdddm(GlobalMethod.getKeyFromSpinnerSelected(spinSgdd,
                     GlobalConstant.KEY));
-            if (operMod == AcdSimpleDao.ACD_MOD_NEW) {
-                String sgbh = tvSgbh.getText().toString();
-                acdPhoto.setSgbh(sgbh);
-            }
+            String sgbh = tvSgbh.getText().toString();
+            acdPhoto.setSgbh(sgbh);
             long id = AcdSimpleDao
                     .addAcdPhoto(acdPhoto, GlobalMethod.getBoxStore(self));
             Log.e("acdtakephoto", "return id：" + id);
             if (id > 0) {
-                if (operMod == AcdSimpleDao.ACD_MOD_NEW) {
+                if (dqbmb != null) {
                     WsglDAO.saveHmbAddOne(dqbmb, GlobalMethod.getBoxStore(self));
-                } else if (operMod == AcdSimpleDao.ACD_MOD_MODITY) {
-                    AcdSimpleDao.delAcdPhotoRecode(acdPhoto, GlobalMethod.getBoxStore(self));
                 }
-                isSave = true;
                 GlobalMethod.showDialog("系统提示", acdPhoto.getSgbh() + "保存成功",
                         "确定", self);
             } else {
@@ -405,16 +394,14 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
         smallPhotoList.add(smallF.getAbsolutePath());
         adapter.setImageList(smallPhotoList);
         adapter.notifyDataSetChanged();
-        showImageActivity(smallF.getAbsolutePath());
+        if (GlobalSystemParam.isPreviewPhoto)
+            showImageActivity(smallF.getAbsolutePath());
 
     }
 
     @Override
     public void onBackPressed() {
-        if (isSave) {
-            setResult(RESULT_OK);
-            super.onBackPressed();
-        } else {
+        if (acdPhoto == null || acdPhoto.getId() == 0) {
             GlobalMethod.showDialogTwoListener("系统提示", "记录还没有保存，是否退出", "退出",
                     "取消", new DialogInterface.OnClickListener() {
 
@@ -424,6 +411,9 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
                         }
                     }, self
             );
+        } else {
+            setResult(RESULT_OK);
+            super.onBackPressed();
         }
 
     }
@@ -450,7 +440,7 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
             menu.removeItem(R.id.save_file);
             menu.removeItem(R.id.menu_del_image);
         } else {
-                menu.removeItem(R.id.menu_upload);
+            menu.removeItem(R.id.menu_upload);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -464,16 +454,20 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isSave = acdPhoto != null && acdPhoto.getId() > 0;
         switch (item.getItemId()) {
             case R.id.save_file:
                 if (isSave) {
-                    GlobalMethod.showErrorDialog("记录已保存不能更改", self);
+                    GlobalMethod.showErrorDialog("记录已保存无需重复保存", self);
                     return true;
                 }
                 savePhoto();
                 return true;
             case R.id.open_camare:
-                startTakePhoto();
+                if (!isSave)
+                    startTakePhoto();
+                else
+                    GlobalMethod.showErrorDialog("记录已保存不能拍照", self);
                 return true;
             case R.id.menu_upload:
                 if (isSave && acdPhoto != null && acdPhoto.getScbj() != 1) {
@@ -481,7 +475,10 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.menu_del_image:
-                delImage();
+                if (!isSave)
+                    delImage();
+                else
+                    GlobalMethod.showErrorDialog("记录已保存不能删除照片", self);
                 return true;
             case R.id.menu_show_image:
                 showSelectImage();

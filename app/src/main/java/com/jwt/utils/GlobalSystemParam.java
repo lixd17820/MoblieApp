@@ -1,5 +1,8 @@
 package com.jwt.utils;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class GlobalSystemParam {
 
     /**
@@ -44,6 +47,16 @@ public class GlobalSystemParam {
     public static boolean isReciveBj = true;
     //是否接收同事信息
     public static boolean isReciveText = true;
+
+    public static boolean isNotNotice = true;
+
+    public static boolean isConnBjbd = true;
+
+    public static String bjRingtone = "";
+
+    public static Set<String> recBjbdZl = new HashSet<>();
+
+    public static Set<String> recBjbdFW = new HashSet<>();
 
     public static ConnCata connCata = ConnCata.OUTSIDECONN;
 }

@@ -245,4 +245,20 @@ public class ZaPcdjDao {
         Box<ZapcRyjbxxBean> box = boxStore.boxFor(ZapcRyjbxxBean.class);
         box.put(ryjbxx);
     }
+
+    public static com.jwt.bean.ZapcRypcxxBean changeRyxx(ZapcRypcxxBean ryxx, BoxStore boxStore) {
+        com.jwt.bean.ZapcRypcxxBean temp = new com.jwt.bean.ZapcRypcxxBean();
+        temp.setPcrybh(ryxx.getId()+"");
+        temp.setGzbh(ryxx.getGzbh());
+        temp.setRycljg(ryxx.getRycljg());
+        temp.setRypcyy(ryxx.getRypcyy());
+        temp.setRypcdd(ryxx.getRypcdd());
+        temp.setRybdfs(ryxx.getRybdfs());
+        temp.setRybdjg(ryxx.getRybdjg());
+        temp.setRypcsj(ryxx.getRypcsj());
+        temp.setJccfx(ryxx.getJccfx());
+        ZapcRyjbxxBean ryjbxx = boxStore.boxFor(ZapcRyjbxxBean.class).get(ryxx.getRyjbxxId());
+        temp.setRyjbxx(ryjbxx);
+        return temp;
+    }
 }

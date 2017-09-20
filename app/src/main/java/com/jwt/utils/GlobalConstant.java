@@ -56,6 +56,8 @@ public class GlobalConstant {
         xsfxMap.put("B", "由南向东");
         xsfxMap.put("C", "进城");
         xsfxMap.put("D", "出城");
+
+
     }
 
     public final static String SERIAL_NUMBER = "SERIAL_NUMBER";

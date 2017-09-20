@@ -7,8 +7,8 @@
             dname="cfCatalog" id="1" img="menu_ywcl_qwjg" pck="com.jwt.update" qx="0" />
         <menu name="强制措施" catalog="0" cname="com.jwt.update.VioQzcsActivity" data="3"
             dname="cfCatalog" id="2" img="menu_ywcl_qzcs" pck="com.jwt.update" qx="0" />
-        <menu name="文书打印" catalog="0" cname="com.jwt.update.JbywPrintJdsList" data="" dname="" id="3"
-            img="menu_xtgl_dyjpz" pck="com.jwt.update" qx="0" />
+        <menu name="文书打印" catalog="0" cname="com.jwt.update.JbywPrintJdsList" data="" dname=""
+            id="3" img="menu_xtgl_dyjpz" pck="com.jwt.update" qx="0" />
         <menu name="治安盘查" catalog="0" cname="com.jwt.update.ZapcGzxxListActivity" data="" dname=""
             id="4" img="menu_xxcx_rkzc" pck="com.jwt.update" qx="0" />
         <menu name="设施报修" catalog="0" cname="com.jwt.update.RepairShowListActivity" data="" dname=""
@@ -57,8 +57,9 @@
 
         <menu name="蓝牙设备配置" catalog="2" cname="com.jwt.update.ConfigBluetoothActivity" data=""
             dname="" id="204" img="menu_xtgl_dyjpz" pck="com.jwt.update" qx="0" />
-
-        <menu name="参数配置" catalog="2" cname="com.jwt.update.ConfigParamSetting" data="" dname=""
+        <menu name="系统参数配置" catalog="2" cname="com.jwt.update.ConfigParamSetting" data="1" dname=""
+            id="205" img="menu_xtgl_wlpz" pck="com.jwt.update" qx="0" />
+        <menu name="报警参数配置" catalog="2" cname="com.jwt.update.ConfigParamSetting" data="2" dname=""
             id="205" img="menu_xtgl_wlpz" pck="com.jwt.update" qx="0" />
 
         <menu name="民警基本信息" catalog="2" cname="com.jwt.update.ConfigMjgrxxActivity" data="" dname=""

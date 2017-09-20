@@ -74,6 +74,8 @@ public class ConfigMainActivity extends AppCompatActivity {
                         intent.putExtra(m.getDataName(), m.getData());
                     }
                     intent.putExtra("title", m.getMenuName());
+                    if (!TextUtils.isEmpty(m.getData()))
+                        intent.putExtra("data", m.getData());
                     startActivity(intent);
                 }
 

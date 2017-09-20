@@ -128,8 +128,8 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
                             acd.setSgsj(acdSimple.getSgfssj());
                             Intent intent = new Intent(self, AcdTakePhotoActivity.class);
                             intent.putExtra(AcdSimpleDao.PHOTO_BEAN, acd);
-                            intent.putExtra(AcdSimpleDao.OPER_MOD,
-                                    AcdSimpleDao.ACD_MOD_MODITY);
+                            intent.putExtra(AcdSimpleDao.OPER_MOD, AcdSimpleDao.ACD_MOD_NEW);
+                            //       AcdSimpleDao.ACD_MOD_MODITY);
                             startActivity(intent);
                         } else {
                             GlobalMethod.showErrorDialog(
@@ -140,7 +140,7 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
                             AcdPhotoBean acd = photoList.get(0);
                             Intent intent = new Intent(self,
                                     AcdTakePhotoActivity.class);
-                            //intent.putExtra(AcdSimpleDao.PHOTO_BEAN, acd);
+                            intent.putExtra(AcdSimpleDao.PHOTO_BEAN, acd);
                             intent.putExtra(AcdSimpleDao.OPER_MOD,
                                     AcdSimpleDao.ACD_MOD_SHOW);
                             startActivity(intent);

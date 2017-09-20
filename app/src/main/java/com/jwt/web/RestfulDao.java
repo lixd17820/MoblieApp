@@ -11,7 +11,6 @@ import com.jwt.bean.GcmBbddBean;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.MjJobBean;
 import com.jwt.dao.AcdSimpleDao;
-import com.jwt.event.UploadEvent;
 import com.jwt.pojo.RepairBean;
 import com.jwt.bean.SchoolZtzBean;
 import com.jwt.bean.SpringKcdjBean;
@@ -32,6 +31,7 @@ import com.jwt.pojo.AcdSimpleHumanBean;
 import com.jwt.pojo.THmb;
 import com.jwt.pojo.VioFxczfBean;
 import com.jwt.pojo.VioViolation;
+import com.jwt.pojo.ZapcWppcxxBean;
 import com.jwt.utils.CommParserXml;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
@@ -40,11 +40,9 @@ import com.jwt.utils.TypeCenvert;
 import com.jwt.utils.ZipUtils;
 import com.jwt.pojo.ZapcGzxxBean;
 import com.jwt.zapc.ZapcReturn;
-import com.jwt.pojo.ZapcRypcxxBean;
-import com.jwt.pojo.ZapcWppcxxBean;
+import com.jwt.bean.ZapcRypcxxBean;
 
 
-import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -309,7 +307,7 @@ public abstract class RestfulDao {
      * @param ryxx
      * @return
      */
-    public WebQueryResult<ZapcReturn> uploadZapcRypcxx(ZapcRypcxxBean ryxx,
+    public WebQueryResult<ZapcReturn> uploadZapcRypcxx(com.jwt.bean.ZapcRypcxxBean ryxx,
                                                        String gzid, String kssj) {
         WebQueryResult<ZapcReturn> re = null;
         try {

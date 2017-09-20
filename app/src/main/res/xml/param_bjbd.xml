@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="报警参数设定">
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="is_conn_bjbd"
+        android:summaryOff="关闭报警"
+        android:summaryOn="打开报警"
+        android:title="是否打开报警功能" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="is_rec_bj"
+        android:summaryOff="不接收报警信息"
+        android:summaryOn="接收报警信息"
+        android:title="是否接收报警信息" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="is_rec_text"
+        android:summaryOff="不接收同组信息"
+        android:summaryOn="接收同组信息"
+        android:title="是否接收同组信息" />
+
+    <MultiSelectListPreference
+        android:key="bjbd_catalog"
+        android:title="接收报警种类" />
+    <MultiSelectListPreference
+        android:key="bjbd_fw"
+        android:title="接收报警范围" />
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="not_notice"
+        android:title="报警免打扰" />
+    <RingtonePreference
+        android:key="bj_ringtone"
+        android:ringtoneType="all"
+        android:showSilent="true"
+        android:summary="设置报警铃声"
+        android:title="报警铃声" />
+</PreferenceScreen>

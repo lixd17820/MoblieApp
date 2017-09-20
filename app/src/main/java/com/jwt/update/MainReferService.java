@@ -25,6 +25,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.jwt.event.MqttEvent;
 import com.jwt.pojo.Bjbd;
 import com.jwt.pojo.Bjbd_;
 import com.jwt.pojo.FrmCode;
@@ -47,11 +48,14 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -66,6 +70,8 @@ public class MainReferService extends Service {
     public static final int JQTB_DOWN_NOTICE_ID = 9876;
     public static final String SERVER_BROADCAST = "com.ntga.jwt.main.server";
     public static final String JQTB_DOWNLOAD_BROADCAST = "com.ntga.jwt.main.jqtb";
+    public static final int MANAGE_CONN = 1;
+    public static final int MANAGE_TOPIC = 2;
 
     private boolean isGpsComeIn = false;
     private LocationManager locm;
@@ -131,6 +137,7 @@ public class MainReferService extends Service {
             GlobalData.initGlobalData(app.getBoxStore());
         }
         bjbdBox = app.getBoxStore().boxFor(Bjbd.class);
+        EventBus.getDefault().register(this);
         //测试网络
 //        new Timer("testNetwrok").scheduleAtFixedRate(new TimerTask() {
 //
@@ -220,7 +227,7 @@ public class MainReferService extends Service {
         boolean isConn = client.isConnected();
         boolean isNetWork = isConnectIsNomarl();
         Log.e("Main server", (isConn ? "已连接" : "无连接") + "/" + (isNetWork ? "有网络" : "无网络"));
-        if (!isConn && isNetWork && (GlobalSystemParam.isReciveBj || GlobalSystemParam.isReciveText)) {
+        if (!isConn && isNetWork && GlobalSystemParam.isConnBjbd) {
             Log.e("Main server", "开始连接服务器");
             try {
                 client.connect(conOpt, null, iMqttActionListener);
@@ -231,8 +238,9 @@ public class MainReferService extends Service {
 
     }
 
-    public void closeMqttConn(){
-        if(client.isConnected()){
+    public void closeMqttConn() {
+        Log.e("Mainserver", "关闭报警连接");
+        if (client.isConnected()) {
             try {
                 client.disconnect();
             } catch (MqttException e) {
@@ -241,7 +249,7 @@ public class MainReferService extends Service {
         }
     }
 
-    public boolean isMqttConn(){
+    public boolean isMqttConn() {
         return client.isConnected();
     }
 
@@ -278,13 +286,10 @@ public class MainReferService extends Service {
             // 订阅myTopic话题
             List<String> list = new ArrayList<>();
             if (GlobalSystemParam.isReciveBj) {
-                String bjfw = GlobalMethod.getSavedInfo(this, "bjfw");
-                if (!TextUtils.isEmpty(bjfw)) {
-                    String[] array = bjfw.split(",");
-                    if (array != null && array.length > 0) {
-                        for (String s : array) {
-                            list.add("clgj." + s);
-                        }
+                Set<String> bjfw = GlobalSystemParam.recBjbdFW;
+                if (bjfw != null && !bjfw.isEmpty()) {
+                    for (String s : bjfw) {
+                        list.add("clgj." + s);
                     }
                 }
             }
@@ -491,6 +496,7 @@ public class MainReferService extends Service {
         }
         locm.removeUpdates(ll);
         locm.removeGpsStatusListener(stlist);
+        EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
 
@@ -535,6 +541,21 @@ public class MainReferService extends Service {
 //            ViolationDAO.uploadViolationSaveIt(vios.get(i), this, serverConnCatalog);
 //        }
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void mqttEvent(MqttEvent event) {
+        //管理连接
+        if (event.getCatalog() == MANAGE_CONN) {
+            if (GlobalSystemParam.isConnBjbd && !client.isConnected()) {
+                //打开
+                doClientConnection();
+            } else if (!GlobalSystemParam.isConnBjbd && client.isConnected()) {
+                closeMqttConn();
+            }
+        } else if (event.getCatalog() == MANAGE_TOPIC) {
+            subscribeTopic();
+        }
     }
 
 

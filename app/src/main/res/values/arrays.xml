@@ -48,7 +48,7 @@
         <item>每4分钟上传一次</item>
         <item>每5分钟上传一次</item>
     </string-array>
-     <string-array name="pic_compress_entries">
+    <string-array name="pic_compress_entries">
         <item>60</item>
         <item>80</item>
         <item>100</item>
@@ -59,21 +59,21 @@
         <item>高精度</item>
     </string-array>
     <string-array name="fileEndingImage">
-        <item >jpg</item>
+        <item>jpg</item>
     </string-array>
     <string-array name="fileEndingAudio">
-        <item >mp3</item>
+        <item>mp3</item>
     </string-array>
     <string-array name="fileEndingVideo">
-        <item >mp4</item>
+        <item>mp4</item>
     </string-array>
     <string-array name="fileEndingPackage">
-        <item >apk</item>
+        <item>apk</item>
     </string-array>
     <string-array name="fileEndingWebText">
-        <item >txt</item>
+        <item>txt</item>
     </string-array>
-	<string-array name="drv_check_entries">
+    <string-array name="drv_check_entries">
         <item>0</item>
         <item>1</item>
         <item>2</item>
@@ -92,5 +92,13 @@
         <item>不验证</item>
         <item>本地机动车</item>
         <item>全国机动车</item>
+    </string-array>
+    <string-array name="netwrok_keys">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="network_values">
+        <item>线路一</item>
+        <item>线路二</item>
     </string-array>
 </resources>

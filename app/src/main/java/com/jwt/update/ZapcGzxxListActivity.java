@@ -1,6 +1,5 @@
 package com.jwt.update;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +8,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -166,10 +166,10 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
                     GlobalMethod.showErrorDialog("请选择一条记录操作", self);
                     return;
                 }
-                if (TextUtils.equals(gzxx.getCsbj(), "1")) {
-                    GlobalMethod.showErrorDialog("记录已上传,无需重复上传", self);
-                    return;
-                }
+                //if (TextUtils.equals(gzxx.getCsbj(), "1")) {
+                //    GlobalMethod.showErrorDialog("记录已上传,无需重复上传", self);
+                //    return;
+                //}
                 if (TextUtils.isEmpty(gzxx.getJssj())) {
                     GlobalMethod.showErrorDialog("工作未结束，不能上传", self);
                     return;
@@ -234,9 +234,14 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             // 暂停或提交了工作信息
-            if (requestCode == MENU_CONTINUE_GZXX || requestCode == ADDGZXX)
-                referListSel();
-            adapter.notifyDataSetChanged();
+            if (requestCode == MENU_CONTINUE_GZXX || requestCode == ADDGZXX) {
+                Bundle b = data.getExtras();
+                boolean isOver = b.getBoolean("isOver", false);
+                if (isOver) {
+                    referListSel();
+                    adapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 
@@ -339,7 +344,8 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
                     if (zapcxx.getPcZl() == Zapcxx.PCRYXXZL) {
                         ZapcRypcxxBean ryxx = (ZapcRypcxxBean) zapcxx;
                         // 更新上传标记
-                        wr = dao.uploadZapcRypcxx(ryxx, curGzxx.getId() + "",
+                        com.jwt.bean.ZapcRypcxxBean temp = ZaPcdjDao.changeRyxx(ryxx, GlobalMethod.getBoxStore(self));
+                        wr = dao.uploadZapcRypcxx(temp, curGzxx.getId() + "",
                                 curGzxx.getKssj());
                         error = checkZapcIsUpOk(wr);
                         if (TextUtils.isEmpty(error)
@@ -351,8 +357,9 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
                         }
                     } else if (zapcxx.getPcZl() == Zapcxx.PCWPXXZL) {
                         ZapcWppcxxBean wpxx = (ZapcWppcxxBean) zapcxx;
-                        wr = dao.uploadZapcWpxx(wpxx, curGzxx.getId() + "",
-                                curGzxx.getKssj());
+                        wpxx.setXlpcwpbh(wpxx.getId() + "");
+                        Log.e("zapc upload", "xlpcwpbh: " + wpxx.getXlpcwpbh() + ", bpcwprybh: " + wpxx.getBpcwprybh());
+                        wr = dao.uploadZapcWpxx(wpxx, curGzxx.getId() + "", curGzxx.getKssj());
                         error = checkZapcIsUpOk(wr);
                         if (TextUtils.isEmpty(error)
                                 && "1".equals(wr.getResult().getCgbj())) {

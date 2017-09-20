@@ -226,9 +226,32 @@ public class GlobalData {
         if (bjzlList == null)
             bjzlList = new ArrayList<>();
         bjzlList.clear();
-        bjzlList.add(new KeyValueBean("1", "车辆所有人驾驶证异常"));
-        bjzlList.add(new KeyValueBean("2", "逾期未年检车辆"));
-        bjzlList.add(new KeyValueBean("3", "重点关注大客车"));
+        bjzlList.add(new KeyValueBean("1", "事故逃逸车辆"));
+        bjzlList.add(new KeyValueBean("2", "套牌车辆"));
+        bjzlList.add(new KeyValueBean("3", "假牌车辆"));
+        bjzlList.add(new KeyValueBean("4", "逾期未年检车辆"));
+        bjzlList.add(new KeyValueBean("5", "逾期未报废车辆"));
+        bjzlList.add(new KeyValueBean("6", "历史违法未处理车辆"));
+        bjzlList.add(new KeyValueBean("7", "实时违法未处理车辆"));
+        bjzlList.add(new KeyValueBean("8", "套牌嫌疑车辆"));
+        bjzlList.add(new KeyValueBean("9", "未安装切断装置危化品车辆"));
+        bjzlList.add(new KeyValueBean("21", "刑事案件"));
+        bjzlList.add(new KeyValueBean("22", "重大治安案件"));
+        bjzlList.add(new KeyValueBean("23", "违法犯罪嫌疑交通工具"));
+        bjzlList.add(new KeyValueBean("24", "被盗抢机动车辆"));
+        bjzlList.add(new KeyValueBean("25", "治安常态管控"));
+        bjzlList.add(new KeyValueBean("31", "无牌车辆"));
+        bjzlList.add(new KeyValueBean("32", "特殊省份车辆"));
+        bjzlList.add(new KeyValueBean("33", "凌晨2-5点继续上路行驶客运车辆"));
+        bjzlList.add(new KeyValueBean("34", "车辆所有人驾驶证异常"));
+        bjzlList.add(new KeyValueBean("35", "重点关注大客车"));
+        bjzlList.add(new KeyValueBean("36", "违反本省通行规定行驶的客运车辆"));
+        bjzlList.add(new KeyValueBean("37", "未按规定办理转移登记的二手车辆"));
+        bjzlList.add(new KeyValueBean("38", "自学车辆"));
+        bjzlList.add(new KeyValueBean("39", "吸毒驾驶人车辆"));
+        bjzlList.add(new KeyValueBean("43", "黄标车管控"));
+        bjzlList.add(new KeyValueBean("99", "其他"));
+
         //
         isInitLoadData = true;
         return count;

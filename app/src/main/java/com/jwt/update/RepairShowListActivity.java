@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +22,7 @@ import android.widget.Button;
 
 import com.jwt.activity.CommTwoRowSelectAcbarListActivity;
 import com.jwt.bean.TwoColTwoSelectBean;
+import com.jwt.dao.AcdSimpleDao;
 import com.jwt.dao.RepairDao;
 import com.jwt.pojo.RepairBean;
 import com.jwt.utils.GlobalMethod;
@@ -35,12 +37,12 @@ import java.util.List;
 
 public class RepairShowListActivity extends CommTwoRowSelectAcbarListActivity {
 
-    protected static final int MENU_UPLOAD_REP = 1;
-    protected static final int MENU_DETAIL_REP = 2;
+    //protected static final int MENU_UPLOAD_REP = 1;
+    //protected static final int MENU_DETAIL_REP = 2;
     protected static final int MENU_DEL_REP = 3;
     private List<RepairBean> repairs;
     private Context self;
-    private Button btnRefer, btnNewRepair, btnQuite;
+    private Button btnUpload, btnNewRepair, btnDetail;
     private int SEQ_NEW_REP = 0;
     private ProgressDialog progressDialog;
 
@@ -51,16 +53,16 @@ public class RepairShowListActivity extends CommTwoRowSelectAcbarListActivity {
         self = this;
         changeDataFromDb();
         initView();
-        btnRefer = (Button) findViewById(R.id.btn_left);
-        btnRefer.setText("刷新");
-        btnNewRepair = (Button) findViewById(R.id.btn_center);
+        btnNewRepair = (Button) findViewById(R.id.btn_left);
         btnNewRepair.setText("新增");
-        btnQuite = (Button) findViewById(R.id.btn_right);
-        btnQuite.setText("退出");
-        btnRefer.setOnClickListener(btnListener);
+        btnUpload = (Button) findViewById(R.id.btn_center);
+        btnUpload.setText("上传");
+
+        btnDetail = (Button) findViewById(R.id.btn_right);
+        btnDetail.setText("详细");
+        btnUpload.setOnClickListener(btnListener);
         btnNewRepair.setOnClickListener(btnListener);
-        btnQuite.setOnClickListener(btnListener);
-        getListView().setOnCreateContextMenuListener(createMenuListener);
+        btnDetail.setOnClickListener(btnListener);
         setTitle("设施报修列表");
     }
 
@@ -99,14 +101,48 @@ public class RepairShowListActivity extends CommTwoRowSelectAcbarListActivity {
 
         @Override
         public void onClick(View v) {
-            if (v == btnRefer) {
-                referListView();
+            RepairBean rep = null;
+            int index = getCommAdapter().getSelectIndex();
+            if (index > -1)
+                rep = repairs.get(index);
+            if (v == btnUpload) {
+                if (rep == null) {
+                    GlobalMethod.showErrorDialog("请选择一条记录上传", self);
+                    return;
+                }
+                if (TextUtils.isEmpty(rep.getPic())
+                        || !(new File(rep.getPic()).exists())) {
+                    GlobalMethod.showErrorDialog("没有报修图片或图片不能读取，不能上传", self);
+                }
+                if (1 == rep.getScbj()) {
+                    GlobalMethod.showErrorDialog("已上传，无需重复上传", self);
+                    return;
+                }
+                UploadPicThread thread = new UploadPicThread();
+                thread.doStart(uploadPicHander, rep);
             } else if (v == btnNewRepair) {
                 // 新建设施报修
                 Intent intent = new Intent(self, RepairJtssActivity.class);
                 startActivityForResult(intent, SEQ_NEW_REP);
-            } else if (v == btnQuite) {
-                finish();
+            } else if (v == btnDetail) {
+                if (rep == null) {
+                    GlobalMethod.showErrorDialog("请选择一条记录查看", self);
+                    return;
+                }
+//                Intent intent = new Intent(self,
+//                        RepairJtssActivity.class);
+//                intent.putExtra("rep",rep);
+//                startActivity(intent);
+                String t = "报修时间：" + rep.getBxsj() + "\n";
+                t += "报修地点：" + rep.getBxdd() + "\n";
+                t += "报修项目：" + rep.getItem() + "\n";
+                t += "报修内容：" + rep.getBxnr() + "\n";
+                t += "图片地址：" + (rep.getPic() == null ? "无" : rep.getPic())
+                        + "\n";
+                t += "系统编号："
+                        + (rep.getXtbh() == null ? "无\n" : rep.getXtbh() + "\n");
+                t += "是否上传：" + (rep.getScbj() == 1 ? "已上传" : "未上传");
+                GlobalMethod.showDialog("详细信息", t, "确定", self);
             }
 
         }
@@ -123,68 +159,29 @@ public class RepairShowListActivity extends CommTwoRowSelectAcbarListActivity {
         }
     }
 
-    private OnCreateContextMenuListener createMenuListener = new OnCreateContextMenuListener() {
-
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View v,
-                                        ContextMenuInfo menuInfo) {
-            AdapterView.AdapterContextMenuInfo mi = (AdapterView.AdapterContextMenuInfo) menuInfo;
-            int pos = mi.position;
-            if (pos > -1 && repairs != null && repairs.size() > 0) {
-                RepairBean rep = repairs.get(pos);
-                menu.add(Menu.NONE, MENU_DEL_REP, Menu.NONE, "删除该记录");
-                menu.add(Menu.NONE, MENU_DETAIL_REP, Menu.NONE, "显示详细信息");
-                if (rep.getScbj() != 1) {
-                    menu.add(Menu.NONE, MENU_UPLOAD_REP, Menu.NONE, "上传该记录");
-                }
-            }
-        }
-    };
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, MENU_DEL_REP, 0, "删除");
+        return true;
+    }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo mi = (AdapterView.AdapterContextMenuInfo) item
-                .getMenuInfo();
-        int pos = mi.position;
-        if (pos > -1 && repairs != null && repairs.size() > 0) {
-            final RepairBean rep = repairs.get(pos);
-            switch (item.getItemId()) {
-                case MENU_UPLOAD_REP:
-                    if (TextUtils.isEmpty(rep.getPic())
-                            || !(new File(rep.getPic()).exists())) {
-                        GlobalMethod.showErrorDialog("没有报修图片或图片不能读取，不能上传", self);
-                        return false;
-                    }
-                    UploadPicThread thread = new UploadPicThread();
-                    thread.doStart(uploadPicHander, rep);
-                    break;
-                case MENU_DETAIL_REP:
-                    String t = "报修时间：" + rep.getBxsj() + "\n";
-                    t += "报修地点：" + rep.getBxdd() + "\n";
-                    t += "报修项目：" + rep.getItem() + "\n";
-                    t += "报修内容：" + rep.getBxnr() + "\n";
-                    t += "图片地址：" + (rep.getPic() == null ? "无" : rep.getPic())
-                            + "\n";
-                    t += "系统编号："
-                            + (rep.getXtbh() == null ? "无\n" : rep.getXtbh() + "\n");
-                    t += "是否上传：" + (rep.getScbj() == 1 ? "已上传" : "未上传");
-                    GlobalMethod.showDialog("详细信息", t, "确定", self);
-                    break;
-                case MENU_DEL_REP:
-                    GlobalMethod.showDialogTwoListener("系统提示", "是否确定删除，此操作无法恢复！",
-                            "删除", "返回", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    RepairDao.delRepair(rep.getId(),GlobalMethod.getBoxStore(self));
-                                    referListView();
-                                }
-                            }, self
-                    );
-                    break;
-                default:
-                    break;
-            }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == MENU_DEL_REP) {
+            GlobalMethod.showDialogTwoListener("系统提示", "是否确定删除，此操作无法恢复！",
+                    "删除", "返回", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            RepairBean rep = null;
+                            int index = getCommAdapter().getSelectIndex();
+                            if (index > -1)
+                                rep = repairs.get(index);
+                            RepairDao.delRepair(rep.getId(), GlobalMethod.getBoxStore(self));
+                            referListView();
+                        }
+                    }, self
+            );
         }
         return false;
     }
@@ -231,7 +228,7 @@ public class RepairShowListActivity extends CommTwoRowSelectAcbarListActivity {
                         if (TextUtils.isEmpty(err)) {
                             z = re.getResult();
                             if (z != null) {
-                                RepairDao.updateRepair( repair,GlobalMethod.getBoxStore(self));
+                                RepairDao.updateRepair(repair, GlobalMethod.getBoxStore(self));
                             }
                             data.putBoolean("isOk", true);
                             data.putString("msg", z.getScms());

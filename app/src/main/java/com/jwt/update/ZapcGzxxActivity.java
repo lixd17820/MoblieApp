@@ -12,6 +12,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ import com.jwt.bean.KeyValueBean;
 import com.jwt.dao.ZaPcdjDao;
 import com.jwt.pojo.ZapcGzxxBean;
 import com.jwt.pojo.ZapcWppcxxBean;
+import com.jwt.utils.CommParserXml;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
@@ -50,20 +52,16 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
     private static final int MENU_PCJDC = 1;
     private static final int REQ_PCJDC = 4;
     private static final int REQ_PCRY = 5;
-    // protected static final int MENU_DETAIL_PCXX = 0;
     protected static final int MENU_DELETE_PCXX = 3;
     protected static final int MENU_UPLOAD_PCXX = 2;
     private Spinner spXqxd, spXffs;
     private EditText edGzxxId, edGzdd, edKssj, edFjrs;
     private List<KeyValueBean> xqxds;
     private Context self;
-    //private ZapcGzxxBean gzxx;
     private List<SelectObjectBean<Zapcxx>> ryWpxxList = new ArrayList<>();
     private RywpListAdapter adapter;
 
-    private boolean isNew = true;
-    //private long gzxxId = 0;
-    public ProgressDialog progressDialog;
+    private boolean isNew = true, isOver = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,9 +86,8 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
         GlobalMethod.changeAdapter(spXffs,
                 ZaPcdjDao.zapcDic.get(ZaPcdjDao.XFFS), (Activity) self);
         ZapcGzxxBean gzxx = (ZapcGzxxBean) getIntent().getSerializableExtra("gzxx");
-
+        isNew = gzxx == null;
         // 从列表选择中获取盘查信息，并对界面赋值
-        isNew = (gzxx == null);
         if (!isNew) {
             edGzxxId.setText(gzxx.getId() + "");
             // isOver = !TextUtils.isEmpty(gzxx.getJssj());
@@ -105,6 +102,7 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
                 RelativeLayout main = (RelativeLayout) findViewById(R.id.main_relative_layout);
                 main.removeView(line);
             }
+            isOver = !TextUtils.isEmpty(gzxx.getJssj());
         } else {
             gzxx = new ZapcGzxxBean();
             edKssj.setText(ZaPcdjDao.sdfNor.format(new Date()));
@@ -141,55 +139,6 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
 
         });
         setTitle("治安盘查");
-//        registerForContextMenu(getListView());
-//        getListView().setOnCreateContextMenuListener(
-//                new View.OnCreateContextMenuListener() {
-//
-//                    @Override
-//                    public void onCreateContextMenu(ContextMenu menu,
-//                                                    View arg1, ContextMenuInfo menuInfo) {
-//                        AdapterContextMenuInfo mi = (AdapterContextMenuInfo) menuInfo;
-//                        int pos = mi.position;
-//                        if (pos > -1) {
-//                            Zapcxx pcxx = ryWpxxList.get(pos);
-//                            if ("1".equals(gzxx.getCsbj())) {
-//                                if ("0".equals(pcxx.getScbj()))
-//                                    menu.add(Menu.NONE, MENU_UPLOAD_PCXX,
-//                                            Menu.NONE, "上传盘查信息");
-//                            } else {
-//                                if (pcxx.getPcZl() == Zapcxx.PCRYXXZL
-//                                        && TextUtils.isEmpty(gzxx.getJssj())) {
-//                                    menu.add(Menu.NONE, MENU_PCJDC, Menu.NONE,
-//                                            "盘查机动车");
-//                                }
-//                                menu.add(Menu.NONE, MENU_DELETE_PCXX,
-//                                        Menu.NONE, "删除盘查信息");
-//                            }
-//                        }
-//                    }
-//                }
-//        );
-//        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                if (ryWpxxList != null && ryWpxxList.size() > 0 && position > -1) {
-//                    Zapcxx zapcxx = ryWpxxList.get(position);
-//                    if (zapcxx.getPcZl() == Zapcxx.PCRYXXZL) {
-//                        ZapcRypcxxBean ryxx = ZaPcdjDao.queryRyxxByBh(zapcxx.getBh(),
-//                                GlobalMethod.getBoxStore(self));
-//                        Intent intent = new Intent(self, ZapcRyxxActivity.class);
-//                        intent.putExtra("pcryxx", ryxx);
-//                        startActivity(intent);
-//                    } else if (zapcxx.getPcZl() == Zapcxx.PCWPXXZL) {
-//                        ZapcWppcxxBean wpxx = ZaPcdjDao.queryWpxxByBh(zapcxx.getBh(),
-//                                GlobalMethod.getBoxStore(self));
-//                        Intent intent = new Intent(self, ZapcJdcActivity.class);
-//                        intent.putExtra("pcwpxx", wpxx);
-//                        startActivity(intent);
-//                    }
-//                }
-//            }
-//        });
     }
 
     RywpListAdapter.ClickListener clickListener = new RywpListAdapter.ClickListener() {
@@ -208,7 +157,7 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.zapc_gzxx_pc_menu, menu);
-        if(!isNew){
+        if (isOver) {
             menu.removeItem(R.id.gzxx_pcjdc);
             menu.removeItem(R.id.gzxx_del);
         }
@@ -232,7 +181,7 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
                 intent.putExtra("pcdd", pcxx.getPcdd());
                 startActivityForResult(intent, REQ_PCJDC);
             }
-                return true;
+            return true;
             case R.id.gzxx_del: {
                 if ("0".equals(pcxx.getScbj()) || TextUtils.isEmpty(pcxx.getScbj())) {
                     GlobalMethod.showDialogTwoListener("系统提示", "是否确定删除?", "确定",
@@ -255,21 +204,21 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
                     GlobalMethod.showErrorDialog("已上传，请删除整个工作记录", self);
                 }
             }
-                return true;
+            return true;
             case R.id.gzxx_detail: {
                 if (pcxx.getPcZl() == Zapcxx.PCRYXXZL) {
                     Intent intent = new Intent(ZapcGzxxActivity.this,
                             ZapcRyxxActivity.class);
-                    intent.putExtra("pcryxx", (ZapcRypcxxBean)pcxx);
+                    intent.putExtra("pcryxx", (ZapcRypcxxBean) pcxx);
                     startActivityForResult(intent, REQ_PCRY);
                 } else if (pcxx.getPcZl() == Zapcxx.PCWPXXZL) {
                     Intent intent = new Intent(ZapcGzxxActivity.this,
                             ZapcJdcActivity.class);
-                    intent.putExtra("pcwpxx", (ZapcWppcxxBean)pcxx);
+                    intent.putExtra("pcwpxx", (ZapcWppcxxBean) pcxx);
                     startActivityForResult(intent, REQ_PCJDC);
                 }
             }
-                return true;
+            return true;
             default:
                 break;
         }
@@ -280,6 +229,10 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
     private View.OnClickListener overPcBut = new View.OnClickListener() {
         @Override
         public void onClick(View arg0) {
+            if (isOver) {
+                GlobalMethod.showErrorDialog("盘查已结束，无需结果", self);
+                return;
+            }
             ZapcGzxxBean gz = new ZapcGzxxBean();
             String err = saveGzxx(gz);
             if (!TextUtils.isEmpty(err)) {
@@ -293,6 +246,10 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
     private View.OnClickListener pausePcBut = new View.OnClickListener() {
         @Override
         public void onClick(View arg0) {
+            if (isOver) {
+                GlobalMethod.showErrorDialog("盘查已结束，无需暂停", self);
+                return;
+            }
             ZapcGzxxBean gz = new ZapcGzxxBean();
             String err = saveGzxx(gz);
             if (!TextUtils.isEmpty(err)) {
@@ -306,6 +263,10 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
     private View.OnClickListener startPcBut = new View.OnClickListener() {
         @Override
         public void onClick(View arg0) {
+            if (isOver) {
+                GlobalMethod.showErrorDialog("盘查已结束，不能继续盘查人员", self);
+                return;
+            }
             ZapcGzxxBean gz = null;
             if (isNew) {
                 gz = new ZapcGzxxBean();
@@ -405,7 +366,7 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
      */
     private void closeViewAndReturn(ZapcGzxxBean gz, boolean isOver) {
         Intent i = new Intent();
-        // Bundle b = new Bundle();
+        Bundle b = new Bundle();
         if (isOver)
             // 已结束，设置结束时间
             gz.setJssj(ZaPcdjDao.sdfDpt.format(new Date()));
@@ -413,101 +374,10 @@ public class ZapcGzxxActivity extends ActionBarListActivity {
         if (!TextUtils.isEmpty(id))
             gz.setId(Long.valueOf(id));
         ZaPcdjDao.updateGzxx(gz, GlobalMethod.getBoxStore(self));
-        // b.putBoolean("isNew", isNew);
-        // b.putSerializable("gzxx", gzxx);
-        // i.putExtras(b);
+        b.putBoolean("isOver", isOver);
+        i.putExtras(b);
         setResult(RESULT_OK, i);
         finish();
 
     }
-
-    class UploadRyWpThread extends Thread {
-        private Handler mHandler;
-        private Zapcxx pcxx;
-        private long gzxxId;
-
-        public UploadRyWpThread(Handler handler, long gzxxId, Zapcxx pcxx) {
-            this.mHandler = handler;
-            this.pcxx = pcxx;
-            this.gzxxId = gzxxId;
-        }
-
-        /**
-         * 启动线程
-         */
-        public void doStart() {
-            // 显示进度对话框
-            progressDialog = new ProgressDialog(self);
-            progressDialog.setTitle("提示");
-            progressDialog.setMessage("系统正在上传请稍等...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            this.start();
-        }
-
-        /**
-         * 线程运行，上传盘查，成功后发送信号给进度条
-         */
-        @Override
-        public void run() {
-            ZapcGzxxBean gzxx = ZaPcdjDao.getGzxxById(gzxxId, GlobalMethod.getBoxStore(self));
-            if (gzxx != null) {
-                RestfulDao dao = RestfulDaoFactory.getDao();
-                WebQueryResult<ZapcReturn> re = null;
-                if (pcxx.getPcZl() == Zapcxx.PCRYXXZL) {
-                    ZapcRypcxxBean ryxx = ZaPcdjDao.queryRyxxByBh(pcxx.getId(),
-                            GlobalMethod.getBoxStore(self));
-                    // 更新上传标记
-                    re = dao.uploadZapcRypcxx(ryxx, gzxx.getId() + "", gzxx.getKssj());
-                    if (checkWebResult(re)) {
-                        ZaPcdjDao.setPcryxxIsUpload(ryxx.getId(),
-                                GlobalMethod.getBoxStore(self));
-                    }
-                } else if (pcxx.getPcZl() == Zapcxx.PCWPXXZL) {
-                    ZapcWppcxxBean wpxx = ZaPcdjDao.queryWpxxByBh(pcxx.getId(),
-                            GlobalMethod.getBoxStore(self));
-                    re = dao.uploadZapcWpxx(wpxx, gzxx.getId() + "", gzxx.getKssj());
-                    if (checkWebResult(re)) {
-                        ZaPcdjDao.setWpxxIsUpload(wpxx.getId(),
-                                GlobalMethod.getBoxStore(self));
-                    }
-                }
-                Message msg = mHandler.obtainMessage();
-                Bundle b = new Bundle();
-                b.putSerializable("re", re);
-                msg.setData(b);
-                mHandler.sendMessage(msg);
-            }
-            progressDialog.dismiss();
-
-        }
-    }
-
-    Handler uploadHandler = new Handler() {
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public void handleMessage(Message msg) {
-            Bundle b = msg.getData();
-            WebQueryResult<ZapcReturn> re = (WebQueryResult<ZapcReturn>) b
-                    .getSerializable("re");
-            if (re == null) {
-                GlobalMethod.showErrorDialog("未知错误", self);
-            }
-            if (checkWebResult(re)) {
-                // 重新加载界面
-                refershView();
-                GlobalMethod.showDialog("系统信息", re.getResult().getScms(), "确定",
-                        self);
-            } else {
-                if (re.getStatus() != HttpURLConnection.HTTP_OK)
-                    GlobalMethod.showErrorDialog("未知错误", self);
-                else {
-                    GlobalMethod
-                            .showErrorDialog(re.getResult().getScms(), self);
-                }
-            }
-        }
-
-    };
 }

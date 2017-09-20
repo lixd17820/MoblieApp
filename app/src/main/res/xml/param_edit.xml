@@ -1,45 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="系统参数设定" >
+    android:title="系统参数设定">
 
     <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/network_values"
+        android:entryValues="@array/netwrok_keys"
         android:key="network_state"
+        android:summary="这是一个单选列表"
         android:title="网络状态" />
 
     <CheckBoxPreference
+        android:defaultValue="false"
+        android:summaryOn="上传定位信息"
+        android:summaryOff="不上传定位信息"
         android:key="gps_upload"
         android:title="上传GPS定位信息" />
 
     <ListPreference
+        android:defaultValue="5"
         android:entries="@array/gps_freq_values"
         android:entryValues="@array/gps_freq_entries"
         android:key="gps_up_freq"
         android:title="上传GPS频率" />
 
     <CheckBoxPreference
+        android:defaultValue="false"
         android:key="need_sfzh"
+        android:summaryOn="严格验证身份证号码"
+        android:summaryOff="不验证身份号码"
         android:title="非机动车身份证验证模式" />
 
     <ListPreference
+        android:defaultValue="80"
         android:entries="@array/pic_compress_values"
         android:entryValues="@array/pic_compress_entries"
         android:key="pic_compress"
         android:title="图片压缩质量" />
     <ListPreference
+        android:defaultValue="2"
         android:entries="@array/drv_check_values"
         android:entryValues="@array/drv_check_entries"
         android:key="drv_check"
         android:title="驾驶证保存验证" />
     <ListPreference
+        android:defaultValue="2"
         android:entries="@array/veh_check_values"
         android:entryValues="@array/veh_check_entries"
         android:key="veh_check"
         android:title="机动车保存验证" />
-     <CheckBoxPreference
+    <CheckBoxPreference
+        android:defaultValue="true"
         android:key="preview_photo"
+        android:summaryOn="预览"
+        android:summaryOff="不预览"
         android:title="非现场、事故拍照预览" />
     <CheckBoxPreference
+        android:defaultValue="false"
         android:key="skip_spinner"
+        android:summary="不要轻易打开"
         android:title="人员类型变化问题点这里" />
 
 </PreferenceScreen>

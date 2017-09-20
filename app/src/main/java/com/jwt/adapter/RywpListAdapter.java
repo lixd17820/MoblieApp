@@ -69,7 +69,7 @@ public class RywpListAdapter extends RecyclerView.Adapter<RywpListAdapter.ViewHo
         Zapcxx b = bean.getBean();
         String[] s = b.getXxms().split("\n");
         holder.tv1.setText(s[0]);
-        holder.tv2.setText(s[1]);
+        holder.tv2.setText(s[1] + ("1".equals(b.getScbj()) ? "，已上传" : "，未上传"));
         holder.imgUp.setImageResource(b.getPcZl() == Zapcxx.PCRYXXZL ? R.drawable.ic_person_black_24dp :
                 R.drawable.ic_drive_eta_black_24dp);
         holder.imgDown.setImageResource(bean.isSel() ? R.drawable.ic_check_box_black_24dp

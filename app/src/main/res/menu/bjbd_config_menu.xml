@@ -2,14 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_bjzl"
+        android:id="@+id/menu_bj_config"
         android:orderInCategory="100"
-        android:title="@string/bjbd_zl"
-        app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/menu_bjfw"
-        android:orderInCategory="100"
-        android:title="@string/bjbd_fw"
+        android:title="@string/bjbd_config"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/menu_conn_status"

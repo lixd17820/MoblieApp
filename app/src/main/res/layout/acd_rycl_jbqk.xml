@@ -81,7 +81,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="驾驶员档案编号" />
+                    android:hint="驾驶员档案编号"
+                    android:inputType="numberDecimal" />
             </LinearLayout>
 
             <LinearLayout
@@ -92,7 +93,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="身份证号 "></TextView>
+                    android:text="身份证号 "/>
 
                 <EditText
                     android:id="@+id/edit_acd_ry_sfzh"

@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
@@ -78,8 +79,10 @@ import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1009,6 +1012,14 @@ public class GlobalMethod {
         return -1;
     }
 
+    public static int indexOf(CharSequence[] array, String value) {
+        for (int i = 0; i < array.length; i++) {
+            if (value.toUpperCase().equals(array[i].toString().toUpperCase()))
+                return i;
+        }
+        return -1;
+    }
+
     /**
      * 本方法用于综合查询返回值的取值
      *
@@ -1389,19 +1400,49 @@ public class GlobalMethod {
         }
     }
 
-//    /**
-//     * 保存系统参数
-//     *
-//     * @param context
-//     */
-//    public static void saveParam(Context context) {
-//        // File paramDir = new File("/data/data/"
-//        File paramDir = context.getFilesDir();
-//        if (paramDir.exists())
-//            paramDir.mkdirs();
-//        File paramFile = new File(paramDir, "param.xml");
-//        saveParam(context, paramFile);
-//    }
+    /**
+     * 保存系统参数
+     *
+     * @param context
+     */
+    public static void saveParam(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        GlobalSystemParam.vehCheckFs = Integer.valueOf(prefs.getString("veh_check", "2"));
+        GlobalSystemParam.drvCheckFs = Integer.valueOf(prefs.getString("drv_check", "2"));
+        GlobalSystemParam.picCompress = Integer.valueOf(prefs.getString("pic_compress", "60"));
+        GlobalSystemParam.uploadFreq = Integer.valueOf(prefs.getString("gps_up_freq", "5"));
+        GlobalSystemParam.drvCheckFs = Integer.valueOf(prefs.getString("network_state", "0"));
+        GlobalSystemParam.isPreviewPhoto = prefs.getBoolean("preview_photo", true);
+        GlobalSystemParam.isGpsUpload = prefs.getBoolean("gps_upload", false);
+        GlobalSystemParam.isSkipSpinner = prefs.getBoolean("skip_spinner", false);
+        GlobalSystemParam.isCheckFjdcSfzm = prefs.getBoolean("need_sfzh", false);
+        GlobalSystemParam.recBjbdFW = prefs.getStringSet("bjbd_fw",new HashSet<String>());
+        GlobalSystemParam.recBjbdZl= prefs.getStringSet("bjbd_catalog",new HashSet<String>());
+        GlobalSystemParam.isReciveBj = prefs.getBoolean("is_rec_bj", true);
+        GlobalSystemParam.isReciveText = prefs.getBoolean("is_rec_text", true);
+        GlobalSystemParam.isNotNotice = prefs.getBoolean("not_notice",true);
+        GlobalSystemParam.bjRingtone = prefs.getString("bj_ringtone","");
+        GlobalSystemParam.isConnBjbd = prefs.getBoolean("is_conn_bjbd",true);
+
+ //       Map<String, ?> map = prefs.getAll();
+//        for (Entry<String, ?> entry : map.entrySet()) {
+//            Log.e("saveParam", " " + entry.getKey() + "/"
+//                    + entry.getValue().getClass().getName());
+//        }
+//        Log.e("GlbalMethod", prefs.getAll().size() + "个设置");
+    }
+
+    public static void loadParam(SharedPreferences prefs, String name, String value) {
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putString(name, value);
+        edit.commit();
+    }
+
+    public static void loadParam(SharedPreferences prefs, String name, boolean value) {
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putBoolean(name, value);
+        edit.commit();
+    }
 
     // public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, float roundPx)
     // {
@@ -1775,7 +1816,7 @@ public class GlobalMethod {
         editor.commit();//提交修改
     }
 
-    public static String join(List<String> list, String d) {
+    public static String join(Collection<String> list, String d) {
         String re = "";
         for (String s : list) {
             if (!TextUtils.isEmpty(s))

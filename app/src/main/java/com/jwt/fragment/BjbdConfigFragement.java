@@ -34,21 +34,21 @@ import java.util.Set;
 
 public class BjbdConfigFragement extends PreferenceFragment {
 
-    private CheckBoxPreference mRecBjbd, mRecText;
+    //private CheckBoxPreference mRecBjbd, mRecText;
     private SwitchPreference mOpenBjbd;
     private MultiSelectListPreference mBjbdCatalog, mBjbdFw;
-    private Activity self;
-    private SharedPreferences sp;
+    //private Activity self;
+    //private SharedPreferences sp;
     private String[] bjzlValues, bjzlNames, glbmValues, glbmNames;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        self = this.getActivity();
-        sp = getPreferenceManager().getSharedPreferences();
+        //self = this.getActivity();
+        //sp = getPreferenceManager().getSharedPreferences();
         addPreferencesFromResource(R.xml.param_bjbd);
-        mRecBjbd = (CheckBoxPreference) findPreference("is_rec_bj");
-        mRecText = (CheckBoxPreference) findPreference("is_rec_text");
+        //mRecBjbd = (CheckBoxPreference) findPreference("is_rec_bj");
+        //mRecText = (CheckBoxPreference) findPreference("is_rec_text");
         mOpenBjbd = (SwitchPreference)findPreference("is_conn_bjbd");
         mBjbdCatalog = (MultiSelectListPreference) findPreference("bjbd_catalog");
         mBjbdFw = (MultiSelectListPreference) findPreference("bjbd_fw");
@@ -125,6 +125,9 @@ public class BjbdConfigFragement extends PreferenceFragment {
                 MqttEvent event = new MqttEvent();
                 event.setCatalog(MainReferService.MANAGE_TOPIC);
                 EventBus.getDefault().post(event);
+            }else if(preference == mBjbdCatalog){
+                GlobalSystemParam.recBjbdZl = value;
+                GlobalSystemParam.syncBjzl();
             }
             return true;
         }

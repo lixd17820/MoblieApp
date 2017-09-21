@@ -139,6 +139,7 @@ public class JbywFxcActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // Serialize the current dropdown position.
+        Log.e("AcdTakePhotoActivity", "onSaveInstanceState");
         outState.putString(STATE_TZSBH, tzsbh);
         outState.putBoolean(STATE_IS_SAVE_FILE_BOL, isSaveFile);
         outState.putBoolean(STATE_IS_SAVE_TEXT_BOL, isSaveText);
@@ -209,10 +210,12 @@ public class JbywFxcActivity extends AppCompatActivity {
         gridView.setLayoutManager(new GridLayoutManager(this, 2));
         gridView.setAdapter(adapter = new ImageListAdapter(imgClick, new ArrayList<String>()));
         // 设置打印的名字，打印时在数据库中取
-        String pn = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_NAME);
-        String pd = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_ADDRESS);
-        if (!TextUtils.isEmpty(pn) && !TextUtils.isEmpty(pd))
-            printerInfo = new KeyValueBean(pn, pd);
+        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
+        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
+        Log.e("PrintList", pname + "/" + paddress);
+        if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
+            printerInfo = new KeyValueBean(pname, paddress);
+        }
 
         // String printerName = !TextUtils.isEmpty(printerInfo.getValue()) ?
         // printerInfo

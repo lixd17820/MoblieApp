@@ -99,8 +99,9 @@ public class JbywPrintJdsList extends ActionBarListActivity {
         puList = getViolationByConds(wslb);
         strList = new ArrayList<TwoLineSelectBean>();
         getList(puList);
-        String pname = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_NAME);
-        String paddress = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_ADDRESS);
+        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
+        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
+        Log.e("PrintList", pname + "/" + paddress);
         if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
             printerInfo = new KeyValueBean(pname, paddress);
         }
@@ -391,7 +392,7 @@ public class JbywPrintJdsList extends ActionBarListActivity {
     }
 
     private void printJdsBySelect(VioViolation vio) {
-        if (TextUtils.isEmpty(printerInfo.getValue())) {
+        if (printerInfo == null || TextUtils.isEmpty(printerInfo.getValue())) {
             GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
             return;
         }

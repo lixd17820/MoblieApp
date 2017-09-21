@@ -197,6 +197,8 @@ public class ParserJson {
 
     public static JSONArray arrayToJsonArray(List array) {
         JSONArray ar = new JSONArray();
+        if(array == null)
+            return ar;
         for (Object obj : array) {
             JSONObject j = objToJson(obj);
             ar.put(j);

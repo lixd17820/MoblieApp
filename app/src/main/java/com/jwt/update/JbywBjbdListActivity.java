@@ -55,7 +55,6 @@ public class JbywBjbdListActivity extends AppCompatActivity {
     private BjbdAdapter adapter;
     private RecyclerView mRecycleView;
     private Box<Bjbd> bjbdBox;
-    private Set<String> bjzlArray = new HashSet<>();
     private Activity self;
 
     private List<Bjbd> bjbdList = new ArrayList<Bjbd>();
@@ -98,7 +97,7 @@ public class JbywBjbdListActivity extends AppCompatActivity {
         bjbdBox = ((App) getApplication()).getBoxStore().boxFor(Bjbd.class);
         long count = bjbdBox.count();
         if (count > 100) {
-            bjbdList = bjbdBox.query().build().find(0, count -100);
+            bjbdList = bjbdBox.query().build().find(0, count - 100);
             bjbdBox.remove(bjbdList);
         }
         List<Bjbd> bjlist = bjbdBox.getAll();
@@ -118,12 +117,7 @@ public class JbywBjbdListActivity extends AppCompatActivity {
             mRecycleView.smoothScrollToPosition(adapter.getItemCount() - 1);
         ShortcutBadger.removeCount(this);
         GlobalData.isBadger = false;
-        if (GlobalSystemParam.recBjbdZl != null && !GlobalSystemParam.recBjbdZl.isEmpty()) {
-            for (String key : GlobalSystemParam.recBjbdZl) {
-                String name = GlobalMethod.getStringFromKVListByKey(GlobalData.bjzlList, key);
-                bjzlArray.add(name);
-            }
-        }
+        GlobalSystemParam.syncBjzl();
         Intent serviceIntent = new Intent(this, MainReferService.class);
         bindService(serviceIntent, serviceConn, Context.BIND_AUTO_CREATE);
     }
@@ -170,8 +164,8 @@ public class JbywBjbdListActivity extends AppCompatActivity {
 
     private boolean isRecBjbd(Bjbd bjbd) {
         if ("1".equals(bjbd.getType()) &&
-                (!GlobalSystemParam.isReciveBj || bjzlArray == null ||
-                        !bjzlArray.contains(bjbd.getBjyy())))
+                (!GlobalSystemParam.isReciveBj ||
+                        !GlobalSystemParam.bjzlNames.contains(bjbd.getBjyy())))
             return false;
         //这是群发信息
         if ("0".equals(bjbd.getType()) && !GlobalSystemParam.isReciveText)
@@ -196,19 +190,19 @@ public class JbywBjbdListActivity extends AppCompatActivity {
                 startActivityForResult(intent, CONFIG_BJ);
             }
             return true;
-            case R.id.menu_open_conn: {
-                String s = "已连接，无需重复连接";
-                if (!mrService.isMqttConn()) {
-                    mrService.doClientConnection();
-                    s = "正在后台连接，请在点连接状态查询";
-                }
-                new MaterialDialog.Builder(this)
-                        .title("系统提示")
-                        .content(s)
-                        .positiveText("知道了")
-                        .show();
-            }
-            return true;
+//            case R.id.menu_open_conn: {
+//                String s = "已连接，无需重复连接";
+//                if (!mrService.isMqttConn()) {
+//                    mrService.doClientConnection();
+//                    s = "正在后台连接，请在点连接状态查询";
+//                }
+//                new MaterialDialog.Builder(this)
+//                        .title("系统提示")
+//                        .content(s)
+//                        .positiveText("知道了")
+//                        .show();
+//            }
+//            return true;
             case R.id.menu_conn_status: {
                 String status = "目前报警连接状态：" + (mrService.isMqttConn() ? "连接成功" : "无连接");
                 new MaterialDialog.Builder(this)

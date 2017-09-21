@@ -203,8 +203,9 @@ public abstract class ViolationActivity extends AppCompatActivity {
         setViewDefaultValue(preViolation);
 
         // 设置打印的名字，打印时在数据库中取
-        String pname = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_NAME);
-        String paddress = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_ADDRESS);
+        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
+        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
+        Log.e("PrintList", pname + "/" + paddress);
         if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
             printerInfo = new KeyValueBean(pname, paddress);
         }

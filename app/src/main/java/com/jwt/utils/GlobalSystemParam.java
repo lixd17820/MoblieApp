@@ -59,4 +59,16 @@ public class GlobalSystemParam {
     public static Set<String> recBjbdFW = new HashSet<>();
 
     public static ConnCata connCata = ConnCata.OUTSIDECONN;
+
+    public static Set<String> bjzlNames = new HashSet<>();
+
+    public static void syncBjzl(){
+        bjzlNames.clear();
+        if (recBjbdZl != null && !recBjbdZl.isEmpty()) {
+            for (String key : recBjbdZl) {
+                String name = GlobalMethod.getStringFromKVListByKey(GlobalData.bjzlList, key);
+                bjzlNames.add(name);
+            }
+        }
+    }
 }

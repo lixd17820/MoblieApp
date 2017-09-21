@@ -11,6 +11,7 @@ import com.jwt.bean.GcmBbddBean;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.MjJobBean;
 import com.jwt.dao.AcdSimpleDao;
+import com.jwt.event.DownApkEvent;
 import com.jwt.pojo.RepairBean;
 import com.jwt.bean.SchoolZtzBean;
 import com.jwt.bean.SpringKcdjBean;
@@ -43,6 +44,7 @@ import com.jwt.zapc.ZapcReturn;
 import com.jwt.bean.ZapcRypcxxBean;
 
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -381,7 +383,7 @@ public abstract class RestfulDao {
             String xml = CommParserXml.objToXml(acd);
             String ryxx = "";
             for (AcdSimpleHumanBean human : humans) {
-               ryxx += AcdSimpleDao.createRyxxStr(human);
+                ryxx += AcdSimpleDao.createRyxxStr(human);
             }
             Map<String, String> postParams = new HashMap<>();
             postParams.put("acd", xml);
@@ -1533,14 +1535,13 @@ public abstract class RestfulDao {
         return count;
     }
 
-    public long downloadFile(String urlStr, File dest, long fileSize,
-                             Handler handler) {
+    public long downloadFile(String urlStr, File dest, long fileSize, String fn) {
         long count = 0;
         byte[] b = new byte[1024];
         try {
-            String u = getUrl() + urlStr;
-            Log.e("RestfulDao", "下载文件地址：" + u);
-            URL url = new URL(u);
+            //String u = getUrl() + urlStr;
+            Log.e("RestfulDao", "下载文件地址：" + urlStr);
+            URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoInput(true);
             conn.connect();
@@ -1550,21 +1551,24 @@ public abstract class RestfulDao {
                 return 0;
             InputStream is = conn.getInputStream();
             FileOutputStream out = new FileOutputStream(dest);
-            int len = -1;
+            Log.e("down file",dest.getAbsolutePath());
+            int len = 0;
             while ((len = is.read(b)) > 0) {
                 out.write(b, 0, len);
                 count += len;
                 int step = (int) (count * 100 / fileSize);
-                sendData(0, 0, step, handler);
+                //sendData(0, 0, step, handler);
+                EventBus.getDefault().post(new DownApkEvent(false, step, fn));
             }
             out.close();
             is.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        sendData(0, 1, 100, handler);
+        EventBus.getDefault().post(new DownApkEvent(false, 100, fn));
         return count;
     }
+
 
     public void sendData(int err, int what, int step, Handler mHandler) {
         if (mHandler == null)

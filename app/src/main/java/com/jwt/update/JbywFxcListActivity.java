@@ -338,6 +338,7 @@ public class JbywFxcListActivity extends AppCompatActivity {
 
     /**
      * 上传数据时的更新
+     *
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -360,11 +361,15 @@ public class JbywFxcListActivity extends AppCompatActivity {
 
     private void printFxcTzs(VioFxczfBean fxczf) {
         // 设置打印的名字，打印时在数据库中取
-        KeyValueBean printerInfo = new KeyValueBean(
-                GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_NAME),
-                GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_ADDRESS));
+        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
+        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
+        Log.e("PrintList", pname + "/" + paddress);
+        KeyValueBean printerInfo = null;
+        if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
+            printerInfo = new KeyValueBean(pname, paddress);
+        }
 
-        if (TextUtils.isEmpty(printerInfo.getValue())) {
+        if (printerInfo == null || TextUtils.isEmpty(printerInfo.getValue())) {
             GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
             return;
         }

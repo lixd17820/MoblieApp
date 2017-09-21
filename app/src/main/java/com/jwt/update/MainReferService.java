@@ -3,7 +3,9 @@ package com.jwt.update;
 import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,12 +16,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -72,6 +76,7 @@ public class MainReferService extends Service {
     public static final String JQTB_DOWNLOAD_BROADCAST = "com.ntga.jwt.main.jqtb";
     public static final int MANAGE_CONN = 1;
     public static final int MANAGE_TOPIC = 2;
+    private static final int NOTIFICATIONS_ID = 1000;
 
     private boolean isGpsComeIn = false;
     private LocationManager locm;
@@ -160,6 +165,7 @@ public class MainReferService extends Service {
         //启动报警
         initMqtt();
         checkMqtt();
+        GlobalSystemParam.syncBjzl();
     }
 
     /**
@@ -330,12 +336,11 @@ public class MainReferService extends Service {
                 e.printStackTrace();
                 Log.e("main server", e.getMessage());
             }
-            if (bjbd != null) {
-                bjbdBox.put(bjbd);
-                EventBus.getDefault().post(bjbd);
-            } else {
-                Log.e("main server", "parse json error");
-            }
+            if (bjbd == null || !isRecBjbd(bjbd))
+                return;
+
+            bjbdBox.put(bjbd);
+            EventBus.getDefault().post(bjbd);
             if (GlobalData.isBadger) {
                 long count = bjbdBox.query().notEqual(Bjbd_.ydbj, 1).build().count();
                 if (count > 99)
@@ -344,6 +349,10 @@ public class MainReferService extends Service {
             }
             String str2 = topic + ";qos:" + message.getQos() + ";retained:" + message.isRetained() + message.getId() + ";";
             Log.e(TAG, str2);
+            Log.e(TAG, GlobalSystemParam.isNotNotice + "");
+            if (GlobalSystemParam.isNotNotice)
+                return;
+            sendNotification(bjbd);
         }
 
 
@@ -360,6 +369,43 @@ public class MainReferService extends Service {
             //}
         }
     };
+
+    private void sendNotification(Bjbd bjbd) {
+        NotificationCompat.Builder nb = new NotificationCompat.Builder(
+                MainReferService.this);
+        nb.setSmallIcon(R.drawable.ic_speech_bubble);
+        nb.setTicker("警务通报警提醒");
+        nb.setContentTitle("警务通报警");
+        String txt = bjbd.getBjyy();
+        if ("1".equals(bjbd.getType())) {
+            txt = bjbd.getDdsj() + GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList, bjbd.getHpzl())
+                    + bjbd.getHphm() + "通过" + bjbd.getCbz() + "，布控原因：" + bjbd.getBjyy();
+        }
+        nb.setContentText(txt);
+        nb.setAutoCancel(true);
+        nb.setWhen(System.currentTimeMillis());
+        ComponentName comp = new ComponentName("com.jwt.update",
+                "com.jwt.update.JbywBjbdListActivity");
+        Intent intent = new Intent();
+        intent.setComponent(comp);
+        PendingIntent contentIntent = PendingIntent.getActivity(this,
+                0, intent, 0);
+        nb.setContentIntent(contentIntent);
+        Notification ni = nb.build();
+        if (!TextUtils.isEmpty(GlobalSystemParam.bjRingtone))
+            ni.sound = Uri.parse(GlobalSystemParam.bjRingtone);
+        noticeManager.notify(NOTIFICATIONS_ID, ni);
+    }
+
+    private boolean isRecBjbd(Bjbd bjbd) {
+        if ("1".equals(bjbd.getType()) &&
+                (!GlobalSystemParam.isReciveBj || !GlobalSystemParam.bjzlNames.contains(bjbd.getBjyy())))
+            return false;
+        //这是群发信息
+        if ("0".equals(bjbd.getType()) && !GlobalSystemParam.isReciveText)
+            return false;
+        return true;
+    }
 
     /**
      * 判断网络是否连接

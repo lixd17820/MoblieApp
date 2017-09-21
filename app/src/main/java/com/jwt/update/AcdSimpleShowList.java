@@ -75,10 +75,12 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
             return;
         setContentView(R.layout.comm_four_btn_show_list);
         setTitle(getIntent().getStringExtra("title"));
-        String pn = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_NAME);
-        String pd = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_ADDRESS);
-        if (!TextUtils.isEmpty(pn) && !TextUtils.isEmpty(pd))
-            printerInfo = new KeyValueBean(pn, pd);
+        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
+        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
+        Log.e("PrintList", pname + "/" + paddress);
+        if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
+            printerInfo = new KeyValueBean(pname, paddress);
+        }
         // 初始化打印机
         acds = AcdSimpleDao.getAllAcd(GlobalMethod.getBoxStore(self));
         createBeanFromAcd();
@@ -293,7 +295,7 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
 
     private void menuPrintAcd(int pos) {
         final AcdSimpleBean acd = acds.get(pos);
-        if (TextUtils.equals(acd.getScbj(), "0")) {
+        if (!TextUtils.equals(acd.getScbj(), "1")) {
             GlobalMethod.showErrorDialog("上传后才能打印", self);
             return;
         }
@@ -366,7 +368,7 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
 
     private void printAcdBySelect(AcdSimpleBean acd,
                                   List<AcdSimpleHumanBean> humans) {
-        if (TextUtils.isEmpty(printerInfo.getValue())) {
+        if (printerInfo == null || TextUtils.isEmpty(printerInfo.getValue())) {
             GlobalMethod.showErrorDialog("没有配置默认打印机!", self);
             return;
         }

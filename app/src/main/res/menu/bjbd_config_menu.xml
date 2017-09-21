@@ -11,9 +11,4 @@
         android:orderInCategory="100"
         android:title="@string/conn_status"
         app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/menu_open_conn"
-        android:orderInCategory="100"
-        android:title="@string/open_conn"
-        app:showAsAction="ifRoom"/>
 </menu>

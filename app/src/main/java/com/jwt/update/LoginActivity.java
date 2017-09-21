@@ -9,9 +9,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -32,10 +36,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jwt.bean.LoginMjxxBean;
 import com.jwt.bean.LoginResultBean;
 import com.jwt.bean.MessageEvent;
 import com.jwt.bean.UpdateFile;
+import com.jwt.event.DownApkEvent;
 import com.jwt.event.DownSpeedEvent;
 import com.jwt.event.LoginEvent;
 import com.jwt.pojo.FrmCode;
@@ -53,6 +59,8 @@ import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.GlobalSystemParam;
 import com.jwt.utils.ParserJson;
+import com.jwt.web.RestfulDao;
+import com.jwt.web.RestfulDaoFactory;
 import com.jwt.web.WebQueryResult;
 
 import org.greenrobot.eventbus.EventBus;
@@ -60,7 +68,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +100,6 @@ public class LoginActivity extends AppCompatActivity {
     public static String outSideDir = "";
 
     // 登录成功后返回的信息对象,要重新发送给主程序
-    private List<UpdateFile> needUps, oldNeedUps;
     private String mjjh, mm;
     private String newMd5, oldMd5;
 
@@ -107,8 +116,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final int MENU_CHECK_UPDATE = 101;
     private static final int MENU_READ_SERIAL = 102;
 
-
-    private ProgressDialog progressDialog;
+    private List<UpdateFile> needs = new ArrayList<>();
+    private MaterialDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,23 +134,14 @@ public class LoginActivity extends AppCompatActivity {
         JSONObject obj = ParserJson.getJsonObject(mjxx);
         String jybh = obj.optString("jh", "3206");
         editMjjh.setText(jybh);
-        outSideDir = Environment.getExternalStorageDirectory().getPath()
-                + "/jwtdb/";
-        File f = new File(outSideDir);
-        if (!f.exists())
-            f.mkdirs();
-
-
         findViewById(R.id.but_login).setOnClickListener(loginClick);
         findViewById(R.id.but_login_cancel).setOnClickListener(cancelLogin);
         setTitle("系统登录");
 
-        double version = GlobalMethod.getApkVerionName("com.jwt.update", self);
-        tvVersion.setText("系统版本号：" + version);
-        progressDialog = new ProgressDialog(self);
-        progressDialog.setTitle("提示");
-        progressDialog.setCancelable(false);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dialog = new MaterialDialog.Builder(self)
+                .title("系统提示")
+                .content("正在登录")
+                .progress(false, 1, true).build();
 
         PermissionGen.with(LoginActivity.this)
                 .addRequestCode(100)
@@ -153,7 +153,6 @@ public class LoginActivity extends AppCompatActivity {
                         Manifest.permission.RECEIVE_SMS,
                         Manifest.permission.READ_CONTACTS)
                 .request();
-
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -235,35 +234,31 @@ public class LoginActivity extends AppCompatActivity {
             }
             //
             returnCount = 0;
-            needUps = new ArrayList<UpdateFile>();
             // 开始登录，隐藏控件
             //setVisibleView(true);
             // 启动线程
-            progressDialog.setTitle("系统登录");
-            progressDialog.setMessage("正在登录");
-            progressDialog.setMax(100);
-            progressDialog.show();
+            dialog.show();
             new LoginUpdateThread().doStart(mjjh, mm, GlobalData.serialNumber);
 
         }
     };
+
+    List<String> notNeedPack = Arrays.asList("com.android.provider.userdata", "com.acd.simple.provider",
+            "com.wonder.vpnClient", "com.android.provider.fixcode",
+            "com.android.provider.flashcode",
+            "com.ntga.jwt", "com.android.provider.wfdmcode",
+            "com.android.provider.roadcode");
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void loginEventBus(LoginEvent re) {
 
         if (re == null || re.getStatus() != 200
                 || re.getResult() == null) {
-            progressDialog.dismiss();
-            exitLogin("登录网络连接错误");
+            dialog.dismiss();
+            GlobalMethod.showErrorDialog(TextUtils.isEmpty(re.getStMs()) ? "登录网络连接错误" : re.getStMs(), self);
             return;
         }
         LoginResultBean login = re.getResult();
-        if (!TextUtils.equals(login.getCode(), "1")) {
-            progressDialog.dismiss();
-            exitLogin(login.getCwms());
-            return;
-        }
-        // 保存个人信息
         LoginMjxxBean mj = login.getMj();
         JSONObject obj = ParserJson.objToJson(mj);
         SharedPreferences sharedPreferences = self.getSharedPreferences(GlobalConstant.MJXX_INFO, MODE_PRIVATE);
@@ -280,7 +275,7 @@ public class LoginActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (mjxx == null) {
-                progressDialog.dismiss();
+                dialog.dismiss();
                 exitLogin("服务器返回数据错误");
                 return;
             }
@@ -293,6 +288,12 @@ public class LoginActivity extends AppCompatActivity {
             exitLogin("服务器出现错误，请与管理员联系");
             return;
         }
+        needs = checkNeedApk(ufs);
+        if (!needs.isEmpty()) {
+            //下载文件并安装，暂时不开
+            new DownFileThread(needs).start();
+            return;
+        }
         JSONArray jufs = ParserJson.arrayToJsonArray(ufs);
         Log.e("jufs", jufs.toString());
         Log.e("realLoginHandler", "3");
@@ -302,30 +303,106 @@ public class LoginActivity extends AppCompatActivity {
             exitLogin("版本更新需加载SD卡");
             return;
         }
-        progressDialog.setTitle("初始化数据");
-        progressDialog.setMessage("准备中....");
+
         //progressDialog.show();
         App app = ((App) getApplication());
         //frmCodeBox.removeAll();
         new UpdateDictThread(app.getBoxStore(), self).start();
     }
 
+    private List<UpdateFile> checkNeedApk(List<UpdateFile> ufs) {
+        List<UpdateFile> list = new ArrayList<>();
+        for (UpdateFile uf : ufs) {
+            String packName = uf.getPackageName();
+            if (notNeedPack.contains(packName))
+                continue;
+            double lv = GlobalMethod.getApkVerionName(packName, self);
+            Double rv = Double.valueOf(uf.getVersionName());
+            if (rv > lv) {
+                list.add(uf);
+            }
+        }
+        return list;
+    }
+
+    private List<UpdateFile> checkNeedApk(UpdateFile[] ufs) {
+        return checkNeedApk(Arrays.asList(ufs));
+    }
+
+    private void installApk(File f,int rq){
+        if(!f.exists()){
+            Toast.makeText(self,"文件不存在",Toast.LENGTH_LONG).show();
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        //判断是否是AndroidN以及更高的版本
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Uri contentUri = FileProvider.getUriForFile(self, "com.jwt.update.fileprovider", f);
+            intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+        } else {
+            intent.setDataAndType(Uri.fromFile(f), "application/vnd.android.package-archive");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        // 安装的结果将返回进入验证
+        startActivityForResult(intent, Integer.valueOf(rq));
+    }
+
+    private void installApk(UpdateFile apk) {
+        File f = new File(outSideDir, apk.getFileName());
+        installApk(f,Integer.valueOf(apk.getId()));
+    }
+
+    private void installApk() {
+        for (UpdateFile uf : needs) {
+            installApk(uf);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e("update active return", "" + requestCode + "/" + resultCode);
+        if (requestCode == Integer.valueOf(needs.get(returnCount).getId())) {
+            returnCount++;
+            if (returnCount >= needs.size()) {
+                if (!checkNeedApk(needs).isEmpty()) {
+                    exitLogin("未能安装所有更新，请重新登录下载");
+                } else
+                    finish();
+            } else {
+                installApk(needs.get(returnCount));
+            }
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateEventBus(DownSpeedEvent event) {
         if (event.getTotal() == event.getStep()) {
-            progressDialog.dismiss();
+            dialog.dismiss();
             startMainSystem();
             return;
         }
         if (event.getStep() == 0) {
-            if (!progressDialog.isShowing())
-                progressDialog.show();
+            if (!dialog.isShowing())
+                dialog.show();
             return;
         }
-        progressDialog.setTitle(event.getTitle());
-        progressDialog.setMessage(event.getCurrentName());
-        progressDialog.setMax(event.getTotal());
-        progressDialog.setProgress(event.getStep());
+        dialog.setTitle(event.getTitle());
+        dialog.setContent(event.getCurrentName());
+        dialog.setMaxProgress(event.getTotal());
+        dialog.setProgress(event.getStep());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void downApkEventBus(DownApkEvent event) {
+        if (event.isOver) {
+            dialog.dismiss();
+            new InstallApk(new MyHandler(this)).start();
+            return;
+        }
+        dialog.setProgress(event.step);
+        dialog.setMaxProgress(100);
+        dialog.setTitle(event.filename);
     }
 
     private void exitLogin(String err) {
@@ -362,6 +439,13 @@ public class LoginActivity extends AppCompatActivity {
     @PermissionSuccess(requestCode = 100)
     public void doSomething() {
         GlobalData.serialNumber = GlobalMethod.getSerial(self);
+        outSideDir = Environment.getExternalStorageDirectory().getPath()
+                + "/jwtdb/";
+        File f = new File(outSideDir);
+        if (!f.exists())
+            f.mkdirs();
+        double version = GlobalMethod.getApkVerionName("com.jwt.update", self);
+        tvVersion.setText("系统版本号：" + version);
         Toast.makeText(this, "Contact permission is granted", Toast.LENGTH_SHORT).show();
     }
 
@@ -375,6 +459,63 @@ public class LoginActivity extends AppCompatActivity {
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             Log.e("config value", time + " " + entry.getKey() + "/" + entry.getValue().getClass().getName() + "/"
                     + entry.getValue());
+        }
+    }
+
+    class DownFileThread extends Thread {
+        private List<UpdateFile> fs;
+
+
+        public DownFileThread(List<UpdateFile> fs) {
+            this.fs = fs;
+        }
+
+        /**
+         * 线程运行
+         */
+        @Override
+        public void run() {
+            RestfulDao dao = RestfulDaoFactory.getDao();
+            int writeCount = 0;
+            int i = 0;
+            Log.e("realLoginHandler", "5" + fs.size());
+            for (UpdateFile uf : fs) {
+                long writeByte = dao.downloadFile(dao.getFileUrl() + uf.getPackageName(),
+                        new File(outSideDir,uf.getFileName()), Long.valueOf(uf.getHashValue()), uf.getFileName());
+                if (writeByte > 0)
+                    writeCount++;
+                i++;
+            }
+            EventBus.getDefault().post(new DownApkEvent(true, 100, "下载完成"));
+        }
+
+    }
+
+    class InstallApk extends Thread {
+        Handler handler;
+
+        public InstallApk(Handler handler){
+            this.handler = handler;
+        }
+
+        @Override
+        public void run() {
+            //startMainSystem();
+            handler.sendEmptyMessage(1);
+        }
+    }
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<LoginActivity> myActivity;
+
+        public MyHandler(LoginActivity activity) {
+            myActivity = new WeakReference<LoginActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            LoginActivity ac = myActivity.get();
+            ac.installApk();
         }
     }
 

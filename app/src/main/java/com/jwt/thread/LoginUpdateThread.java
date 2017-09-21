@@ -1,9 +1,12 @@
 package com.jwt.thread;
 
+import android.text.TextUtils;
+
 import com.jwt.bean.LoginResultBean;
 import com.jwt.event.LoginEvent;
 import com.jwt.globalquery.CxMenus;
 import com.jwt.utils.CommParserXml;
+import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.ParserJson;
 import com.jwt.web.RestfulDao;
 import com.jwt.web.RestfulDaoFactory;
@@ -42,18 +45,38 @@ public class LoginUpdateThread extends Thread {
         RestfulDao dao = RestfulDaoFactory.getDao();
         WebQueryResult<String> login = dao.checkUserAndUpdate(
                 mjjh, mm, serial);
-        WebQueryResult<List<CxMenus>> cxMenus = dao.restfulGetMenus();
+        String err = GlobalMethod.getErrorMessageFromWeb(login);
         LoginEvent event = new LoginEvent();
-        event.setStatus(login.getStatus());
-        event.setStMs(login.getStMs());
-        event.setCxMenuStr(ParserJson.arrayToJsonArray(cxMenus.getResult()).toString());
+        if(!TextUtils.isEmpty(err)){
+            event.setStatus(0);
+            event.setStMs(err);
+            EventBus.getDefault().post(event);
+            return;
+        }
+        LoginResultBean result = null;
         try {
-            LoginResultBean result = CommParserXml.parseXmlToObj(login.getResult(),
+            result = CommParserXml.parseXmlToObj(login.getResult(),
                     LoginResultBean.class);
-            event.setResult(result);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if(result == null){
+            event.setStatus(200);
+            event.setStMs("服务器错误");
+            EventBus.getDefault().post(event);
+            return;
+        }
+        if(!TextUtils.equals("1",result.getCode())){
+            event.setStatus(200);
+            event.setStMs(result.getCwms());
+            EventBus.getDefault().post(event);
+            return;
+        }
+        WebQueryResult<List<CxMenus>> cxMenus = dao.restfulGetMenus();
+        event.setStatus(login.getStatus());
+        event.setStMs(login.getStMs());
+        event.setResult(result);
+        event.setCxMenuStr(ParserJson.arrayToJsonArray(cxMenus.getResult()).toString());
         EventBus.getDefault().post(event);
     }
 }

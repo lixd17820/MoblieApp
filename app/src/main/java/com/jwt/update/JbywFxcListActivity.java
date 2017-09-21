@@ -63,14 +63,14 @@ public class JbywFxcListActivity extends AppCompatActivity {
 
     private Context self;
 
-    private BlueToothPrint btp = null;
-
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     private FxczfListAdapter adapter;
 
     private List<SelectObjectBean<VioFxczfBean>> fxcList;
     private MaterialDialog dialog;
+
+    private BlueToothPrint btp = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,9 +165,9 @@ public class JbywFxcListActivity extends AppCompatActivity {
             }
             return true;
             case R.id.menu_del: {
-                int[] sels = adapter.getSelectIndexs();
-                if (sels == null || sels.length <= 0) {
-                    GlobalMethod.showErrorDialog("请选择一条记录操作", self);
+                int count = adapter.getSelectCount();
+                if (count <= 0) {
+                    GlobalMethod.showErrorDialog("请选择一条或多条记录操作", self);
                     return false;
                 }
                 GlobalMethod.showDialogTwoListener("系统提示", "是否确定删除，此操作无法恢复", "删除",
@@ -175,8 +175,8 @@ public class JbywFxcListActivity extends AppCompatActivity {
             }
             return true;
             case R.id.menu_rkqk: {
-                int[] sels = adapter.getSelectIndexs();
-                if (sels == null || sels.length <= 0 || sels.length > 1) {
+                int count = adapter.getSelectCount();
+                if (count != 1) {
                     GlobalMethod.showErrorDialog("请选择一条记录操作", self);
                     return false;
                 }
@@ -209,7 +209,7 @@ public class JbywFxcListActivity extends AppCompatActivity {
                 return;
             }
             if (v == btnShowFxc) {
-                int count = adapter.getItemCount();
+                int count = adapter.getSelectCount();
                 if (count != 1) {
                     GlobalMethod.showErrorDialog("请选择一条数据操作", self);
                     return;
@@ -219,7 +219,7 @@ public class JbywFxcListActivity extends AppCompatActivity {
                 intent.putExtra("fxc", fxc);
                 startActivity(intent);
             } else if (v == btnUpload) {
-                int count = adapter.getItemCount();
+                int count = adapter.getSelectCount();
                 if (count <= 0) {
                     GlobalMethod.showErrorDialog("请选择数据操作", self);
                     return;
@@ -247,7 +247,7 @@ public class JbywFxcListActivity extends AppCompatActivity {
                 thread.doStart();
                 dialog.show();
             } else if (v == btnPrint) {
-                int count = adapter.getItemCount();
+                int count = adapter.getSelectCount();
                 if (count != 1) {
                     GlobalMethod.showErrorDialog("请选择一条数据操作", self);
                     return;
@@ -359,42 +359,11 @@ public class JbywFxcListActivity extends AppCompatActivity {
         dialog.setProgress(event.step);
     }
 
+
     private void printFxcTzs(VioFxczfBean fxczf) {
         // 设置打印的名字，打印时在数据库中取
-        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
-        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
-        Log.e("PrintList", pname + "/" + paddress);
-        KeyValueBean printerInfo = null;
-        if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
-            printerInfo = new KeyValueBean(pname, paddress);
-        }
-
-        if (printerInfo == null || TextUtils.isEmpty(printerInfo.getValue())) {
-            GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
+        if (btp == null && ((btp = GlobalMethod.getBluetoothPrint(this)) == null)) {
             return;
-        }
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
-            Intent enableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableIntent);
-            return;
-        }
-
-        if (!TextUtils.isEmpty(printerInfo.getValue()) && btp == null) {
-            btp = new BlueToothPrint(printerInfo.getValue());
-        }
-
-        if (btp == null)
-            return;
-        if (btp.getBluetoothStatus() != BlueToothPrint.BLUETOOTH_STREAMED) {
-            // 没有建立蓝牙串口流
-            int errorStaus = btp.createSocket(btAdapter);
-            if (errorStaus != BlueToothPrint.SOCKET_SUCCESS) {
-                GlobalMethod.showErrorDialog(
-                        btp.getBluetoothCodeMs(errorStaus), self);
-                return;
-            }
         }
         List<JdsPrintBean> content = PrintJdsTools.getPrintFxczfContent(fxczf);
         int status = btp.printJdsByBluetooth(content);
@@ -402,6 +371,7 @@ public class JbywFxcListActivity extends AppCompatActivity {
         if (status != BlueToothPrint.PRINT_SUCCESS) {
             GlobalMethod.showErrorDialog(btp.getBluetoothCodeMs(status), self);
         }
+
     }
 
     FxczfListAdapter.ClickListener itemClickListener = new FxczfListAdapter.ClickListener() {
@@ -424,8 +394,17 @@ public class JbywFxcListActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
         if (btp != null) {
             btp.closeConn();
+            btp = null;
         }
-
     }
 
+    @Override
+    protected void onStop() {
+        Log.e("fxc list", "onStop");
+        if (btp != null) {
+            btp.closeConn();
+            btp = null;
+        }
+        super.onStop();
+    }
 }

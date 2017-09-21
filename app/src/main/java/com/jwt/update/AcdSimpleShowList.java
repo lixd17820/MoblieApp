@@ -59,7 +59,6 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
     private List<AcdSimpleBean> acds;
     private Context self;
     private Button btnTakePic, btnNewAcd, btnShowPhoto, btnDel;
-    private KeyValueBean printerInfo;
     private BlueToothPrint btp = null;
     private String zqmj;
 
@@ -75,12 +74,6 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
             return;
         setContentView(R.layout.comm_four_btn_show_list);
         setTitle(getIntent().getStringExtra("title"));
-        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
-        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
-        Log.e("PrintList", pname + "/" + paddress);
-        if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
-            printerInfo = new KeyValueBean(pname, paddress);
-        }
         // 初始化打印机
         acds = AcdSimpleDao.getAllAcd(GlobalMethod.getBoxStore(self));
         createBeanFromAcd();
@@ -368,27 +361,8 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
 
     private void printAcdBySelect(AcdSimpleBean acd,
                                   List<AcdSimpleHumanBean> humans) {
-        if (printerInfo == null || TextUtils.isEmpty(printerInfo.getValue())) {
-            GlobalMethod.showErrorDialog("没有配置默认打印机!", self);
+        if (btp == null && ((btp = GlobalMethod.getBluetoothPrint(this)) == null)) {
             return;
-        }
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
-            Intent enableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableIntent);
-            return;
-        }
-        if (btp == null)
-            btp = new BlueToothPrint(printerInfo.getValue());
-        if (btp.getBluetoothStatus() != BlueToothPrint.BLUETOOTH_STREAMED) {
-            // 没有建立蓝牙串口流
-            int errorStaus = btp.createSocket(btAdapter);
-            if (errorStaus != BlueToothPrint.SOCKET_SUCCESS) {
-                GlobalMethod.showErrorDialog(
-                        btp.getBluetoothCodeMs(errorStaus), self);
-                return;
-            }
         }
         int status = btp.printAcdByBluetooth(acd, humans);
         // 打印错误描述
@@ -405,6 +379,16 @@ public class AcdSimpleShowList extends CommTwoRowSelectAcbarListActivity {
         if (btp != null) {
             btp.closeConn();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e("fxc", "onStop");
+        if (btp != null) {
+            btp.closeConn();
+            btp = null;
+        }
+        super.onStop();
     }
 
     @Override

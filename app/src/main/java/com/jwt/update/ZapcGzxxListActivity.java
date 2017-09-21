@@ -46,6 +46,7 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
     private static final int ADDGZXX = 0;
     protected static final int MENU_DETAIL_GZXX = 2;
     protected static final int MENU_CONTINUE_GZXX = 3;
+    private static final int CONTINUE_GZXX = 4;
     private List<SelectObjectBean<ZapcGzxxBean>> gzxxs;
     private Context self;
     private GzxxListAdapter adapter;
@@ -201,7 +202,7 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
                     Intent intent = new Intent(ZapcGzxxListActivity.this,
                             ZapcGzxxActivity.class);
                     intent.putExtra("gzxx", gzxx);
-                    startActivityForResult(intent, ADDGZXX);
+                    startActivityForResult(intent, CONTINUE_GZXX);
                 } else if (v == btnOver) {
                     if (gzxx != null) {
                         gzxx.setJssj(ZaPcdjDao.sdfDpt.format(new Date()));
@@ -234,13 +235,11 @@ public class ZapcGzxxListActivity extends ActionBarListActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             // 暂停或提交了工作信息
-            if (requestCode == MENU_CONTINUE_GZXX || requestCode == ADDGZXX) {
-                Bundle b = data.getExtras();
-                boolean isOver = b.getBoolean("isOver", false);
-                if (isOver) {
-                    referListSel();
-                    adapter.notifyDataSetChanged();
-                }
+            Bundle b = data.getExtras();
+            boolean isOver = b.getBoolean("isOver", false);
+            if ((requestCode == CONTINUE_GZXX && isOver) || requestCode == ADDGZXX) {
+                referListSel();
+                adapter.notifyDataSetChanged();
             }
         }
     }

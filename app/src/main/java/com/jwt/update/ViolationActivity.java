@@ -160,7 +160,6 @@ public abstract class ViolationActivity extends AppCompatActivity {
     @BindView(R.id.btn_fzjg)
     Button btnFzjg;
     // 用于储存变量
-    protected KeyValueBean printerInfo;
     protected BlueToothPrint btp = null;
 
     // 用于保存处罚决定书
@@ -202,13 +201,6 @@ public abstract class ViolationActivity extends AppCompatActivity {
 
         setViewDefaultValue(preViolation);
 
-        // 设置打印的名字，打印时在数据库中取
-        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
-        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
-        Log.e("PrintList", pname + "/" + paddress);
-        if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
-            printerInfo = new KeyValueBean(pname, paddress);
-        }
         // 设置监听
         setListeners();
     }
@@ -818,8 +810,19 @@ public abstract class ViolationActivity extends AppCompatActivity {
         super.onDestroy();
         if (btp != null) {
             btp.closeConn();
+            btp = null;
         }
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e("vio", "onStop");
+        if (btp != null) {
+            btp.closeConn();
+            btp = null;
+        }
+        super.onStop();
     }
 
     int ch;
@@ -1059,27 +1062,8 @@ public abstract class ViolationActivity extends AppCompatActivity {
 
 
     protected void printJdsBySelect(VioViolation vio) {
-        if (TextUtils.isEmpty(printerInfo.getValue())) {
-            GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
+        if (btp == null && ((btp = GlobalMethod.getBluetoothPrint(this)) == null)) {
             return;
-        }
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
-            Intent enableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableIntent);
-            return;
-        }
-        if (btp == null)
-            btp = new BlueToothPrint(printerInfo.getValue());
-        if (btp.getBluetoothStatus() != BlueToothPrint.BLUETOOTH_STREAMED) {
-            // 没有建立蓝牙串口流
-            int errorStaus = btp.createSocket(btAdapter);
-            if (errorStaus != BlueToothPrint.SOCKET_SUCCESS) {
-                GlobalMethod.showErrorDialog(
-                        btp.getBluetoothCodeMs(errorStaus), self);
-                return;
-            }
         }
         int status = btp.printJdsByBluetooth(vio, ViolationActivity.this);
         // 打印错误描述

@@ -39,14 +39,17 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".LoginActivity">
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
-        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"></activity>
         <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
         <service
@@ -59,55 +62,153 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".JbywWarnActivity" />
-        <activity android:name=".JbywBjbdListActivity" />
-        <activity android:name=".ZhcxMainActivity" />
-        <activity android:name=".ConfigMainActivity" />
-        <activity android:name=".ConfigBluetoothActivity" />
-        <activity android:name=".ConfigJtfsActivity" />
-        <activity android:name=".ConfigMjgrxxActivity" />
-        <activity android:name=".ConfigParamSetting" />
-        <activity android:name=".ConfigWfddActivity" />
-        <activity android:name=".ConfigWfdmActivity" />
-        <activity android:name=".ConfigWfdmForceActivity" />
-        <activity android:name=".ConfigWsglActivity" />
-        <activity android:name=".ZhcxConditionActivity" />
-        <activity android:name=".ZhcxQueryResultActivity" />
-        <activity android:name=".ZhcxOneRecordListActivity" />
-        <activity android:name=".VioJycxActivity" />
-        <activity android:name=".VioQwjgActivity" />
-        <activity android:name=".VioQzcsActivity" />
-        <activity android:name=".VioWftzActivity" />
-        <activity android:name=".JbywVioFzjgActivity" />
-        <activity android:name=".JbywPrintJdsDetailActivity" />
-        <activity android:name=".JbywPrintJdsList" />
-        <activity android:name=".TestActivity" />
-        <activity android:name="com.jwt.jbyw.JdsPreviewActivity" />
-        <activity android:name=".JbywSixSpListActivity" />
-        <activity android:name=".JbywSixSpActivity" />
-        <activity android:name=".MainQueryMjJobActivity" />
-        <activity android:name=".JbywZhcxActivity" />
-        <activity android:name=".JbywFxcListActivity" />
-        <activity android:name=".JbywFxcActivity" />
-        <activity android:name=".ShowImageActivity" />
-        <activity android:name=".AcdFindLawActivity" />
-        <activity android:name=".AcdFindWfxwActivity" />
-        <activity android:name=".AcdJycxJbqklrActivity" />
-        <activity android:name=".AcdRyclJbqkActivity" />
-        <activity android:name=".AcdSimpleShowList" />
-        <activity android:name=".AcdSsZrTjjgActivity" />
-        <activity android:name=".AcdTakePhotoActivity" />
-        <activity android:name=".AcdPhotoListActivity" />
-        <activity android:name=".QzcsxmActivity" />
-        <activity android:name=".JbywFxcShowActivity" />
-        <activity android:name=".RepairJtssActivity" />
-        <activity android:name=".RepairShowListActivity" />
-        <activity android:name=".ZapcGzxxActivity" />
-        <activity android:name=".ZapcRyxxActivity" />
-        <activity android:name=".ZapcGzxxListActivity" />
-        <activity android:name=".ZapcJdcActivity" />
-        <activity android:name=".ZapcXzqhListActitivy" />
-        <activity android:name=".JbywSchoolVehActivity" />
+        <activity
+            android:name=".JbywWarnActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywBjbdListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZhcxMainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigMainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigBluetoothActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigJtfsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigMjgrxxActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigParamSetting"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigWfddActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigWfdmActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigWfdmForceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ConfigWsglActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZhcxConditionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZhcxQueryResultActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZhcxOneRecordListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".VioJycxActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".VioQwjgActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".VioQzcsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".VioWftzActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywVioFzjgActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywPrintJdsDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywPrintJdsList"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".TestActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.jwt.jbyw.JdsPreviewActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywSixSpListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywSixSpActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MainQueryMjJobActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywZhcxActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywFxcListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywFxcActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ShowImageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdFindLawActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdFindWfxwActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdJycxJbqklrActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdRyclJbqkActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdSimpleShowList"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdSsZrTjjgActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdTakePhotoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AcdPhotoListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".QzcsxmActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywFxcShowActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".RepairJtssActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".RepairShowListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZapcGzxxActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZapcRyxxActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZapcGzxxListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZapcJdcActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ZapcXzqhListActitivy"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywSchoolVehActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

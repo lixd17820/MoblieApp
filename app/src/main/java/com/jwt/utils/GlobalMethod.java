@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Service;
 import android.app.TimePickerDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -57,6 +58,7 @@ import com.jwt.adapter.SpinnerCustomAdapter;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.UpdateFile;
 import com.jwt.globalquery.ZhcxQueryResultBean;
+import com.jwt.printer.BlueToothPrint;
 import com.jwt.update.App;
 import com.jwt.update.R;
 import com.jwt.update.ShowImageActivity;
@@ -1416,15 +1418,15 @@ public class GlobalMethod {
         GlobalSystemParam.isGpsUpload = prefs.getBoolean("gps_upload", false);
         GlobalSystemParam.isSkipSpinner = prefs.getBoolean("skip_spinner", false);
         GlobalSystemParam.isCheckFjdcSfzm = prefs.getBoolean("need_sfzh", false);
-        GlobalSystemParam.recBjbdFW = prefs.getStringSet("bjbd_fw",new HashSet<String>());
-        GlobalSystemParam.recBjbdZl= prefs.getStringSet("bjbd_catalog",new HashSet<String>());
+        GlobalSystemParam.recBjbdFW = prefs.getStringSet("bjbd_fw", new HashSet<String>());
+        GlobalSystemParam.recBjbdZl = prefs.getStringSet("bjbd_catalog", new HashSet<String>());
         GlobalSystemParam.isReciveBj = prefs.getBoolean("is_rec_bj", true);
         GlobalSystemParam.isReciveText = prefs.getBoolean("is_rec_text", true);
-        GlobalSystemParam.isNotNotice = prefs.getBoolean("not_notice",true);
-        GlobalSystemParam.bjRingtone = prefs.getString("bj_ringtone","");
-        GlobalSystemParam.isConnBjbd = prefs.getBoolean("is_conn_bjbd",true);
+        GlobalSystemParam.isNotNotice = prefs.getBoolean("not_notice", true);
+        GlobalSystemParam.bjRingtone = prefs.getString("bj_ringtone", "");
+        GlobalSystemParam.isConnBjbd = prefs.getBoolean("is_conn_bjbd", true);
 
- //       Map<String, ?> map = prefs.getAll();
+        //       Map<String, ?> map = prefs.getAll();
 //        for (Entry<String, ?> entry : map.entrySet()) {
 //            Log.e("saveParam", " " + entry.getKey() + "/"
 //                    + entry.getValue().getClass().getName());
@@ -1838,6 +1840,36 @@ public class GlobalMethod {
             re = re.substring(0, re.length() - d.length());
         }
         return re;
+    }
+
+    public static BlueToothPrint getBluetoothPrint(Activity self) {
+        String paddress = GlobalMethod.getSavedInfo(self, GlobalConstant.GRXX_PRINTER_ADDRESS);
+        Log.e("PrintList", paddress);
+        if (TextUtils.isEmpty(paddress)) {
+            GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
+            return null;
+        }
+        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
+            Intent enableIntent = new Intent(
+                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            self.startActivity(enableIntent);
+            return null;
+        }
+
+        BlueToothPrint btp = new BlueToothPrint(paddress);
+        if (btp == null)
+            return null;
+        if (btp.getBluetoothStatus() != BlueToothPrint.BLUETOOTH_STREAMED) {
+            // 没有建立蓝牙串口流
+            int errorStaus = btp.createSocket(btAdapter);
+            if (errorStaus != BlueToothPrint.SOCKET_SUCCESS) {
+                GlobalMethod.showErrorDialog(
+                        btp.getBluetoothCodeMs(errorStaus), self);
+                return null;
+            }
+        }
+        return btp;
     }
 
 }

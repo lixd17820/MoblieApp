@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -65,6 +66,7 @@ import java.util.List;
 
 public class JbywFxcActivity extends AppCompatActivity {
 
+    private static final String IMAGE_LIST = "image_list";
     private final int CAMER_REQUEST = 1110;
     private final int REQCODE_WFDD = 1111;
     private final int REQCODE_WFXW = 1112;
@@ -73,12 +75,12 @@ public class JbywFxcActivity extends AppCompatActivity {
     private Context self;
     private Spinner spHpzl, spHpqz;
     private EditText edWfdd, edWfxw, edHphm, edWfsj;
-    private KeyValueBean kvWfdd;
+    private KeyValueBean kvWfdd = new KeyValueBean("", "");
+    ;
 
     private boolean isSaveText = false, isSaveFile = false;
     private VioFxczfBean fxczf;
     private String tzsbh;
-    private KeyValueBean printerInfo;
     private BlueToothPrint btp = null;
 
     private static final int READONLY = 100;
@@ -95,6 +97,7 @@ public class JbywFxcActivity extends AppCompatActivity {
 
     private ImageListAdapter adapter;
     private String photoName = "";
+    private ArrayList<String> imageList = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -132,6 +135,10 @@ public class JbywFxcActivity extends AppCompatActivity {
             operMod = savedInstanceState.getInt(STATE_OPER_MOD);
         }
 
+        if (savedInstanceState.containsKey(IMAGE_LIST)) {
+            imageList = savedInstanceState.getStringArrayList(IMAGE_LIST);
+        }
+
         findViewById(R.id.unless_linear).requestFocus();
 
     }
@@ -143,6 +150,7 @@ public class JbywFxcActivity extends AppCompatActivity {
         outState.putString(STATE_TZSBH, tzsbh);
         outState.putBoolean(STATE_IS_SAVE_FILE_BOL, isSaveFile);
         outState.putBoolean(STATE_IS_SAVE_TEXT_BOL, isSaveText);
+        outState.putStringArrayList(IMAGE_LIST, imageList);
         outState.putInt(STATE_OPER_MOD, operMod);
         if (kvWfdd != null)
             outState.putSerializable(STATE_KV_WFDD, kvWfdd);
@@ -184,8 +192,6 @@ public class JbywFxcActivity extends AppCompatActivity {
                 true);
 
         edHphm.setText("F");
-        kvWfdd = new KeyValueBean("", "");
-        //zpList = new ArrayList<VioFxcFileBean>();
         findViewById(R.id.but_wfsj).setOnClickListener(butClick);
         findViewById(R.id.but_wfdd).setOnClickListener(butClick);
         findViewById(R.id.but_wfxw).setOnClickListener(butClick);
@@ -207,21 +213,11 @@ public class JbywFxcActivity extends AppCompatActivity {
         //初始化图片列表
         RecyclerView gridView = (RecyclerView) findViewById(R.id.gridView1);
         gridView.setHasFixedSize(true);
-        gridView.setLayoutManager(new GridLayoutManager(this, 2));
-        gridView.setAdapter(adapter = new ImageListAdapter(imgClick, new ArrayList<String>()));
+        gridView.setLayoutManager(new LinearLayoutManager(this));
+        gridView.setAdapter(adapter = new ImageListAdapter(imgClick, imageList));
         // 设置打印的名字，打印时在数据库中取
-        String pname = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_NAME);
-        String paddress = GlobalMethod.getSavedInfo(this, GlobalConstant.GRXX_PRINTER_ADDRESS);
-        Log.e("PrintList", pname + "/" + paddress);
-        if (!TextUtils.isEmpty(pname) && !TextUtils.isEmpty(paddress)) {
-            printerInfo = new KeyValueBean(pname, paddress);
-        }
 
-        // String printerName = !TextUtils.isEmpty(printerInfo.getValue()) ?
-        // printerInfo
-        // .getKey() : "无打印机";
         setTitle("非现场执法");
-        // setTitle("非现场编号: " + tzsbh + " 打印机：" + printerName);
         Log.e("AcdTakePhotoActivity", "onCreate");
 
     }
@@ -245,11 +241,6 @@ public class JbywFxcActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    @Override
-    protected void onStop() {
-        Log.e("JbywImageView", "onStop");
-        super.onStop();
-    }
 
     @Override
     public void onBackPressed() {
@@ -617,32 +608,8 @@ public class JbywFxcActivity extends AppCompatActivity {
     }
 
     private void printFxcTzs() {
-        if (TextUtils.isEmpty(printerInfo.getValue())) {
-            GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
+        if (btp == null && ((btp = GlobalMethod.getBluetoothPrint(this)) == null)) {
             return;
-        }
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
-            Intent enableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableIntent);
-            return;
-        }
-
-        if (!TextUtils.isEmpty(printerInfo.getValue()) && btp == null) {
-            btp = new BlueToothPrint(printerInfo.getValue());
-        }
-
-        if (btp == null)
-            return;
-        if (btp.getBluetoothStatus() != BlueToothPrint.BLUETOOTH_STREAMED) {
-            // 没有建立蓝牙串口流
-            int errorStaus = btp.createSocket(btAdapter);
-            if (errorStaus != BlueToothPrint.SOCKET_SUCCESS) {
-                GlobalMethod.showErrorDialog(
-                        btp.getBluetoothCodeMs(errorStaus), self);
-                return;
-            }
         }
         List<JdsPrintBean> content = PrintJdsTools.getPrintFxczfContent(fxczf);
         int status = btp.printJdsByBluetooth(content);
@@ -653,10 +620,21 @@ public class JbywFxcActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        Log.e("fxc", "onStop");
+        if (btp != null) {
+            btp.closeConn();
+            btp = null;
+        }
+        super.onStop();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (btp != null) {
             btp.closeConn();
+            btp = null;
         }
     }
 }

@@ -54,7 +54,6 @@ public class JbywFxcShowActivity extends AppCompatActivity {
     private Context self;
     private TextView tvHpzl, tvHphm, tvWfdd, tvWfsj, tvWfxw, tvScbj;
     private VioFxczfBean fxczf;
-    private KeyValueBean printerInfo;
     private BlueToothPrint btp = null;
     private ImageListAdapter adapter;
 
@@ -96,11 +95,6 @@ public class JbywFxcShowActivity extends AppCompatActivity {
         gridView.setLayoutManager(new GridLayoutManager(this, 2));
         gridView.setAdapter(adapter = new ImageListAdapter(imgClick, images));
         // 设置打印的名字，打印时在数据库中取
-        String pn = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_NAME);
-        String pd = GlobalData.grxx.get(GlobalConstant.GRXX_PRINTER_ADDRESS);
-        if (!TextUtils.isEmpty(pn) && !TextUtils.isEmpty(pd))
-            printerInfo = new KeyValueBean(pn, pd);
-
         setTitle("非现场执法");
         Log.e("AcdTakePhotoActivity", "onCreate");
 
@@ -125,11 +119,6 @@ public class JbywFxcShowActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    @Override
-    protected void onStop() {
-        Log.e("JbywImageView", "onStop");
-        super.onStop();
-    }
 
 
     @Override
@@ -179,32 +168,8 @@ public class JbywFxcShowActivity extends AppCompatActivity {
 
 
     private void printFxcTzs() {
-        if (TextUtils.isEmpty(printerInfo.getValue())) {
-            GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
+        if (btp == null && ((btp = GlobalMethod.getBluetoothPrint(this)) == null)) {
             return;
-        }
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (btAdapter.getState() == BluetoothAdapter.STATE_OFF) {
-            Intent enableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableIntent);
-            return;
-        }
-
-        if (!TextUtils.isEmpty(printerInfo.getValue()) && btp == null) {
-            btp = new BlueToothPrint(printerInfo.getValue());
-        }
-
-        if (btp == null)
-            return;
-        if (btp.getBluetoothStatus() != BlueToothPrint.BLUETOOTH_STREAMED) {
-            // 没有建立蓝牙串口流
-            int errorStaus = btp.createSocket(btAdapter);
-            if (errorStaus != BlueToothPrint.SOCKET_SUCCESS) {
-                GlobalMethod.showErrorDialog(
-                        btp.getBluetoothCodeMs(errorStaus), self);
-                return;
-            }
         }
         List<JdsPrintBean> content = PrintJdsTools.getPrintFxczfContent(fxczf);
         int status = btp.printJdsByBluetooth(content);
@@ -215,10 +180,20 @@ public class JbywFxcShowActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (btp != null) {
+            btp.closeConn();
+            btp = null;
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (btp != null) {
             btp.closeConn();
+            btp = null;
         }
     }
 }

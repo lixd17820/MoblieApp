@@ -23,9 +23,9 @@ import com.jwt.adapter.OnSpinnerItemSelected;
 import com.jwt.dao.AcdSimpleDao;
 import com.jwt.globalquery.GlobalQueryResult;
 import com.jwt.globalquery.ZhcxThread;
-import com.jwt.jbyw.AcdWftLawBean;
 import com.jwt.jbyw.AcdWfxwBean;
 import com.jwt.jbyw.VerifyData;
+import com.jwt.pojo.AcdLawBean;
 import com.jwt.pojo.AcdSimpleHumanBean;
 import com.jwt.thread.CommQueryThread;
 import com.jwt.utils.GlobalConstant;
@@ -62,7 +62,7 @@ public class AcdRyclJbqkActivity extends AppCompatActivity {
     private Button btnFindTk1, btnFindTk2, btnFindTk3;
     private Button butQueryHuman, butQueryVehicle;
     private ToggleButton togButInOut;
-    private AcdWftLawBean[] tks = new AcdWftLawBean[3];
+    private AcdLawBean[] tks = new AcdLawBean[3];
 
     private int operMod;
 
@@ -426,19 +426,19 @@ public class AcdRyclJbqkActivity extends AppCompatActivity {
             } else if (requestCode == REQ_FIND_LAW_1) {
                 Serializable af = b.getSerializable("wfxw");
                 if (af != null) {
-                    tks[0] = (AcdWftLawBean) af;
+                    tks[0] = (AcdLawBean) af;
                     editTk1.setText(tks[0].getTknr());
                 }
             } else if (requestCode == REQ_FIND_LAW_2) {
                 Serializable af = b.getSerializable("wfxw");
                 if (af != null) {
-                    tks[1] = (AcdWftLawBean) af;
+                    tks[1] = (AcdLawBean) af;
                     editTk2.setText(tks[1].getTknr());
                 }
             } else if (requestCode == REQ_FIND_LAW_3) {
                 Serializable af = b.getSerializable("wfxw");
                 if (af != null) {
-                    tks[2] = (AcdWftLawBean) af;
+                    tks[2] = (AcdLawBean) af;
                     editTk3.setText(tks[2].getTknr());
                 }
             }

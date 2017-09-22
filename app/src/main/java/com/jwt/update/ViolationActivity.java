@@ -609,7 +609,7 @@ public abstract class ViolationActivity extends AppCompatActivity {
             textWfxwms.setText(showWfdmDetail(wf));
         } else {
             textWfxwms.setText("");
-            wf = null;
+            //wf = null;
         }
     }
 
@@ -633,9 +633,11 @@ public abstract class ViolationActivity extends AppCompatActivity {
                     }
                 }
             } else if (requestCode == REQCODE_WFXW) {
-                String wfxw = data.getStringExtra("");
-                if (!TextUtils.isEmpty(wfxw))
+                String wfxw = data.getStringExtra("wfxw");
+                if (!TextUtils.isEmpty(wfxw)) {
                     edWfxw.setText(wfxw);
+                    queryAndShowWfxw(wfxw);
+                }
             } else if (requestCode == REQCODE_JTFS) {
                 Bundle b = data.getExtras();
                 String j = b.getString("jtfsDm");
@@ -725,85 +727,94 @@ public abstract class ViolationActivity extends AppCompatActivity {
      */
     //View.OnClickListener butClickListener = new View.OnClickListener() {
     //@Override
-    @OnClick({R.id.But_wfdd, R.id.But_query_wfxw, R.id.but_query_drv_sfzh,
-            R.id.But_cllx, R.id.But_wzsj, R.id.But_wzrq, R.id.But_query_drv, R.id.But_clbd, R.id.btn_fzjg
-    })
-    public void onClick(View v) {
-        if (v == findViewById(R.id.But_query_drv) || v == findViewById(R.id.but_query_drv_sfzh)) {
-            // 判断在离线模式
-            if (!GlobalMethod.isOnline()) {
-                GlobalMethod.showErrorDialog("离线模式下不能上网查询比对！", self);
-                return;
-            }
-            // 根据档案号查驾驶员信息
-            Editable dabh = edDabh.getText();
-            Editable sfzh = edJszh.getText();
-            Log.e("证件查询", dabh.toString() + "," + sfzh.toString());
-            if (TextUtils.isEmpty(dabh) && v.getId() == R.id.But_query_drv) {
-                GlobalMethod.showErrorDialog("档案编号不能为空", self);
-                return;
-            }
-            if (TextUtils.isEmpty(sfzh) && v.getId() == R.id.but_query_drv_sfzh) {
-                GlobalMethod.showErrorDialog("驾驶证号不能为空", self);
-                return;
-            }
-            if (!GlobalMethod.getKeyFromSpinnerSelected(spRyfl,
-                    GlobalConstant.KEY).equals("4")) {
-                GlobalMethod.showErrorDialog("只有公安驾驶员才能查询", self);
-                return;
-            }
-            // String bd = edFzjgms.getText().toString().trim();
-            // GlobalMethod.getKeyFromSpinnerSelected(spChenShi,
-            // cityList, GlobalConstant.KEY);
-            new CommQueryThread(CommQueryThread.JSON_QUERY_DRV,
-                    new String[]{dabh.toString().trim(), sfzh.toString().trim()}, self).doStart();
-        } else if (v == findViewById(R.id.But_clbd)) {
-            // 根据车辆号码查询车辆信息
-            // 判断在离线模式
-            if (!GlobalMethod.showOfflineNotQuery(self))
-                return;
-            Editable hp = edHphm.getText();
-            if (TextUtils.isEmpty(hp)) {
-                GlobalMethod.showErrorDialog("号牌号码不能为空", self);
-                return;
-            }
-            String hpzl = GlobalMethod.getKeyFromSpinnerSelected(spHpzl,
-                    GlobalConstant.KEY);
-            String hphm = GlobalMethod.getKeyFromSpinnerSelected(spHpql,
-                    GlobalConstant.VALUE)
-                    + hp.toString().trim().toUpperCase();
-            new CommQueryThread(CommQueryThread.JSON_QUERY_VEH,
-                    new String[]{hpzl, hphm}, self).doStart();
-        } else if (v == findViewById(R.id.But_cllx)) {
-            // 查询交通方式,如果是非机动车,送一个F,给交通方式进行检索
-            Intent intent = new Intent(self, ConfigJtfsActivity.class);
-            if ("1".equals(((KeyValueBean) spClfl.getSelectedItem())
-                    .getKey()))
-                intent.putExtra("clfl", "F");
-            startActivityForResult(intent, REQCODE_JTFS);
-        } else if (v == findViewById(R.id.But_wfdd)) {
-            // 查询违法地点
-            Intent intent = new Intent(self, ConfigWfddActivity.class);
-            startActivityForResult(intent, REQCODE_WFDD);
-        } else if (v == findViewById(R.id.But_wzsj)) {
-            // 违法时间修改监听
-            GlobalMethod.changeTime(edWfsj, self);
-        } else if (v == findViewById(R.id.But_wzrq)) {
-            GlobalMethod.changeDate(edWfsj, self);
-        } else if (v.getId() == R.id.But_query_wfxw) {
-            Intent intent = new Intent(self, ConfigWfdmActivity.class);
-            intent.putExtra("comefrom", 1);
-            startActivityForResult(intent, REQCODE_WFXW);
-        } else if (v == btnFzjg) {
-            // 选择发证机关
-            // 如果编辑框内有文字，根据文字显示
-            Intent intent = new Intent(self, JbywVioFzjgActivity.class);
-            String fzjgmc = edFzjgms.getText().toString();
-            intent.putExtra("fzjg", fzjgmc);
-            startActivityForResult(intent, REQCODE_FZJG);
+    @OnClick({R.id.but_query_drv_sfzh, R.id.But_query_drv})
+    public void queryDrv(View v) {
+        // 根据档案号查驾驶员信息
+        Editable dabh = edDabh.getText();
+        Editable sfzh = edJszh.getText();
+        Log.e("证件查询", dabh.toString() + "," + sfzh.toString());
+        if (TextUtils.isEmpty(dabh) && v.getId() == R.id.But_query_drv) {
+            GlobalMethod.showErrorDialog("档案编号不能为空", self);
+            return;
         }
+        if (TextUtils.isEmpty(sfzh) && v.getId() == R.id.but_query_drv_sfzh) {
+            GlobalMethod.showErrorDialog("驾驶证号不能为空", self);
+            return;
+        }
+        if (!GlobalMethod.getKeyFromSpinnerSelected(spRyfl,
+                GlobalConstant.KEY).equals("4")) {
+            GlobalMethod.showErrorDialog("只有公安驾驶员才能查询", self);
+            return;
+        }
+        // String bd = edFzjgms.getText().toString().trim();
+        // GlobalMethod.getKeyFromSpinnerSelected(spChenShi,
+        // cityList, GlobalConstant.KEY);
+        new CommQueryThread(CommQueryThread.JSON_QUERY_DRV,
+                new String[]{dabh.toString().trim(), sfzh.toString().trim()}, self).doStart();
     }
-    //};
+
+    //获取违法地点
+    @OnClick(R.id.But_wfdd)
+    public void queryWfdd() {
+        // 查询违法地点
+        Intent intent = new Intent(self, ConfigWfddActivity.class);
+        startActivityForResult(intent, REQCODE_WFDD);
+    }
+
+    //查询违法行为
+    @OnClick(R.id.But_query_wfxw)
+    public void queryWfxw() {
+        Intent intent = new Intent(self, ConfigWfdmActivity.class);
+        intent.putExtra("comefrom", 1);
+        startActivityForResult(intent, REQCODE_WFXW);
+    }
+
+    @OnClick(R.id.But_cllx)
+    public void queryCllx() {
+        // 查询交通方式,如果是非机动车,送一个F,给交通方式进行检索
+        Intent intent = new Intent(self, ConfigJtfsActivity.class);
+        if ("1".equals(((KeyValueBean) spClfl.getSelectedItem())
+                .getKey()))
+            intent.putExtra("clfl", "F");
+        startActivityForResult(intent, REQCODE_JTFS);
+    }
+
+    @OnClick(R.id.btn_fzjg)
+    public void queryFzjg() {
+        // 选择发证机关
+        // 如果编辑框内有文字，根据文字显示
+        Intent intent = new Intent(self, JbywVioFzjgActivity.class);
+        String fzjgmc = edFzjgms.getText().toString();
+        intent.putExtra("fzjg", fzjgmc);
+        startActivityForResult(intent, REQCODE_FZJG);
+    }
+
+    @OnClick(R.id.But_clbd)
+    public void queryClbd() {
+        Editable hp = edHphm.getText();
+        if (TextUtils.isEmpty(hp)) {
+            GlobalMethod.showErrorDialog("号牌号码不能为空", self);
+            return;
+        }
+        String hpzl = GlobalMethod.getKeyFromSpinnerSelected(spHpzl,
+                GlobalConstant.KEY);
+        String hphm = GlobalMethod.getKeyFromSpinnerSelected(spHpql,
+                GlobalConstant.VALUE)
+                + hp.toString().trim().toUpperCase();
+        new CommQueryThread(CommQueryThread.JSON_QUERY_VEH,
+                new String[]{hpzl, hphm}, self).doStart();
+    }
+
+    @OnClick(R.id.But_wzrq)
+    public void wfrqClick() {
+        GlobalMethod.changeDate(edWfsj, self);
+    }
+
+    @OnClick(R.id.But_wzsj)
+    public void wfsjClick() {
+        // 违法时间修改监听
+        GlobalMethod.changeTime(edWfsj, self);
+    }
 
     @Override
     protected void onDestroy() {

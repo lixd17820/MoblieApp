@@ -1,11 +1,16 @@
 package com.jwt.thread;
 
+import android.app.Activity;
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.jwt.bean.LoginResultBean;
+import com.jwt.event.DownSpeedEvent;
 import com.jwt.event.LoginEvent;
 import com.jwt.globalquery.CxMenus;
 import com.jwt.utils.CommParserXml;
+import com.jwt.utils.GlobalConstant;
+import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.ParserJson;
 import com.jwt.web.RestfulDao;
@@ -24,13 +29,15 @@ public class LoginUpdateThread extends Thread {
     private String mjjh;
     private String mm;
     private String serial;
+    private Activity self;
 
 
-    public void doStart(String mjjh, String mm, String serial) {
+    public void doStart(String mjjh, String mm, String serial,Activity self) {
         // 显示进度对话框
         this.mjjh = mjjh;
         this.mm = mm;
         this.serial = serial;
+        this.self = self;
         this.start();
 
     }
@@ -48,7 +55,7 @@ public class LoginUpdateThread extends Thread {
         String err = GlobalMethod.getErrorMessageFromWeb(login);
         LoginEvent event = new LoginEvent();
         if(!TextUtils.isEmpty(err)){
-            event.setStatus(0);
+            event.setStatus(-1);
             event.setStMs(err);
             EventBus.getDefault().post(event);
             return;
@@ -72,8 +79,12 @@ public class LoginUpdateThread extends Thread {
             EventBus.getDefault().post(event);
             return;
         }
+        EventBus.getDefault().post(new LoginEvent(1));
         WebQueryResult<List<CxMenus>> cxMenus = dao.restfulGetMenus();
-        event.setStatus(login.getStatus());
+        EventBus.getDefault().post(new LoginEvent(2));
+        //下载决定书号码，一定同步
+        new WsglThread(self, mjjh).downloadHmb(dao);
+        event.setStatus(200);
         event.setStMs(login.getStMs());
         event.setResult(result);
         event.setCxMenuStr(ParserJson.arrayToJsonArray(cxMenus.getResult()).toString());

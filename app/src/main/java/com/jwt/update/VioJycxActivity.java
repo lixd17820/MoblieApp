@@ -102,7 +102,7 @@ public class VioJycxActivity extends ViolationActivity {
             return "此违法行为不能用于罚款";
         int bzz = GlobalMethod.getEditInt(edBzz);
         int scz = GlobalMethod.getEditInt(edScz);
-        WfxwBzz wfxw = new WfxwBzz(wfxwBean.getWfxw(), bzz+"", scz+"");
+        WfxwBzz wfxw = new WfxwBzz(wfxwBean.getWfxw(), bzz + "", scz + "");
         violation.setWfxw(ParserJson.createArrayByObjs(wfxw).toString());
 
         violation.setFkje(wfxwBean.getFkjeDut());

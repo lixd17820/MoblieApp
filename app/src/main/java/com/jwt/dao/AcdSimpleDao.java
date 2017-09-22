@@ -2,13 +2,14 @@ package com.jwt.dao;
 
 import android.text.TextUtils;
 
+import com.jwt.pojo.AcdLawBean;
+import com.jwt.pojo.AcdLawBean_;
 import com.jwt.pojo.AcdPhotoBean;
 import com.jwt.pojo.AcdPhotoBean_;
 import com.jwt.pojo.AcdSimpleBean;
 import com.jwt.pojo.AcdSimpleBean_;
 import com.jwt.pojo.AcdSimpleHumanBean;
 import com.jwt.pojo.AcdSimpleHumanBean_;
-import com.jwt.jbyw.AcdWftLawBean;
 import com.jwt.jbyw.AcdWfxwBean;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
@@ -81,8 +82,8 @@ public class AcdSimpleDao {
         return acdWfxw;
     }
 
-    public static AcdWftLawBean queryWftknrByXh(String tk1, BoxStore boxStore) {
-        return null;
+    public static AcdLawBean queryWftknrByXh(String xh, BoxStore boxStore) {
+        return boxStore.boxFor(AcdLawBean.class).query().equal(AcdLawBean_.xh, xh).build().findFirst();
     }
 
     public static int updateAcdPhotoRecodeScbj(long id, long acdID, BoxStore boxStore) {
@@ -109,7 +110,7 @@ public class AcdSimpleDao {
 
     public static List<AcdPhotoBean> getAllAcdPhoto(String wsbh, BoxStore boxStore) {
         Box<AcdPhotoBean> box = boxStore.boxFor(AcdPhotoBean.class);
-        if(TextUtils.isEmpty(wsbh))
+        if (TextUtils.isEmpty(wsbh))
             return box.getAll();
         return box.query().equal(AcdPhotoBean_.sgbh, wsbh).build().find();
     }

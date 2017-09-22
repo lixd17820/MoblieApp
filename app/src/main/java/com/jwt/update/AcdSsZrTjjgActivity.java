@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,13 +16,13 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 import com.jwt.dao.AcdSimpleDao;
-import com.jwt.jbyw.AcdWftLawBean;
+import com.jwt.pojo.AcdLawBean;
 import com.jwt.pojo.AcdSimpleBean;
 import com.jwt.pojo.AcdSimpleHumanBean;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 
-public class AcdSsZrTjjgActivity extends ActionBarActivity {
+public class AcdSsZrTjjgActivity extends AppCompatActivity {
 
     private AcdSimpleBean sgjbqk;
     private ArrayList<AcdSimpleHumanBean> ryjbqkList;
@@ -119,17 +120,17 @@ public class AcdSsZrTjjgActivity extends ActionBarActivity {
         for (AcdSimpleHumanBean ry : ryjbqkList) {
             s1 += "当事人" + ry.getXm();
             if (!TextUtils.isEmpty(ry.getTk1())) {
-                AcdWftLawBean tk = AcdSimpleDao.queryWftknrByXh(
+                AcdLawBean tk = AcdSimpleDao.queryWftknrByXh(
                          ry.getTk1(),GlobalMethod.getBoxStore(self));
                 s1 += "的行为违反了" + tk.getTkmc() + "之规定，";
             }
             if (!TextUtils.isEmpty(ry.getTk2())) {
-                AcdWftLawBean tk = AcdSimpleDao.queryWftknrByXh(
+                AcdLawBean tk = AcdSimpleDao.queryWftknrByXh(
                          ry.getTk2(),GlobalMethod.getBoxStore(self));
                 s1 += "以及" + tk.getTkmc() + "之规定，";
             }
             if (!TextUtils.isEmpty(ry.getTk3())) {
-                AcdWftLawBean tk = AcdSimpleDao.queryWftknrByXh(
+                AcdLawBean tk = AcdSimpleDao.queryWftknrByXh(
                         ry.getTk3(),GlobalMethod.getBoxStore(self));
                 s1 += "以及" + tk.getTkmc() + "之规定，";
             }

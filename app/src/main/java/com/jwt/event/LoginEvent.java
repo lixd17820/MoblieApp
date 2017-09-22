@@ -12,6 +12,13 @@ public class LoginEvent {
     private String stMs;
     private String cxMenuStr;
 
+    public LoginEvent(){
+    }
+
+    public LoginEvent(int status){
+        this.status = status;
+    }
+
     public int getStatus() {
         return status;
     }

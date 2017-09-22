@@ -29,6 +29,7 @@ public class WsglThread extends Thread {
 
     private Activity self;
     private String jh;
+    private String TAG = "WsglThread";
 
     public WsglThread(Activity self, String jh) {
         this.self = self;
@@ -77,36 +78,37 @@ public class WsglThread extends Thread {
         for (THmb hmb : hmbs) {
             // 转换服务器种类为警务通种类
             try {
-                Log.e("UpdateInfoThread", ParserJson.objToJson(hmb).toString());
+                Log.e(TAG, ParserJson.objToJson(hmb).toString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
             String jwthd = GlobalConstant.hdzh.get(hmb.getHdzl());
             if (TextUtils.equals("009", jwthd))
                 jwthd = "9";
-            Log.e("UpdateInfoThread", "jwthd " + jwthd);
+            Log.e(TAG, "jwthd " + jwthd);
             hmb.setHdzl(jwthd);
             THmb curHmb = WsglDAO.getHmbByHdId(hmb.getHdid(), hmb.getHdzl(), GlobalMethod.getBoxStore(self));
             if (curHmb == null) {
                 // 该民警还未获取法律文书，直接将获取的文书写入到表中
                 box.put(hmb);
-                Log.e("UpdateInfoThread", "cyrHmb is null and save. id: " + hmb.getId());
+                Log.e(TAG, "cyrHmb is null and save. id: " + hmb.getId());
             } else {
                 long serverDqhm = Long.valueOf(hmb.getDqhm());
-                long clientDqhm = Long
-                        .valueOf(curHmb.getDqhm());
+                long clientDqhm = Long.valueOf(curHmb.getDqhm());
+                Log.e(TAG, serverDqhm + "/" + clientDqhm);
                 if (serverDqhm > clientDqhm) {
                     // 服务器大则更新本地，
-                    box.put(hmb);
-                    Log.e("UpdateInfoThread", "服务器大则更新本地. " + jwthd);
+                    curHmb.setDqhm(hmb.getDqhm());
+                    box.put(curHmb);
+                    Log.e(TAG, "服务器大则更新本地. " + jwthd);
                 } else if (serverDqhm < clientDqhm) {
                     // 服务器小则更新服务器，当前值减一
                     curHmb.setDqhm((Long.valueOf(curHmb.getDqhm()) - 1) + "");
-                    Log.e("UpdateInfoThread", "服务器小则更新服务器，当前值减一. " + jwthd);
+                    Log.e(TAG, "服务器小则更新服务器，当前值减一. " + jwthd);
                     dao.synVioWs(curHmb, jh);
                 } else {
                     // 全部相符合，不更新本地的数据
-                    Log.e("UpdateInfoThread", "全部相符合，不更新本地的数据. " + jwthd);
+                    Log.e(TAG, "全部相符合，不更新本地的数据. " + jwthd);
                 }
             }
         }

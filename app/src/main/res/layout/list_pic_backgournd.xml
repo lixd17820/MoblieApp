@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical">
-	<ListView android:id="@android:id/list" android:layout_width="fill_parent"
-		android:layout_height="0dip" android:layout_weight="1"
-		android:divider="#FFFFFFFF" android:drawSelectorOnTop="false"
-		android:dividerHeight="0px" android:background="#FFFFFFFF"
-		android:cacheColorHint="#FFFFFFFF" android:focusableInTouchMode="true"
-		android:focusable="false">
-	</ListView>
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#FFFFFFFF"
+    android:orientation="vertical"
+    android:paddingTop="16dp">
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:background="#FFFFFFFF"
+        android:cacheColorHint="#FFFFFFFF"
+        android:divider="#FFFFFFFF"
+        android:dividerHeight="0px"
+        android:drawSelectorOnTop="false"
+
+        android:focusable="false"
+        android:focusableInTouchMode="true"></ListView>
 </LinearLayout>

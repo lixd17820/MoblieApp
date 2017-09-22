@@ -1,5 +1,6 @@
 package com.jwt.utils;
 
+import com.jwt.pojo.AcdLawBean;
 import com.jwt.pojo.FrmDptCode;
 import com.jwt.pojo.FrmRoadItem;
 import com.jwt.pojo.FrmRoadSeg;
@@ -43,7 +44,7 @@ public class ThreadMethod {
         }
     }
 
-    public static void saveRoadItemInDb(WebQueryResult<String> dict,Box<FrmRoadItem> box) {
+    public static void saveRoadItemInDb(WebQueryResult<String> dict, Box<FrmRoadItem> box) {
         box.removeAll();
         String re = dict.getResult();
         List<FrmRoadItem> codes = new ArrayList<>();
@@ -62,7 +63,7 @@ public class ThreadMethod {
         }
     }
 
-    public static void saveRoadSegInDb(WebQueryResult<String> dict,Box<FrmRoadSeg> box) {
+    public static void saveRoadSegInDb(WebQueryResult<String> dict, Box<FrmRoadSeg> box) {
         box.removeAll();
         String re = dict.getResult();
         List<FrmRoadSeg> codes = new ArrayList<>();
@@ -166,6 +167,25 @@ public class ThreadMethod {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 ZapcLxxx c = ParserJson.parseJsonToObj(obj, ZapcLxxx.class);
+                codes.add(c);
+            }
+            if (codes != null && codes.size() > 0) {
+                box.put(codes);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveAcdLawInDb(WebQueryResult<String> data, Box<AcdLawBean> box) {
+        box.removeAll();
+        String re = data.getResult();
+        List<AcdLawBean> codes = new ArrayList<>();
+        try {
+            JSONArray array = new JSONArray(re);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                AcdLawBean c = ParserJson.parseJsonToObj(obj, AcdLawBean.class);
                 codes.add(c);
             }
             if (codes != null && codes.size() > 0) {

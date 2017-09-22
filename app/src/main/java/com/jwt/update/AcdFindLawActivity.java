@@ -1,11 +1,10 @@
 package com.jwt.update;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,9 +22,13 @@ import com.jwt.activity.ActionBarListActivity;
 import com.jwt.adapter.TwoLineSelectAdapter;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.TwoLineSelectBean;
-import com.jwt.dao.AcdSimpleDao;
-import com.jwt.jbyw.AcdWftLawBean;
+import com.jwt.pojo.AcdLawBean;
+import com.jwt.pojo.AcdLawBean_;
+import com.jwt.utils.ChangeIdNum;
 import com.jwt.utils.GlobalMethod;
+
+import io.objectbox.Box;
+import io.objectbox.query.QueryBuilder;
 
 public class AcdFindLawActivity extends ActionBarListActivity {
 
@@ -33,8 +36,9 @@ public class AcdFindLawActivity extends ActionBarListActivity {
 	private Context self;
 	private EditText editFt, editFk, editFx, editWz;
 	private Button btnFind, btnOk, btnDetail;
-	private ArrayList<AcdWftLawBean> wftkList;
+	private List<AcdLawBean> wftkList;
 	private ArrayList<TwoLineSelectBean> wfxwApapterList = null;
+	private Box<AcdLawBean> box;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,7 @@ public class AcdFindLawActivity extends ActionBarListActivity {
 		btnFind.setOnClickListener(findFltkListener);
 		btnOk.setOnClickListener(okListener);
 		btnDetail.setOnClickListener(wfxwDetailListener);
+		box = GlobalMethod.getBoxStore(self).boxFor(AcdLawBean.class);
 
 		getListView().setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -88,51 +93,46 @@ public class AcdFindLawActivity extends ActionBarListActivity {
 
 		@Override
 		public void onClick(View v) {
-			String where = "";
-//			String ft = editFt.getText().toString();
-//			if (!TextUtils.isEmpty(ft)) {
-//				if (TextUtils.isDigitsOnly(ft))
-//					ft = ChangeIdNum.changToBignum(ft);
-//				ft = "'%" + ft + "条%'";
-//				where += " and " + AcdSimple.AcdLaws.TKMC + " like " + ft;
-//			}
-//			String fk = editFk.getText().toString();
-//			if (!TextUtils.isEmpty(fk)) {
-//				if (TextUtils.isDigitsOnly(fk))
-//					fk = ChangeIdNum.changToBignum(fk);
-//				fk = "'%" + fk + "款%'";
-//				where += " and " + AcdSimple.AcdLaws.TKMC + " like " + fk;
-//			}
-//			String fx = editFx.getText().toString();
-//			if (!TextUtils.isEmpty(fx)) {
-//				if (TextUtils.isDigitsOnly(fx))
-//					fx = ChangeIdNum.changToBignum(fx);
-//				fx = "'%" + fx + "款%'";
-//				where += " and " + AcdSimple.AcdLaws.TKMC + " like " + fx;
-//			}
-//
-//			KeyValueBean kv = (KeyValueBean) spinFl.getSelectedItem();
-//			if (!TextUtils.isEmpty(kv.getKey())) {
-//				String lb = kv.getKey();
-//				where += " and " + AcdSimple.AcdLaws.XH + " like '" + lb + "%'";
-//			}
-//			String wz = editWz.getText().toString();
-//			if (!TextUtils.isEmpty(wz)) {
-//				wz = "'%" + wz + "%'";
-//				where += " and " + AcdSimple.AcdLaws.TKNR + " like " + wz;
-//			}
-			if (!TextUtils.isEmpty(where)) {
-				where = where.substring(5);
-				//wftkList = AcdSimpleDao.queryWftknrByCond(getContentResolver(),
-				//		where);
-				changeListContent();
+			QueryBuilder<AcdLawBean> query = box.query();
+			String ft = editFt.getText().toString();
+			if (!TextUtils.isEmpty(ft)) {
+				if (TextUtils.isDigitsOnly(ft))
+					ft = ChangeIdNum.changToBignum(ft);
+				query = query.contains(AcdLawBean_.tkmc,ft);
 			}
+			String fk = editFk.getText().toString();
+			if (!TextUtils.isEmpty(fk)) {
+				if (TextUtils.isDigitsOnly(fk))
+					fk = ChangeIdNum.changToBignum(fk);
+				fk = "'%" + fk + "款%'";
+				query = query.contains(AcdLawBean_.tkmc,fk);
+			}
+			String fx = editFx.getText().toString();
+			if (!TextUtils.isEmpty(fx)) {
+				if (TextUtils.isDigitsOnly(fx))
+					fx = ChangeIdNum.changToBignum(fx);
+				fx = "'%" + fx + "款%'";
+				query = query.contains(AcdLawBean_.tkmc,fx);
+			}
+
+			KeyValueBean kv = (KeyValueBean) spinFl.getSelectedItem();
+			if (!TextUtils.isEmpty(kv.getKey())) {
+				String lb = kv.getKey();
+				query = query.startsWith(AcdLawBean_.xh,lb);
+			}
+			String wz = editWz.getText().toString();
+			if (!TextUtils.isEmpty(wz)) {
+				wz = "'%" + wz + "%'";
+				query = query.contains(AcdLawBean_.tknr,wz);
+			}
+			wftkList = query.build().find();
+			changeListContent();
 		}
 	};
 
 	private void createKvList() {
 		if (wftkList != null && wftkList.size() > 0) {
-			for (AcdWftLawBean wf : wftkList) {
+			for (AcdLawBean wf : wftkList) {
 				wfxwApapterList.add(new TwoLineSelectBean(wf.getXh(), wf
 						.getTknr(), false));
 			}
@@ -175,7 +175,7 @@ public class AcdFindLawActivity extends ActionBarListActivity {
 		public void onClick(View v) {
 			int postion = getSelectItem();
 			if (postion > -1) {
-				AcdWftLawBean wfxw = wftkList.get(postion);
+				AcdLawBean wfxw = wftkList.get(postion);
 				Intent i = new Intent();
 				Bundle b = new Bundle();
 				b.putSerializable("wfxw", wfxw);
@@ -194,7 +194,7 @@ public class AcdFindLawActivity extends ActionBarListActivity {
 		public void onClick(View v) {
 			int postion = getSelectItem();
 			if (postion > -1) {
-				AcdWftLawBean wfxw = wftkList.get(postion);
+				AcdLawBean wfxw = wftkList.get(postion);
 				String message = "序号：" + wfxw.getXh() + "\n";
 				message += "法律：" + wfxw.getFlmc() + "\n";
 				message += "条款：" + wfxw.getTkmc() + "\n";

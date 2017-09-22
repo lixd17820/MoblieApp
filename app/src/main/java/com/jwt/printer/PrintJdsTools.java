@@ -17,6 +17,8 @@ import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.ParserJson;
 
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +38,8 @@ public class PrintJdsTools {
             "yyyy年MM月dd日");
     private static SimpleDateFormat sdfNoSec = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm");
+
+    private static String TAG = "PrintJdsTools";
 
     public static ArrayList<JdsPrintBean> getPrintJdsByBh(String bh,
                                                           Activity resolver) {
@@ -74,7 +78,7 @@ public class PrintJdsTools {
         //测试一下数据
         Set<Entry<String, String>> set = GlobalData.grxx.entrySet();
         for (Entry<String, String> e : set) {
-            Log.e("PrintJdsTools", e.getKey() + ":" + e.getValue());
+            Log.e(TAG, e.getKey() + ":" + e.getValue());
         }
         if (fxc == null)
             return null;
@@ -143,6 +147,8 @@ public class PrintJdsTools {
 
     public static ArrayList<JdsPrintBean> getPrintJdsContent(VioViolation v,
                                                              Activity resolver) {
+        JSONObject vioObj = ParserJson.objToJson(v);
+        Log.e(TAG, vioObj.toString());
         ArrayList<JdsPrintBean> jds = new ArrayList<JdsPrintBean>();
         if (v == null)
             return null;
@@ -220,7 +226,7 @@ public class PrintJdsTools {
             }
             jds.add(new JdsPrintBean(Gravity.LEFT, "    被处罚人于" + wfsj + "，在"
                     + wfdd + "实施" + codes[0].getWfms() + "违法行为(代码"
-                    + codes[0].getWfxw() + ")" + bzzScz + "。"));
+                    + codes[0].getWfxw() + bzzScz + ")。"));
             jds.add(new JdsPrintBean(Gravity.LEFT, "    根据" + codes[0].getFltw()
                     + "之规定，决定处以："));
             // 区别警告\不罚款\当场缴款
@@ -279,18 +285,18 @@ public class PrintJdsTools {
             jds.add(new JdsPrintBean(Gravity.LEFT, "车辆类型:" + jtfs));
             jds.add(new JdsPrintBean(Gravity.LEFT, "车辆牌号:" + v.getHphm()));
             String wfxwms = "";
-            String bzzScz = "";
             for (int i = 0; i < wfxws.length; i++) {
-                if (GlobalMethod.isInBzzScz(wfxws[i].getWfxw())) {
-                    bzzScz = "标准值：" + wfxws[i].getBzz() + "，实测值：" + wfxws[i].getScz();
+                String bzzScz = "";
+                WfxwBzz wfxw = wfxws[i];
+                if (!TextUtils.isEmpty(wfxw.getBzz()) && !TextUtils.isEmpty(wfxw.getScz())) {
+                    bzzScz = "标准值：" + wfxw.getBzz() + "，实测值：" + wfxw.getScz();
                 }
                 wfxwms += codes[i] == null ? "" : codes[i].getWfms() + "违法行为(代码"
-                        + codes[i].getWfxw() + ");";
+                        + codes[i].getWfxw() + "，" + bzzScz + ");";
             }
             if (!TextUtils.isEmpty(wfxwms)) {
                 wfxwms = wfxwms.substring(0, wfxwms.length() - 1);
             }
-            wfxwms += bzzScz;
             jds.add(new JdsPrintBean(Gravity.LEFT, "    当事人于" + wfsj + "，在"
                     + wfdd + "实施" + wfxwms));
             // 法律条文，强制措施为单独的强制依据，违法通知为违法规定

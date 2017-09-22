@@ -141,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
         dialog = new MaterialDialog.Builder(self)
                 .title("系统提示")
                 .content("正在登录")
-                .progress(false, 1, true).build();
+                .progress(false, 3, true).build();
 
         PermissionGen.with(LoginActivity.this)
                 .addRequestCode(100)
@@ -238,7 +238,7 @@ public class LoginActivity extends AppCompatActivity {
             //setVisibleView(true);
             // 启动线程
             dialog.show();
-            new LoginUpdateThread().doStart(mjjh, mm, GlobalData.serialNumber);
+            new LoginUpdateThread().doStart(mjjh, mm, GlobalData.serialNumber, LoginActivity.this);
 
         }
     };
@@ -251,11 +251,15 @@ public class LoginActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void loginEventBus(LoginEvent re) {
-
-        if (re == null || re.getStatus() != 200
-                || re.getResult() == null) {
+        if (re.getStatus() < 0 || (re.getStatus() == 200 &&
+                re.getResult() == null)) {
             dialog.dismiss();
             GlobalMethod.showErrorDialog(TextUtils.isEmpty(re.getStMs()) ? "登录网络连接错误" : re.getStMs(), self);
+        }
+
+        if (re.getStatus() > 0 && re.getStatus() != 200) {
+            //显示进度
+            dialog.setProgress(re.getStatus());
             return;
         }
         LoginResultBean login = re.getResult();
@@ -288,12 +292,14 @@ public class LoginActivity extends AppCompatActivity {
             exitLogin("服务器出现错误，请与管理员联系");
             return;
         }
+
         needs = checkNeedApk(ufs);
         if (!needs.isEmpty()) {
             //下载文件并安装，暂时不开
-            new DownFileThread(needs).start();
-            return;
+           // new DownFileThread(needs).start();
+           // return;
         }
+
         JSONArray jufs = ParserJson.arrayToJsonArray(ufs);
         Log.e("jufs", jufs.toString());
         Log.e("realLoginHandler", "3");
@@ -329,9 +335,9 @@ public class LoginActivity extends AppCompatActivity {
         return checkNeedApk(Arrays.asList(ufs));
     }
 
-    private void installApk(File f,int rq){
-        if(!f.exists()){
-            Toast.makeText(self,"文件不存在",Toast.LENGTH_LONG).show();
+    private void installApk(File f, int rq) {
+        if (!f.exists()) {
+            Toast.makeText(self, "文件不存在", Toast.LENGTH_LONG).show();
             return;
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -350,7 +356,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void installApk(UpdateFile apk) {
         File f = new File(outSideDir, apk.getFileName());
-        installApk(f,Integer.valueOf(apk.getId()));
+        installApk(f, Integer.valueOf(apk.getId()));
     }
 
     private void installApk() {
@@ -481,7 +487,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.e("realLoginHandler", "5" + fs.size());
             for (UpdateFile uf : fs) {
                 long writeByte = dao.downloadFile(dao.getFileUrl() + uf.getPackageName(),
-                        new File(outSideDir,uf.getFileName()), Long.valueOf(uf.getHashValue()), uf.getFileName());
+                        new File(outSideDir, uf.getFileName()), Long.valueOf(uf.getHashValue()), uf.getFileName());
                 if (writeByte > 0)
                     writeCount++;
                 i++;
@@ -494,7 +500,7 @@ public class LoginActivity extends AppCompatActivity {
     class InstallApk extends Thread {
         Handler handler;
 
-        public InstallApk(Handler handler){
+        public InstallApk(Handler handler) {
             this.handler = handler;
         }
 

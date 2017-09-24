@@ -106,6 +106,9 @@ public class JbywBjbdListActivity extends AppCompatActivity {
         }
         bjbdBox.put(bjlist);
         bjbdList = bjbdBox.getAll();
+        if(bjbdList == null || bjbdList.isEmpty()){
+            bjbdList = new ArrayList<>();
+        }
         adapter = new BjbdAdapter(clickListener);
         mRecycleView = (RecyclerView) findViewById(R.id.rec_view_bjbd);
         //noinspection ConstantConditions

@@ -59,6 +59,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -132,7 +133,16 @@ public class MainReferService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "警务通后台服务进程启动");
-
+        //检验是否有数据保存，如果为空说明服务是开机启动的
+        if (GlobalData.grxx == null || GlobalData.grxx.isEmpty()) {
+            Map<String, String> mjxx = GlobalMethod.getSavedMjInfo(this);
+            if (mjxx == null || mjxx.isEmpty()) {
+                Log.e(TAG, "无基本信息，无法启动后台服务");
+                return;
+            }
+            GlobalData.grxx = mjxx;
+            GlobalMethod.saveParam(this);
+        }
         noticeManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // 初始化全局数据
@@ -534,14 +544,14 @@ public class MainReferService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.e(TAG, "onDestroy");
+        Log.e(TAG, "警务通服务被停止");
         try {
             client.disconnect();
         } catch (MqttException e) {
             e.printStackTrace();
         }
-        locm.removeUpdates(ll);
-        locm.removeGpsStatusListener(stlist);
+        //locm.removeUpdates(ll);
+        //locm.removeGpsStatusListener(stlist);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }

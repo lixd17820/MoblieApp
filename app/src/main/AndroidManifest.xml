@@ -109,7 +109,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".VioJycxActivity"
-            android:screenOrientation="portrait" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
         <activity
             android:name=".VioQwjgActivity"
             android:screenOrientation="portrait" />

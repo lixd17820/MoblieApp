@@ -1413,7 +1413,6 @@ public class GlobalMethod {
         GlobalSystemParam.drvCheckFs = Integer.valueOf(prefs.getString("drv_check", "2"));
         GlobalSystemParam.picCompress = Integer.valueOf(prefs.getString("pic_compress", "60"));
         GlobalSystemParam.uploadFreq = Integer.valueOf(prefs.getString("gps_up_freq", "5"));
-        GlobalSystemParam.drvCheckFs = Integer.valueOf(prefs.getString("network_state", "0"));
         GlobalSystemParam.isPreviewPhoto = prefs.getBoolean("preview_photo", true);
         GlobalSystemParam.isGpsUpload = prefs.getBoolean("gps_upload", false);
         GlobalSystemParam.isSkipSpinner = prefs.getBoolean("skip_spinner", false);
@@ -1424,8 +1423,8 @@ public class GlobalMethod {
         GlobalSystemParam.isReciveText = prefs.getBoolean("is_rec_text", true);
         GlobalSystemParam.isNotNotice = prefs.getBoolean("not_notice", true);
         GlobalSystemParam.bjRingtone = prefs.getString("bj_ringtone", "");
-        GlobalSystemParam.isConnBjbd = prefs.getBoolean("is_conn_bjbd", true);
-
+        GlobalSystemParam.isConnBjbd = prefs.getBoolean("is_conn_bjbd", false);
+        GlobalData.connCata = ConnCata.getValByIndex(Integer.valueOf(prefs.getString("network_state", "1")));
         //       Map<String, ?> map = prefs.getAll();
 //        for (Entry<String, ?> entry : map.entrySet()) {
 //            Log.e("saveParam", " " + entry.getKey() + "/"
@@ -1434,7 +1433,8 @@ public class GlobalMethod {
 //        Log.e("GlbalMethod", prefs.getAll().size() + "个设置");
     }
 
-    public static void loadParam(SharedPreferences prefs, String name, String value) {
+    public static void loadParam(Context context, String name, String value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = prefs.edit();
         edit.putString(name, value);
         edit.commit();

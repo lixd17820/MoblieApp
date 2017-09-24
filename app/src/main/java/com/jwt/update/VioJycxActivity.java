@@ -16,6 +16,7 @@ import com.jwt.utils.ParserJson;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -77,6 +78,8 @@ public class VioJycxActivity extends ViolationActivity {
         // 移除多个违法列表
         RelativeLayout rl = (RelativeLayout) findViewById(R.id.layout_qzcs);
         rl.setVisibility(View.GONE);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
 

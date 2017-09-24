@@ -58,6 +58,7 @@ import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.GlobalSystemParam;
+import com.jwt.utils.MenuParser;
 import com.jwt.utils.ParserJson;
 import com.jwt.web.RestfulDao;
 import com.jwt.web.RestfulDaoFactory;
@@ -153,6 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                         Manifest.permission.RECEIVE_SMS,
                         Manifest.permission.READ_CONTACTS)
                 .request();
+        //加载已保存的配置
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -190,9 +192,17 @@ public class LoginActivity extends AppCompatActivity {
             count = 0;
         }
         clickTime = cuTime;
-        if (count >= 5) {
-            Toast.makeText(self, "已改变连接方式", Toast.LENGTH_SHORT).show();
-            GlobalData.connCata = ConnCata.INSIDECONN;
+        if (count == 5) {
+            int index = (GlobalData.connCata.getIndex() + 1) % 2;
+            GlobalData.connCata = ConnCata.getValByIndex(index);
+            Toast.makeText(self, "已改变连接方式: " + GlobalData.connCata.getName(), Toast.LENGTH_SHORT).show();
+            //GlobalData.connCata = ConnCata.INSIDECONN;
+            GlobalMethod.loadParam(self, "network_state", GlobalData.connCata.getIndex() + "");
+            if (MenuParser.checkServerRunning(self, "com.jwt.update",
+                    "com.jwt.update.MainReferService")) {
+                stopService(new Intent(this, MainReferService.class));
+            }
+            showVersion();
         }
     }
 
@@ -296,8 +306,8 @@ public class LoginActivity extends AppCompatActivity {
         needs = checkNeedApk(ufs);
         if (!needs.isEmpty()) {
             //下载文件并安装，暂时不开
-           // new DownFileThread(needs).start();
-           // return;
+            // new DownFileThread(needs).start();
+            // return;
         }
 
         JSONArray jufs = ParserJson.arrayToJsonArray(ufs);
@@ -450,9 +460,14 @@ public class LoginActivity extends AppCompatActivity {
         File f = new File(outSideDir);
         if (!f.exists())
             f.mkdirs();
-        double version = GlobalMethod.getApkVerionName("com.jwt.update", self);
-        tvVersion.setText("系统版本号：" + version);
+        showVersion();
         Toast.makeText(this, "Contact permission is granted", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showVersion(){
+        double version = GlobalMethod.getApkVerionName("com.jwt.update", self);
+        int connIndex = GlobalData.connCata.getIndex();
+        tvVersion.setText("系统版本号：" + version + "." + connIndex);
     }
 
     @PermissionFail(requestCode = 100)

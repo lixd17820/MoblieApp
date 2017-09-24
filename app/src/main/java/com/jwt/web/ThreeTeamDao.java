@@ -41,7 +41,7 @@ public class ThreeTeamDao extends RestfulDao {
 
     @Override
     public String getMqttUrl() {
-        return "tcp://127.0.0.1:8099";
+        return "tcp://127.0.0.1:8999";
     }
 
     @Override

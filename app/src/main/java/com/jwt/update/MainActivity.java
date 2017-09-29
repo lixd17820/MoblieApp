@@ -7,8 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -30,6 +36,9 @@ import com.jwt.adapter.MainMenuAdapter.MenuClickListener;
 import com.jwt.bean.MenuGridBean;
 import com.jwt.bean.MenuOptionBean;
 import com.jwt.event.MenuPosEvent;
+import com.jwt.fragment.MenuConfigFragment;
+import com.jwt.fragment.MenuJbywFragment;
+import com.jwt.fragment.MenuZhcxFragment;
 import com.jwt.pojo.Bjbd;
 import com.jwt.pojo.Bjbd_;
 import com.jwt.utils.ConnCata;
@@ -47,11 +56,9 @@ import java.util.List;
 import kr.co.namee.permissiongen.PermissionGen;
 import kr.co.namee.permissiongen.PermissionSuccess;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MenuJbywFragment.OnFragmentInteractionListener {
 
-    private MainMenuAdapter menusAdapter;
-    private List<MenuGridBean> menuLists;
-    private List<MenuOptionBean> menuOptionList;
+
     private Context self;
     private MainReferService mrService;
     private long bjwd = 0;
@@ -59,11 +66,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        self = this;
         EventBus.getDefault().register(this);
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
+        self = this;
         String mjxx = GlobalMethod.getSavedInfo(self, "mjxx");
         if (TextUtils.isEmpty(mjxx)) {
             Intent intent = new Intent(self, LoginActivity.class);
@@ -76,70 +82,28 @@ public class MainActivity extends AppCompatActivity {
         if (GlobalData.grxx == null) {
             GlobalData.grxx = GlobalMethod.getSavedMjInfo(self);
         }
-        setUpViews();
+        Log.e("MainActivity","setContentView 之前");
+        setContentView(R.layout.activity_main);
+        Log.e("MainActivity","setContentView 之后");
+
+        //setUpViews();
         //测试数据
         PermissionGen.with(this)
                 .addRequestCode(100)
                 .permissions(Manifest.permission.READ_PHONE_STATE)
                 .request();
-
+        SectionsPagerAdapter pagerAdapter =
+                new SectionsPagerAdapter(getSupportFragmentManager());
+        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(pagerAdapter);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(pager);
     }
 
 
-    protected void setUpViews() {
-        bjwd = GlobalMethod.getBoxStore(self).boxFor(Bjbd.class).query()
-                .notEqual(Bjbd_.ydbj, 1).build().count();
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.gridView1);
-        //noinspection ConstantConditions
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, OrientationHelper.VERTICAL));//这里用线性宫格显示 类似于瀑布流
-        menuLists = MenuParser.parseMenuXml(self);
-        // 根据权限过滤菜单
-        //menuLists = MenuParser.filterMenuByQx(menuLists, GlobalData.grxx.get("YHLX"));
-        menuOptionList = menuLists.get(0).getOptions();
-        menusAdapter = new MainMenuAdapter(menuClickListener, 3);
-        recyclerView.setAdapter(menusAdapter);
-        for (MenuOptionBean opt : menuOptionList) {
-            if ("com.jwt.update.JbywBjbdListActivity".equals(opt.getClassName())) {
-                opt.setBadge(bjwd > 0);
-            }
-        }
-        menusAdapter.setMenus(menuOptionList);
 
-    }
 
-    private MenuClickListener menuClickListener = new MenuClickListener() {
-        @Override
-        public void onNoteClick(int position) {
-            MenuOptionBean m = menuOptionList.get(position);
-            //m.setBadge(false);
-            //menusAdapter.notifyDataSetChanged();
-            if (!TextUtils.isEmpty(m.getPck())
-                    && !TextUtils.isEmpty(m.getClassName())) {
-                String dn = m.getDataName();
-                String data = m.getData();
-                if (TextUtils.equals(dn, "out")) {
-                    Intent intent = new Intent(m.getClassName()); //广播内容
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                    sendBroadcast(intent);
-                } else {
-                    Intent intent = new Intent();
-                    Log.e("MainActivity", m.getPck() + "/" + m.getClassName());
-                    intent.setComponent(new ComponentName(m.getPck(), m
-                            .getClassName()));
-                    if (!TextUtils.isEmpty(dn)
-                            && !TextUtils.isEmpty(data)) {
-                        intent.putExtra(m.getDataName(), m.getData());
-                    }
-                    intent.putExtra("title", m.getMenuName());
-                    intent.putExtra("position", position);
-                    startActivity(intent);
-                }
-            }
-        }
-    };
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,16 +116,16 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.menu_zhcx: {
-                Intent intent = new Intent(self, ZhcxMainActivity.class);
-                startActivity(intent);
-            }
-            return true;
-            case R.id.menu_config: {
-                Intent intent = new Intent(self, ConfigMainActivity.class);
-                startActivity(intent);
-            }
-            return true;
+//            case R.id.menu_zhcx: {
+//                Intent intent = new Intent(self, ZhcxMainActivity.class);
+//                startActivity(intent);
+//            }
+//            return true;
+//            case R.id.menu_config: {
+//                Intent intent = new Intent(self, ConfigMainActivity.class);
+//                startActivity(intent);
+//            }
+//            return true;
             case R.id.menu_scan: {
                 IntentIntegrator integrator = new IntentIntegrator(this);
 //                integrator.setDesiredBarcodeFormats(IntentIntegrator.ONE_D_CODE_TYPES);
@@ -193,12 +157,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void menuBackEvent(MenuPosEvent event) {
-        int pos = event.getPos();
-        Log.e("Main activity", "return " + pos);
-        boolean isBadge = event.isBadge();
-        MenuOptionBean m = menuOptionList.get(pos);
-        m.setBadge(isBadge);
-        menusAdapter.notifyItemChanged(pos);
+//        int pos = event.getPos();
+//        Log.e("Main activity", "return " + pos);
+//        boolean isBadge = event.isBadge();
+//        MenuOptionBean m = menuOptionList.get(pos);
+//        m.setBadge(isBadge);
+//        menusAdapter.notifyItemChanged(pos);
     }
 
     @PermissionSuccess(requestCode = 100)
@@ -273,5 +237,47 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return new MenuJbywFragment();
+                case 1:
+                    return new MenuZhcxFragment();
+                case 2:
+                    return new MenuConfigFragment();
+            }
+            return null;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "交管业务";
+                case 1:
+                    return "综合查询";
+                case 2:
+                    return "系统配置";
+            }
+            return null;
+        }
+    }
 }
 

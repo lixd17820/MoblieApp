@@ -125,4 +125,7 @@
     <string name="conn_status">连接状态</string>
     <string name="open_conn">打开连接</string>
     <string name="btn_menus">菜单</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -60,18 +60,18 @@ public class MainMenuAdapter extends RecyclerView.Adapter<MainMenuAdapter.MenuVi
     @Override
     public MenuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_menu, parent, false);
+                .inflate(R.layout.card_captioned_image, parent, false);
         GridLayoutManager.LayoutParams lp = (GridLayoutManager.LayoutParams) view.getLayoutParams();
         int ph = parent.getMeasuredHeight();
         int pw = parent.getMeasuredWidth();
-        int margin = 24;
+        int margin = 12;
         if (ph > pw) {
             int row = (getItemCount() - 1) / cols + 1;
             lp.height = (parent.getMeasuredHeight() - (margin * 2 * row)) / row;
         } else {
             lp.height = (parent.getMeasuredHeight() - (margin * 2 * cols)) / cols;
         }
-        lp.setMargins(0, margin, 0, margin);
+        lp.setMargins(margin, margin, margin, margin);
         view.setLayoutParams(lp);
         return new MenuViewHolder(view, clickListener);
     }

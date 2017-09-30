@@ -51,6 +51,7 @@ import com.jwt.printer.BlueToothPrint;
 import com.jwt.printer.JdsPrintBean;
 import com.jwt.printer.PrintJdsTools;
 import com.jwt.thread.CommQueryThread;
+import com.jwt.thread.CommUploadThread;
 import com.jwt.thread.UploadVioThread;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
@@ -1280,11 +1281,6 @@ public abstract class ViolationActivity extends AppCompatActivity {
         Toast.makeText(self, "照片保存成功", Toast.LENGTH_LONG).show();
     }
 
-    protected void showImageActivity(String file) {
-        Intent intent = new Intent(self, ShowImageActivity.class);
-        intent.putExtra("image", file);
-        startActivity(intent);
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -1357,10 +1353,12 @@ public abstract class ViolationActivity extends AppCompatActivity {
                 return true;
             case R.id.show_image:
                 if (violation != null && isViolationSaved && violation.getId() > 0 && !TextUtils.isEmpty(violation.getPicFile())) {
-                    showImageActivity(violation.getPicFile());
+                    GlobalMethod.showImageActivity(violation.getPicFile(), self);
                 }
                 return true;
             case R.id.upload_image:
+                new CommUploadThread(CommUploadThread.UPLOAD_VIO_PIC, new Object[]{violation}, self)
+                        .doStart();
                 return true;
         }
         return false;

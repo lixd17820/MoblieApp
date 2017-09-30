@@ -176,7 +176,7 @@ public class JbywPrintJdsList extends ActionBarListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         List<Integer> position = getSelectItem();
         if (position == null || position.isEmpty()) {
-            GlobalMethod.showDialog("错误信息", "请选择一条记录打印!", "返回",
+            GlobalMethod.showDialog("错误信息", "请选择一条记录!", "返回",
                     JbywPrintJdsList.this);
             return true;
         }
@@ -187,16 +187,18 @@ public class JbywPrintJdsList extends ActionBarListActivity {
             VioViolation v = puList.get(position.get(0));
             boolean hasPic = !TextUtils.isEmpty(v.getPicFile());
             boolean isPicUp = v.getPicScbj() == 1;
+            boolean isupload = !TextUtils.equals(v.getScbj(), "1");
             if (hasPic) {
                 list.add("查看照片");
                 if (!isPicUp) {
-                    if (!TextUtils.equals(v.getScbj(), "1"))
-                        list.add("上传照片");
+                    list.add("上传照片");
                     list.add("拍照片");
                 }
-            } else
-                list.add("拍照片");
-            if (!TextUtils.equals(v.getScbj(), "1"))
+            } else {
+                if (!isPicUp)
+                    list.add("拍照片");
+            }
+            if (isupload)
                 list.add("上传决定书");
         }
         list.add("打印决定书");

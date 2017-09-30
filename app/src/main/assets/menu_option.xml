@@ -33,7 +33,7 @@
             dname="" id="14" img="menu_truck" pck="com.jwt.update" qx="0" />
         <menu name="禁区警告" catalog="0" cname="com.jwt.update.JbywWarnActivity" data="1" dname=""
             id="15" img="notice_s" pck="com.jwt.update" qx="0" />
-        <menu name="未年检警告" catalog="0" cname="com.jwt.update.JbywWarnActivity" data="2" dname=""
+        <menu name="测试信息" catalog="0" cname="com.jwt.update.ImageViewPage" data="2" dname=""
             id="16" img="announcement_s" pck="com.jwt.update" qx="0" />
         <menu name="实时报警" badge="1" catalog="0" cname="com.jwt.update.JbywBjbdListActivity" data=""
             dname="" id="17" img="light" pck="com.jwt.update" qx="0" />

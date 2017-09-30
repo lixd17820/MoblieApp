@@ -3,6 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
+    android:id="@+id/RelativeLayout01"
     android:padding="8dp">
 
     <LinearLayout
@@ -140,5 +141,15 @@
         android:layout_below="@+id/edit_wfxw"
         android:clipToPadding="false"
         android:scrollbars="vertical" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_camera"
+        android:onClick="onClickDone" />
 
 </RelativeLayout>

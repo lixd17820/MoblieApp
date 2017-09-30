@@ -76,12 +76,13 @@ public class JbywFxcShowActivity extends AppCompatActivity {
         tvScbj = (TextView) findViewById(R.id.tv_scbj);
         tvWfsj = (TextView) findViewById(R.id.tv_wfsj);
         fxczf = (VioFxczfBean) getIntent().getSerializableExtra("fxc");
-        if(fxczf == null)
+        if (fxczf == null)
             return;
         List<String> images = new ArrayList<>();
-        if(!TextUtils.isEmpty(fxczf.getPics())) {
+        if (!TextUtils.isEmpty(fxczf.getPics())) {
+            Log.e("fxcshowlist", fxczf.getPics());
             String[] temp = fxczf.getPics().split(",");
-           images = Arrays.asList(temp);
+            images = Arrays.asList(temp);
         }
         tvHpzl.setText("号牌种类：" + GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList, fxczf.getHpzl()));
         tvHphm.setText("号牌号码：" + fxczf.getHphm());
@@ -108,17 +109,10 @@ public class JbywFxcShowActivity extends AppCompatActivity {
         }
     };
 
-    private void showImageActivity(String file) {
-        Intent intent = new Intent(self, ShowImageActivity.class);
-        intent.putExtra("image", file);
-        startActivity(intent);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
     }
-
 
 
     @Override
@@ -147,7 +141,7 @@ public class JbywFxcShowActivity extends AppCompatActivity {
             return true;
 
             case R.id.menu_show_image: {
-                showSelectImage();
+                GlobalMethod.showImageActivity(fxczf.getPics(), self);
             }
             return true;
             default:
@@ -155,17 +149,6 @@ public class JbywFxcShowActivity extends AppCompatActivity {
         }
         return false;
     }
-
-    private void showSelectImage() {
-        int index = adapter.getSelectIndex();
-        if (index < 0) {
-            GlobalMethod.showErrorDialog("请选择一张图片", this);
-            return;
-        }
-        String file = adapter.getImg(index);
-        showImageActivity(file);
-    }
-
 
     private void printFxcTzs() {
         if (btp == null && ((btp = GlobalMethod.getBluetoothPrint(this)) == null)) {

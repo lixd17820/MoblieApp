@@ -84,10 +84,10 @@ public class CommUploadThread extends Thread {
                 if (TextUtils.equals("1", result.getCgbj())) {
                     event.setScbj(1);
                     acd.setScbj("1");
-                }else{
+                } else {
                     event.setMessage(result.getScms());
                 }
-            }else{
+            } else {
                 event.setMessage(err);
             }
             //EventBus.getDefault().post(re);
@@ -96,12 +96,9 @@ public class CommUploadThread extends Thread {
             VioViolation vio = (VioViolation) params[0];
             WebQueryResult<String> re = dao.uploadVioPic(vio);
             String err = GlobalMethod.getErrorMessageFromWeb(re);
-            if (TextUtils.isEmpty(err)) {
-                EventBus.getDefault().post(new UploadEvent(vio.getId(), true, ""));
-            } else {
-                EventBus.getDefault().post(new UploadEvent(vio.getId(), false, err));
-            }
-
+            boolean isOk = TextUtils.isEmpty(err);
+            EventBus.getDefault().post(new UploadEvent(vio.getId(), isOk, isOk ? "" : err));
+            vio.setPicScbj(1);
         }
         if (progressDialog.isShowing())
             progressDialog.dismiss();

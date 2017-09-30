@@ -60,6 +60,7 @@ import com.jwt.bean.UpdateFile;
 import com.jwt.globalquery.ZhcxQueryResultBean;
 import com.jwt.printer.BlueToothPrint;
 import com.jwt.update.App;
+import com.jwt.update.ImageViewPage;
 import com.jwt.update.R;
 import com.jwt.update.ShowImageActivity;
 import com.jwt.web.WebQueryResult;
@@ -277,10 +278,10 @@ public class GlobalMethod {
             bmImage.setImageBitmap(bitmap);
     }
 
-    public static void showImageActivity(String file, Context s) {
-        Intent intent = new Intent(s, ShowImageActivity.class);
-        intent.putExtra("image", file);
-        s.startActivity(intent);
+    public static void showImageActivity(String file, Context c) {
+        Intent intent = new Intent(c, ImageViewPage.class);
+        intent.putExtra("images", file);
+        c.startActivity(intent);
     }
 
 //    public static Dialog showPicFileDialog(Bitmap bitmap, Context context,
@@ -1871,5 +1872,7 @@ public class GlobalMethod {
         }
         return btp;
     }
+
+
 
 }

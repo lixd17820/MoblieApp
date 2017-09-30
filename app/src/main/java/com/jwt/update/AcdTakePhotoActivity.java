@@ -395,7 +395,7 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
         adapter.setImageList(smallPhotoList);
         adapter.notifyDataSetChanged();
         if (GlobalSystemParam.isPreviewPhoto)
-            showImageActivity(smallF.getAbsolutePath());
+            GlobalMethod.showImageActivity(smallF.getAbsolutePath(), self);
 
     }
 
@@ -497,20 +497,14 @@ public class AcdTakePhotoActivity extends AppCompatActivity {
     }
 
     private void showSelectImage() {
-        int index = adapter.getSelectIndex();
-        if (index < 0) {
-            GlobalMethod.showErrorDialog("请选择一张图片", this);
+        List<String> list = adapter.getList();
+        if (list == null || list.isEmpty()) {
+            GlobalMethod.showErrorDialog("没有图片", this);
             return;
         }
-        String file = adapter.getImg(index);
-        showImageActivity(file);
+        GlobalMethod.showImageActivity(GlobalMethod.join(list, ","), self);
     }
 
-    private void showImageActivity(String file) {
-        Intent intent = new Intent(self, ShowImageActivity.class);
-        intent.putExtra("image", file);
-        startActivity(intent);
-    }
 
     @Override
     protected void onDestroy() {

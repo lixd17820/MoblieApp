@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -230,12 +231,6 @@ public class JbywFxcActivity extends AppCompatActivity {
         }
     };
 
-    private void showImageActivity(String file) {
-        Intent intent = new Intent(self, ShowImageActivity.class);
-        intent.putExtra("image", file);
-        startActivity(intent);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -400,13 +395,12 @@ public class JbywFxcActivity extends AppCompatActivity {
     }
 
     private void showSelectImage() {
-        int index = adapter.getSelectIndex();
-        if (index < 0) {
-            GlobalMethod.showErrorDialog("请选择一张图片", this);
+        List<String> list = adapter.getList();
+        if (list == null || list.isEmpty()) {
+            GlobalMethod.showErrorDialog("没有图片", this);
             return;
         }
-        String file = adapter.getImg(index);
-        showImageActivity(file);
+        GlobalMethod.showImageActivity(GlobalMethod.join(list, ","), self);
     }
 
     private void saveFxcIntoDb() {
@@ -603,7 +597,7 @@ public class JbywFxcActivity extends AppCompatActivity {
         smallPhotoList.add(smallF.getAbsolutePath());
         adapter.setImageList(smallPhotoList);
         adapter.notifyDataSetChanged();
-        showImageActivity(smallF.getAbsolutePath());
+        GlobalMethod.showImageActivity(smallF.getAbsolutePath(), self);
 
     }
 
@@ -617,6 +611,24 @@ public class JbywFxcActivity extends AppCompatActivity {
         if (status != BlueToothPrint.PRINT_SUCCESS) {
             GlobalMethod.showErrorDialog(btp.getBluetoothCodeMs(status), self);
         }
+    }
+
+    public void onClickDone(View view) {
+        String message = "";
+        if (isSaveFile) {
+            message = "记录已保存，不能再拍照了！";
+        }
+        if (TextUtils.isEmpty(edWfdd.getText())
+                || TextUtils.isEmpty(edWfsj.getText())) {
+            message = "违法时间和违法地点是必填项";
+        }
+        if (!TextUtils.isEmpty(message)) {
+            int duration = Snackbar.LENGTH_LONG;
+            Snackbar snackbar = Snackbar.make(findViewById(R.id.RelativeLayout01), message, duration);
+            snackbar.show();
+            return;
+        }
+        startTakePhoto();
     }
 
     @Override

@@ -8,10 +8,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.text.TextUtils;
 import android.view.Window;
 
 import com.github.chrisbanes.photoview.PhotoView;
+import com.jwt.fragment.MenuConfigFragment;
+import com.jwt.fragment.MenuJbywFragment;
+import com.jwt.fragment.MenuZhcxFragment;
 import com.jwt.utils.GlobalMethod;
 
 public class ShowImageActivity extends Activity {

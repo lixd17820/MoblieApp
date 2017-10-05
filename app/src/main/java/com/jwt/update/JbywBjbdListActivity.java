@@ -18,9 +18,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.github.jdsjlzx.interfaces.OnItemClickListener;
+import com.github.jdsjlzx.interfaces.OnItemLongClickListener;
+import com.github.jdsjlzx.interfaces.OnRefreshListener;
+import com.github.jdsjlzx.recyclerview.LRecyclerView;
+import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import com.jwt.adapter.BjbdAdapter;
+import com.jwt.adapter.BjbdCarViewAdapter;
+import com.jwt.adapter.SelectObjectBean;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.event.MenuPosEvent;
 import com.jwt.pojo.Bjbd;
@@ -34,6 +43,8 @@ import com.jwt.utils.ParserJson;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 import java.text.SimpleDateFormat;
@@ -41,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -50,17 +62,23 @@ import me.leolin.shortcutbadger.ShortcutBadger;
 public class JbywBjbdListActivity extends AppCompatActivity {
 
     private static final int CONFIG_BJ = 100;
-    private Button btnSendMes;
-    private EditText editMessage;
-    private BjbdAdapter adapter;
-    private RecyclerView mRecycleView;
+    //    private Button btnSendMes;
+//    private EditText editMessage;
+    private LRecyclerViewAdapter mlAdapter;
+    private BjbdCarViewAdapter adapter;
+    private LRecyclerView mRecycleView;
     private Box<Bjbd> bjbdBox;
     private Activity self;
 
-    private List<Bjbd> bjbdList = new ArrayList<Bjbd>();
+    private TextView tvZdgzInfo;
+    private ImageButton btnZdgzMod;
+    private Set<String> vehSet = new HashSet<>();
+    private Set<String> cbzSet = new HashSet<>();
+    private List<SelectObjectBean<Bjbd>> bjbdList = new ArrayList<>();
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private MainReferService mrService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,51 +89,52 @@ public class JbywBjbdListActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
         int position = getIntent().getIntExtra("position", 0);
         EventBus.getDefault().post(new MenuPosEvent(position));
-        btnSendMes = (Button) findViewById(R.id.button_send);
-        editMessage = (EditText) findViewById(R.id.edit_message);
-        btnSendMes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String bmbh = GlobalData.grxx.get(GlobalConstant.YBMBH);
-                if (TextUtils.isEmpty(bmbh) || bmbh.length() < 6)
-                    return;
-                String mes = editMessage.getText().toString();
-                if (!TextUtils.isEmpty(mes)) {
-                    editMessage.setText("");
-                    Bjbd bjbd = new Bjbd();
-                    bjbd.setType("0");
-                    bjbd.setBjyy(mes);
-                    bjbd.setDdsj(sdf.format(new Date()));
-                    String jybh = GlobalData.grxx.get(GlobalConstant.YHBH);
-                    bjbd.setSender(jybh);
-                    String message = ParserJson.objToJson(bjbd).toString();
-                    Log.e("Send mes", message);
-                    mrService.publish(message, "info." + bmbh.substring(0, 6));
-                }
-            }
-        });
+        tvZdgzInfo = (TextView) findViewById(R.id.tv_zdgz_info);
+        btnZdgzMod = (ImageButton) findViewById(R.id.btn_zdgz_mod);
+
+        btnZdgzMod.setOnClickListener(modZdgzItem);
+        String zdgzStr = GlobalMethod.getSavedInfo(self, "zdgz");
+        parseZdgzVehCbz(zdgzStr);
+        showZdgzInfo();
+//        btnSendMes = (Button) findViewById(R.id.button_send);
+//        editMessage = (EditText) findViewById(R.id.edit_message);
+//        btnSendMes.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String bmbh = GlobalData.grxx.get(GlobalConstant.YBMBH);
+//                if (TextUtils.isEmpty(bmbh) || bmbh.length() < 6)
+//                    return;
+//                String mes = editMessage.getText().toString();
+//                if (!TextUtils.isEmpty(mes)) {
+//                    editMessage.setText("");
+//                    Bjbd bjbd = new Bjbd();
+//                    bjbd.setType("0");
+//                    bjbd.setBjyy(mes);
+//                    bjbd.setDdsj(sdf.format(new Date()));
+//                    String jybh = GlobalData.grxx.get(GlobalConstant.YHBH);
+//                    bjbd.setSender(jybh);
+//                    String message = ParserJson.objToJson(bjbd).toString();
+//                    Log.e("Send mes", message);
+//                    mrService.publish(message, "info." + bmbh.substring(0, 6));
+//                }
+//            }
+//        });
         bjbdBox = ((App) getApplication()).getBoxStore().boxFor(Bjbd.class);
-        long count = bjbdBox.count();
-        if (count > 100) {
-            bjbdList = bjbdBox.query().build().find(0, count - 100);
-            bjbdBox.remove(bjbdList);
-        }
         List<Bjbd> bjlist = bjbdBox.getAll();
         for (Bjbd bj : bjlist) {
             bj.setYdbj(1);
         }
         bjbdBox.put(bjlist);
-        bjbdList = bjbdBox.getAll();
-        if(bjbdList == null || bjbdList.isEmpty()){
-            bjbdList = new ArrayList<>();
-        }
-        adapter = new BjbdAdapter(clickListener);
-        mRecycleView = (RecyclerView) findViewById(R.id.rec_view_bjbd);
+        List<SelectObjectBean<Bjbd>> temp = getBjbdData(curPage);
+        bjbdList.addAll(temp);
+        adapter = new BjbdCarViewAdapter(bjbdList);
+        mlAdapter = new LRecyclerViewAdapter(adapter);
+        mRecycleView = (LRecyclerView) findViewById(R.id.rec_view_bjbd);
         //noinspection ConstantConditions
         mRecycleView.setHasFixedSize(true);
         mRecycleView.setLayoutManager(new LinearLayoutManager(this));
-        mRecycleView.setAdapter(adapter);
-        adapter.setBjbds(bjbdList);
+        mRecycleView.setAdapter(mlAdapter);
+
         if (adapter.getItemCount() > 1)
             mRecycleView.smoothScrollToPosition(adapter.getItemCount() - 1);
         ShortcutBadger.removeCount(this);
@@ -123,18 +142,182 @@ public class JbywBjbdListActivity extends AppCompatActivity {
         GlobalSystemParam.syncBjzl();
         Intent serviceIntent = new Intent(this, MainReferService.class);
         bindService(serviceIntent, serviceConn, Context.BIND_AUTO_CREATE);
+        //
+        mRecycleView.setOnRefreshListener(referListener);
+        mlAdapter.setOnItemClickListener(itemClick);
+        mlAdapter.setOnItemLongClickListener(itemLongClick);
     }
 
-    public BjbdAdapter.BjbdClickListener clickListener = new BjbdAdapter.BjbdClickListener() {
-
+    private View.OnClickListener modZdgzItem = new View.OnClickListener() {
         @Override
-        public void onBjbdItemClick(int position) {
-            Bjbd bjbd = adapter.getBjbd(position);
-            bjbd.setYdbj(1);
-            bjbdBox.put(bjbd);
-            adapter.notifyItemChanged(position);
+        public void onClick(View view) {
+            if (vehSet.isEmpty() && cbzSet.isEmpty()) {
+                GlobalMethod.showErrorDialog("未设定关注，无法编辑", self);
+                return;
+            }
+            List<String> list = new ArrayList<>();
+            List<String> data = new ArrayList<>();
+
+            Iterator<String> it = vehSet.iterator();
+            while (it.hasNext()) {
+                String s = it.next();
+                list.add("1" + "," + s);
+                data.add(s);
+            }
+            it = cbzSet.iterator();
+            while (it.hasNext()) {
+                String s = it.next();
+                list.add("2" + "," + s);
+                data.add(s);
+            }
+            String[] items = new String[data.size()];
+            Integer[] sels = new Integer[data.size()];
+            items = data.toArray(items);
+            for (int i = 0; i < sels.length; i++) {
+                sels[i] = i;
+            }
+            final List<String> choose = list;
+            new MaterialDialog.Builder(self)
+                    .title("请选择重点关注的项目")
+                    .items(items)
+                    .itemsCallbackMultiChoice(sels, new MaterialDialog.ListCallbackMultiChoice() {
+                        @Override
+                        public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
+                            if (which.length < choose.size()) {
+                                vehSet.clear();
+                                cbzSet.clear();
+                                for (int i = 0; i < which.length; i++) {
+                                    String txt = choose.get(which[i]);
+                                    if (txt.startsWith("1"))
+                                        vehSet.add(txt.substring(2));
+                                    if (txt.startsWith("2"))
+                                        cbzSet.add(txt.substring(2));
+                                }
+                                saveSetIntoTxt();
+                                showZdgzInfo();
+                            }
+                            return true;
+                        }
+                    })
+                    .positiveText(R.string.choose)
+                    .show();
         }
     };
+
+    OnItemClickListener itemClick = new OnItemClickListener() {
+        @Override
+        public void onItemClick(View view, int position) {
+
+        }
+    };
+
+    OnItemLongClickListener itemLongClick = new OnItemLongClickListener() {
+        @Override
+        public void onItemLongClick(View view, int position) {
+            final Bjbd bdjg = bjbdList.get(position).getBean();
+            String[] items = {"关注机动车：" + bdjg.getHphm(), "关注通过地点：" + bdjg.getCbz()};
+            new MaterialDialog.Builder(self)
+                    .title("请选择重点关注的项目")
+                    .items(items)
+                    .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
+                        @Override
+                        public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
+                            if (which != null && which.length > 0) {
+                                int index = which[0];
+                                if (index == 0 || which.length == 2)
+                                    vehSet.add(bdjg.getHphm());
+                                if (index == 1 || which.length == 2)
+                                    cbzSet.add(bdjg.getCbz());
+                                saveSetIntoTxt();
+                                showZdgzInfo();
+                            }
+                            return true;
+                        }
+                    })
+                    .positiveText(R.string.choose)
+                    .show();
+        }
+    };
+
+    private void saveSetIntoTxt() {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("vehs", GlobalMethod.join(vehSet, ","));
+            obj.put("cbzs", GlobalMethod.join(cbzSet, ","));
+            GlobalMethod.putSavedInfo(self, "zdgz", obj.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseZdgzVehCbz(String zdgzStr) {
+        if (!TextUtils.isEmpty(zdgzStr)) {
+            try {
+                JSONObject obj = new JSONObject(zdgzStr);
+                String vehs = obj.optString("vehs");
+                if (!TextUtils.isEmpty(vehs)) {
+                    vehSet = new HashSet<>(Arrays.asList(vehs.split(",")));
+                }
+                String cbzs = obj.optString("cbzs");
+                if (!TextUtils.isEmpty(cbzs)) {
+                    cbzSet = new HashSet<>(Arrays.asList(cbzs.split(",")));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void showZdgzInfo() {
+        String info = "";
+        if (vehSet.isEmpty() && cbzSet.isEmpty()) {
+            info += "未设定重点关注车辆和地点，长按在弹出菜单中设定\n" +
+                    "设定机动车后其他车均不报警；设定地点后其他点均不报警；二者均设该车或地点报警";
+        } else {
+            info += "重点关注：";
+            if (!vehSet.isEmpty()) {
+                info += "\n车辆：" + GlobalMethod.join(vehSet, "，");
+            }
+            if (!cbzSet.isEmpty()) {
+                info += "\n通过地点：" + GlobalMethod.join(cbzSet, "，");
+            }
+        }
+        tvZdgzInfo.setText(info);
+    }
+
+
+    private int pageItems = 20, curPage = 1;
+
+    private List<SelectObjectBean<Bjbd>> getBjbdData(int page) {
+        List<SelectObjectBean<Bjbd>> list = new ArrayList<>();
+        long count = bjbdBox.count();
+        int needCount = page * pageItems;
+        int totalPage = (int) ((count - 1) / pageItems + 1);
+        if (page > totalPage)
+            return new ArrayList<>();
+        long limit = (count > needCount) ? pageItems : (count % pageItems);
+        List<Bjbd> bds = bjbdBox.query().build().find((totalPage - page) * pageItems, limit);
+        for (Bjbd bd : bds) {
+            list.add(new SelectObjectBean<Bjbd>(bd));
+        }
+        return list;
+    }
+
+    OnRefreshListener referListener = new OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            List<SelectObjectBean<Bjbd>> datas = getBjbdData(++curPage);
+            if (datas == null || datas.isEmpty()) {
+                mRecycleView.setNoMore(true);
+            } else {
+                for (int i = datas.size() - 1; i >= 0; i--) {
+                    bjbdList.add(0, datas.get(i));
+                }
+            }
+            mRecycleView.refreshComplete(datas.size());
+        }
+    };
+
 
     @Override
     public void onStop() {
@@ -160,7 +343,7 @@ public class JbywBjbdListActivity extends AppCompatActivity {
         Log.i("TAG", "MAIN:" + bjbd.getBjyy() + " Thread=" + Thread.currentThread().getId());
         if (!isRecBjbd(bjbd))
             return;
-        bjbdList.add(bjbd);
+        bjbdList.add(new SelectObjectBean<Bjbd>(bjbd));
         adapter.notifyItemInserted(bjbdList.size() - 1);
         mRecycleView.smoothScrollToPosition(adapter.getItemCount() - 1);
     }
@@ -168,10 +351,21 @@ public class JbywBjbdListActivity extends AppCompatActivity {
     private boolean isRecBjbd(Bjbd bjbd) {
         if ("1".equals(bjbd.getType()) &&
                 (!GlobalSystemParam.isReciveBj ||
-                        !GlobalSystemParam.bjzlNames.contains(bjbd.getBjyy())))
+                        !GlobalSystemParam.bjzlNames.contains(bjbd.getBjyy()))){
             return false;
+        }
         //这是群发信息
         if ("0".equals(bjbd.getType()) && !GlobalSystemParam.isReciveText)
+            return false;
+        String hphm = bjbd.getHphm();
+        String cbz = bjbd.getCbz();
+        if(!vehSet.isEmpty() && !cbzSet.isEmpty()){
+            //如果设定了车号和地点关注
+            return (vehSet.contains(hphm) || cbzSet.contains(cbz));
+        }
+        if(!vehSet.isEmpty() && !vehSet.contains(hphm))
+            return false;
+        if(!cbzSet.isEmpty() && !cbzSet.contains(cbz))
             return false;
         return true;
     }

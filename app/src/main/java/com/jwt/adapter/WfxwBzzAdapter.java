@@ -7,11 +7,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.jwt.bean.TwoLineSelectBean;
 import com.jwt.bean.WfxwBzz;
-import com.jwt.update.R;
+import com.jwt.main.R;
 import com.jwt.utils.GlobalMethod;
 
 import java.util.List;

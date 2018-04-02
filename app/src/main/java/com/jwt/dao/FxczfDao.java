@@ -11,6 +11,7 @@ import com.jwt.utils.GlobalData;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -110,8 +111,8 @@ public class FxczfDao {
         }
         Query<VioFxczfBean> b = query.build();
         long count = b.count();
-        if (count > maxrow)
-            return b.find(count - maxrow, maxrow);
-        return b.find();
+        List<VioFxczfBean> list = (count > maxrow) ? b.find(count - maxrow, maxrow) : b.find();
+        Collections.reverse(list);
+        return list;
     }
 }

@@ -3,7 +3,6 @@ package com.jwt.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
@@ -13,15 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.jwt.globalquery.CxMenus;
-import com.jwt.update.R;
-import com.jwt.update.ZhcxConditionActivity;
+import com.jwt.main.ZhcxConditionActivity;
 import com.jwt.utils.GlobalConstant;
+import com.jwt.utils.GlobalData;
+import com.jwt.utils.GlobalMethod;
+import com.jwt.utils.GlobalSystemParam;
 import com.jwt.utils.ParserJson;
 
 import java.util.ArrayList;
+
+import javax.microedition.khronos.opengles.GL;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,12 +66,16 @@ public class MenuZhcxFragment extends ListFragment {
     }
 
     private CxMenus[] createZhcxMenus(Context self) {
-        SharedPreferences sp = self.getSharedPreferences(GlobalConstant.MJXX_INFO, Context.MODE_PRIVATE);
-        String cx = sp.getString("cxMenus", "[]");
-        try {
-            return ParserJson.parseJsonToArray(cx, CxMenus.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(GlobalData.zhcxMenus == null || GlobalData.zhcxMenus.isEmpty()) {
+            String cx = GlobalSystemParam.getParam(self, GlobalConstant.SP_CX_MENUS, "[]");
+            try {
+                return ParserJson.parseJsonToArray(cx, CxMenus.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else{
+            CxMenus[] cx = new CxMenus[GlobalData.zhcxMenus.size()];
+            return GlobalData.zhcxMenus.toArray(cx);
         }
         return null;
     }

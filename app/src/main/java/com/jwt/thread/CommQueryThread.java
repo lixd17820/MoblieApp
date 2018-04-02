@@ -96,10 +96,10 @@ public class CommQueryThread extends Thread {
             WebQueryResult<String> re = dao.queryFxcRkqk(params[0]);
             String err = GlobalMethod.getErrorMessageFromWeb(re);
             CommEvent event = new CommEvent();
-            if(!TextUtils.isEmpty(err)){
+            if (!TextUtils.isEmpty(err)) {
                 event.setStatus(0);
                 event.setMessage(err);
-            }else{
+            } else {
                 event.setStatus(200);
                 event.setMessage(re.getResult());
             }
@@ -146,4 +146,6 @@ public class CommQueryThread extends Thread {
         if (progressDialog.isShowing())
             progressDialog.dismiss();
     }
+
+
 }

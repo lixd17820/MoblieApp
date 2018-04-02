@@ -12,6 +12,8 @@ public class IDCard {
 
 	// verify
 	public static boolean Verify(String idcard) {
+		if(TextUtils.isEmpty(idcard) || idcard.length() != 18)
+			return false;
 		if (idcard.length() == 15 && TextUtils.isDigitsOnly(idcard)) {
 			idcard = uptoeighteen(idcard);
 		}

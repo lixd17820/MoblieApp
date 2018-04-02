@@ -208,7 +208,7 @@ public class LoginDao {
         for (UpdateFile uf : ver) {
             String packageName = uf.getPackageName();
             int oldVersion = getApkVerion(packageName, context);
-            if (oldVersion < Integer.valueOf(uf.getVersion()) && !"com.jwt.update".equals(packageName)) {
+            if (oldVersion < Integer.valueOf(uf.getVersion()) && !"com.jwt.main".equals(packageName)) {
                 // 需要更新
                 needUpdate.add(uf);
             }

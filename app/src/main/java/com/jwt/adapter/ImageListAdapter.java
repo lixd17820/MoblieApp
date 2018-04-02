@@ -1,16 +1,14 @@
 package com.jwt.adapter;
 
 import android.support.annotation.NonNull;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.jwt.bean.TwoLineSelectBean;
-import com.jwt.update.R;
+import com.jwt.main.R;
 import com.jwt.utils.GlobalMethod;
 
 import java.util.ArrayList;

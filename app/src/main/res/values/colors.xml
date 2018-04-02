@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorWhite">#AAAAAA</color>
     <color name="blank">#000000</color>
+    <color name="control_background">#000000</color>
 </resources>

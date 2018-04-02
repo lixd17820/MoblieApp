@@ -1,22 +1,15 @@
 package com.jwt.fragment;
 
-import android.app.Activity;
-import android.app.usage.UsageEvents;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
-import android.provider.Settings;
-import android.text.TextUtils;
 
 import com.jwt.bean.KeyValueBean;
 import com.jwt.event.MqttEvent;
-import com.jwt.update.MainReferService;
-import com.jwt.update.R;
+import com.jwt.main.MainReferService;
+import com.jwt.main.R;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.GlobalSystemParam;
@@ -24,7 +17,6 @@ import com.jwt.utils.GlobalSystemParam;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -38,14 +30,12 @@ public class BjbdConfigFragement extends PreferenceFragment {
     private SwitchPreference mOpenBjbd;
     private MultiSelectListPreference mBjbdCatalog, mBjbdFw;
     //private Activity self;
-    //private SharedPreferences sp;
     private String[] bjzlValues, bjzlNames, glbmValues, glbmNames;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //self = this.getActivity();
-        //sp = getPreferenceManager().getSharedPreferences();
         addPreferencesFromResource(R.xml.param_bjbd);
         //mRecBjbd = (CheckBoxPreference) findPreference("is_rec_bj");
         //mRecText = (CheckBoxPreference) findPreference("is_rec_text");

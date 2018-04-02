@@ -1,16 +1,17 @@
 package com.jwt.fragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,22 +25,19 @@ import com.jwt.adapter.SpinnerCustomAdapter;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.dao.WfddDao;
 import com.jwt.pojo.FavorWfdd;
-import com.jwt.pojo.FrmCode;
+import com.jwt.main.R;
 import com.jwt.pojo.FrmRoadItem;
 import com.jwt.pojo.FrmRoadSeg;
-import com.jwt.pojo.SysParaValue;
-import com.jwt.update.App;
-import com.jwt.update.R;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
-
-import io.objectbox.Box;
+import com.jwt.view.NamedSpinner;
 
 public class SystemWfddFragment extends Fragment {
 
     private Activity self;
-    private Spinner spinnerXzqh, spinnerRoads, spinnerRoadseg;
+    //private Spinner spinnerRoads, spinnerRoadseg;
+    private NamedSpinner spinnerXzqh, spinnerRoads, spinnerRoadseg;
     private ImageButton buttonAddEditWfdd;
     private Button systemOKBt, addFavorButton;
 
@@ -62,8 +60,6 @@ public class SystemWfddFragment extends Fragment {
         XZQH, ROAD, SEG
     }
 
-    ;
-
     @Override
     public View onCreateView(LayoutInflater in, ViewGroup c, Bundle si) {
         return in.inflate(R.layout.wfdd_config, c, false);
@@ -74,9 +70,9 @@ public class SystemWfddFragment extends Fragment {
         // TODO Auto-generated method stub
         super.onActivityCreated(savedInstanceState);
         self = getActivity();
-        spinnerXzqh = (Spinner) self.findViewById(R.id.spinner_xzqh);
-        spinnerRoads = (Spinner) self.findViewById(R.id.spinner_road_list);
-        spinnerRoadseg = (Spinner) self
+        spinnerXzqh = self.findViewById(R.id.spinner_xzqh);
+        spinnerRoads = self.findViewById(R.id.spinner_road_list);
+        spinnerRoadseg = self
                 .findViewById(R.id.spinner_road_seg_list);
         editTextGls = (EditText) self.findViewById(R.id.edit_kls);
         editTextMs = (EditText) self.findViewById(R.id.edit_ms);
@@ -90,18 +86,35 @@ public class SystemWfddFragment extends Fragment {
         systemOKBt.setOnClickListener(clickListener);
 
         List<KeyValueBean> kvs = WfddDao.getOwnerXzqhList(
-                GlobalData.grxx.get(GlobalConstant.YBMBH),GlobalMethod.getBoxStore(self));
+                GlobalData.grxx.get(GlobalConstant.YBMBH), GlobalMethod.getBoxStore(self));
         if (kvs != null) {
             GlobalMethod.changeAdapter(spinnerXzqh, kvs, self);
             String xzqh = kvs.get(0).getKey();
-            List<KeyValueBean> roads = WfddDao.getRoadItemsByXzqh(xzqh, GlobalMethod.getBoxStore(self));
-            GlobalMethod.changeAdapter(spinnerRoads, roads, self);
-            spinnerRoads.setSelection(0, false);
+            List<FrmRoadItem> roads = WfddDao.getRoadItemsByXzqh(xzqh, GlobalMethod.getBoxStore(self));
+            if(roads!= null && !roads.isEmpty())
+            GlobalMethod.changeAdapter(spinnerRoads, getKvsByRoads(roads), self,true);
+            //spinnerRoads.setSelectedPosition(0);
         }
         //spinnerFirstLoadData();
         spinnerXzqh.setOnItemSelectedListener(xzqhSelListener);
         spinnerRoads.setOnItemSelectedListener(roadSelListener);
         spinnerRoadseg.setOnItemSelectedListener(segSelListener);
+    }
+
+    private List<KeyValueBean> getKvsByRoads(List<FrmRoadItem> roads) {
+        List<KeyValueBean> kvs = new ArrayList<>();
+        for (FrmRoadItem item : roads) {
+            kvs.add(new KeyValueBean(item.getDldm(), item.getDlmc()));
+        }
+        return kvs;
+    }
+
+    private List<KeyValueBean> getKvsByRoadSegs(List<FrmRoadSeg> segs) {
+        List<KeyValueBean> kvs = new ArrayList<>();
+        for (FrmRoadSeg item : segs) {
+            kvs.add(new KeyValueBean(item.getLddm(), item.getLdmc()));
+        }
+        return kvs;
     }
 
     /**
@@ -114,30 +127,30 @@ public class SystemWfddFragment extends Fragment {
      */
     private void spinnerFirstLoadData() {
         List<KeyValueBean> kvs = WfddDao.getOwnerXzqhList(
-                GlobalData.grxx.get(GlobalConstant.YBMBH),GlobalMethod.getBoxStore(self));
+                GlobalData.grxx.get(GlobalConstant.YBMBH), GlobalMethod.getBoxStore(self));
         GlobalMethod.changeAdapter(spinnerXzqh, kvs, self);
 
         String xzqh = (kvs != null && kvs.size() > 0) ? kvs.get(0).getKey()
                 : null;
         if (!TextUtils.isEmpty(xzqh)) {
-            spinnerRoadseg.setSelection(0, false);
-            List<KeyValueBean> roads = WfddDao.getRoadItemsByXzqh(xzqh,
+            spinnerRoadseg.setSelectedPosition(0);
+            List<FrmRoadItem> roads = WfddDao.getRoadItemsByXzqh(xzqh,
                     GlobalMethod.getBoxStore(self));
-            GlobalMethod.changeAdapter(spinnerRoads, roads, self);
+            GlobalMethod.changeAdapter(spinnerRoads, getKvsByRoads(roads), self);
             String road = (roads != null && roads.size() > 0) ? roads.get(0)
-                    .getKey() : null;
+                    .getDldm() : null;
             if (!TextUtils.isEmpty(road)) {
-                spinnerRoads.setSelection(0, false);
+                spinnerRoads.setSelectedPosition(0);
                 if (WfddDao.isGsd(road)) {
                     GlobalMethod.changeAdapter(spinnerRoadseg, null, self);
                     editTextLdqc.setText(((KeyValueBean) spinnerRoads
                             .getSelectedItem()).getValue());
                 } else {
-                    List<KeyValueBean> segs = WfddDao.getRoadSegByRoad(road,
+                    List<FrmRoadSeg> segs = WfddDao.getRoadSegByRoad(road,
                             xzqh, GlobalMethod.getBoxStore(self));
-                    GlobalMethod.changeAdapter(spinnerRoadseg, segs, self);
+                    GlobalMethod.changeAdapter(spinnerRoadseg, getKvsByRoadSegs(segs), self);
                     if (segs != null && segs.size() > 0)
-                        spinnerRoadseg.setSelection(0, false);
+                        spinnerRoadseg.setSelectedPosition(0);
                 }
             }
         }
@@ -158,14 +171,15 @@ public class SystemWfddFragment extends Fragment {
             editTextGls.setText("");
             editTextMs.setText("");
 
-            String xzqh = GlobalMethod.getKeyFromSpinnerSelected(spinnerXzqh,
-                    GlobalConstant.KEY);
+            String xzqh = spinnerXzqh.getSelectKey();
+            //GlobalMethod.getKeyFromSpinnerSelected(spinnerXzqh,
+            // GlobalConstant.KEY);
             if (!TextUtils.isEmpty(xzqh)) {
-                List<KeyValueBean> roads = WfddDao.getRoadItemsByXzqh(xzqh,
+                List<FrmRoadItem> roads = WfddDao.getRoadItemsByXzqh(xzqh,
                         GlobalMethod.getBoxStore(self));
                 if (roads != null && !roads.isEmpty()) {
-                    GlobalMethod.changeAdapter(spinnerRoads, roads, self);
-                    spinnerRoads.setSelection(0, false);
+                    GlobalMethod.changeAdapter(spinnerRoads, getKvsByRoads(roads), self,true);
+                    spinnerRoads.setSelectedPosition(0);
                 }
             }
         } else if (sender == SenderSpin.ROAD) {
@@ -175,21 +189,24 @@ public class SystemWfddFragment extends Fragment {
             editTextGls.setText("");
             editTextMs.setText("");
             // -------------------------------------------
-            String road = GlobalMethod.getKeyFromSpinnerSelected(spinnerRoads,
-                    GlobalConstant.KEY);
+            String road = spinnerRoads.getSelectKey();
+            //GlobalMethod.getKeyFromSpinnerSelected(spinnerRoads,
+            // GlobalConstant.KEY);
             if (!TextUtils.isEmpty(road)) {
                 if (WfddDao.isGsd(road)) {
                     GlobalMethod.changeAdapter(spinnerRoadseg, null, self);
                     editTextLdqc.setText(((KeyValueBean) spinnerRoads
                             .getSelectedItem()).getValue());
                 } else {
-                    String xzqh = GlobalMethod.getKeyFromSpinnerSelected(
-                            spinnerXzqh, GlobalConstant.KEY);
-                    List<KeyValueBean> segs = WfddDao.getRoadSegByRoad(road,
+                    String xzqh = spinnerXzqh.getSelectKey();
+                    // GlobalMethod.getKeyFromSpinnerSelected(
+                    // spinnerXzqh, GlobalConstant.KEY);
+                    List<FrmRoadSeg> segs = WfddDao.getRoadSegByRoad(road,
                             xzqh, GlobalMethod.getBoxStore(self));
-                    GlobalMethod.changeAdapter(spinnerRoadseg, segs, self);
-                    if (segs != null && segs.size() > 0)
-                        spinnerRoadseg.setSelection(0, false);
+                    if (segs != null && segs.size() > 0) {
+                        GlobalMethod.changeAdapter(spinnerRoadseg, getKvsByRoadSegs(segs), self,true);
+                        //spinnerRoadseg.setSelectedPosition(0);
+                    }
                 }
             }
         } else if (sender == SenderSpin.SEG) {
@@ -198,64 +215,72 @@ public class SystemWfddFragment extends Fragment {
         changeViewStatus();
     }
 
-    private AdapterView.OnItemSelectedListener xzqhSelListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view,
-                                   int position, long i) {
-            Log.e(TAG, "spinnerXzqh" + position + "/" + i);
-            SpinnerCustomAdapter ad = (SpinnerCustomAdapter) parent
-                    .getAdapter();
-            if (ad != null && position > -1) {
-                changeSpinnerData(SenderSpin.XZQH);
-            }
-        }
+    private NamedSpinner.OnItemSelectedListener xzqhSelListener = new NamedSpinner.OnItemSelectedListener() {
 
         @Override
-        public void onNothingSelected(AdapterView<?> arg0) {
-
+        public void onItemSelected(NamedSpinner view, int position) {
+            GlobalMethod.toast(self, view.getSelectValue());
+            changeSpinnerData(SenderSpin.XZQH);
         }
+
+//        @Override
+        //       public void onItemSelected(View view, int position) {
+//            Log.e(TAG, "spinnerXzqh" + position + "/" + i);
+//            SpinnerCustomAdapter ad = (SpinnerCustomAdapter) parent
+//                    .getAdapter();
+//            if (ad != null && position > -1) {
+//                changeSpinnerData(SenderSpin.XZQH);
+//            }
+        //       }
+
     };
 
-    private AdapterView.OnItemSelectedListener roadSelListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view,
-                                   int position, long i) {
-            SpinnerCustomAdapter ad = (SpinnerCustomAdapter) parent
-                    .getAdapter();
-            if (ad != null && position > -1) {
-                changeSpinnerData(SenderSpin.ROAD);
-            }
-        }
+    private NamedSpinner.OnItemSelectedListener roadSelListener = new NamedSpinner.OnItemSelectedListener() {
 
         @Override
-        public void onNothingSelected(AdapterView<?> arg0) {
-
+        public void onItemSelected(NamedSpinner view, int position) {
+            GlobalMethod.toast(self, view.getSelectKey());
+            changeSpinnerData(SenderSpin.ROAD);
         }
+//        @Override
+//        public void onItemSelected(AdapterView<?> parent, View view,
+//                                   int position, long i) {
+//            SpinnerCustomAdapter ad = (SpinnerCustomAdapter) parent
+//                    .getAdapter();
+//            if (ad != null && position > -1) {
+//                changeSpinnerData(SenderSpin.ROAD);
+//            }
+//        }
+//
+//        @Override
+//        public void onNothingSelected(AdapterView<?> arg0) {
+//
+//        }
     };
 
-    private AdapterView.OnItemSelectedListener segSelListener = new AdapterView.OnItemSelectedListener() {
+    private NamedSpinner.OnItemSelectedListener segSelListener = new NamedSpinner.OnItemSelectedListener() {
         @Override
-        public void onItemSelected(AdapterView<?> parent, View view,
-                                   int position, long i) {
-            SpinnerCustomAdapter ad = (SpinnerCustomAdapter) parent
-                    .getAdapter();
-            if (ad != null && position > -1) {
-                KeyValueBean kv = ad.getItem(position);
-                // 路口则是路段的名称
-                String roadseg = kv.getValue();
-                // 开始与11的是路段
-                if (kv.getKey().startsWith("11"))
-                    roadseg = GlobalMethod.getKeyFromSpinnerSelected(
-                            spinnerRoads, GlobalConstant.VALUE) + roadseg;
-                editTextLdqc.setText(roadseg);
-                changeSpinnerData(SenderSpin.SEG);
+        public void onItemSelected(NamedSpinner view, int position) {
+            //SpinnerCustomAdapter ad = (SpinnerCustomAdapter) parent
+            //         .getAdapter();
+            //if (ad != null && position > -1) {
+            editTextLdqc.setText("");
+            KeyValueBean kv = view.getSelectedItem();
+            if(kv == null ||TextUtils.isEmpty(kv.getKey())){
+                return;
             }
+            // 路口则是路段的名称
+            String roadseg = kv.getValue();
+            // 开始与11的是路段
+            if (kv.getKey().startsWith("11"))
+                roadseg = spinnerRoads.getSelectValue() + roadseg;
+            //   roadseg = GlobalMethod.getKeyFromSpinnerSelected(
+            //           spinnerRoads, GlobalConstant.VALUE) + roadseg;
+            editTextLdqc.setText(roadseg);
+            changeSpinnerData(SenderSpin.SEG);
+            //}
         }
 
-        @Override
-        public void onNothingSelected(AdapterView<?> arg0) {
-
-        }
     };
 
     /**
@@ -270,8 +295,9 @@ public class SystemWfddFragment extends Fragment {
         msTxt = GlobalMethod.paddingZero(msTxt, 3);
         String result = null;
         if (TextUtils.isDigitsOnly(glsTxt) && TextUtils.isDigitsOnly(msTxt)) {
-            result = GlobalMethod.getKeyFromSpinnerSelected(spinnerRoads,
-                    GlobalConstant.VALUE)
+            result = spinnerRoads.getSelectValue()
+                    //GlobalMethod.getKeyFromSpinnerSelected(spinnerRoads,
+                    //GlobalConstant.VALUE)
                     + Integer.valueOf(glsTxt)
                     + "公里"
                     + Integer.valueOf(msTxt) + "米";
@@ -345,7 +371,12 @@ public class SystemWfddFragment extends Fragment {
                 // 加入自选违法地点
                 FavorWfdd dd = new FavorWfdd();
                 String res = createFavorWfddFromSelect(dd);
-                if (res == null) {
+                if (TextUtils.isEmpty(res)) {
+                    boolean isWfddOk = WfddDao.checkGsdGls(dd.getXzqh(), dd.getDldm(), dd.getLddm(), self);
+                    if (!isWfddOk) {
+                        GlobalMethod.toast(self, "公里数不在单位辖区内");
+                        return;
+                    }
                     int re = WfddDao.addFavorWfdd(dd, GlobalMethod.getBoxStore(self));
                     if (re > 0)
                         Toast.makeText(self, "加入成功", Toast.LENGTH_LONG).show();
@@ -359,13 +390,16 @@ public class SystemWfddFragment extends Fragment {
                 // 系统地点,确定按扭
                 FavorWfdd dd = new FavorWfdd();
                 String isOk = createFavorWfddFromSelect(dd);
-                if (isOk == null) {
+                if (TextUtils.isEmpty(isOk)) {
+                    boolean isWfddOk = WfddDao.checkGsdGls(dd.getXzqh(), dd.getDldm(), dd.getLddm(), self);
+                    if (!isWfddOk) {
+                        GlobalMethod.toast(self, "公里数不在单位辖区内");
+                        return;
+                    }
                     Intent i = new Intent();
                     Bundle b = new Bundle();
-                    b.putString(
-                            "wfddDm",
-                            dd.getXzqh() + dd.getDldm() + dd.getLddm()
-                                    + dd.getMs());
+                    b.putString("wfddDm", dd.getXzqh() + dd.getDldm() + dd.getLddm()
+                            + dd.getMs());
                     b.putString("wfddMc", dd.getFavorLdmc());
                     i.putExtras(b);
                     self.setResult(Activity.RESULT_OK, i);
@@ -381,10 +415,12 @@ public class SystemWfddFragment extends Fragment {
      * 根据控件的状态改变状态
      */
     private void changeViewStatus() {
-        String road = GlobalMethod.getKeyFromSpinnerSelected(spinnerRoads,
-                GlobalConstant.KEY);
-        String seg = GlobalMethod.getKeyFromSpinnerSelected(spinnerRoadseg,
-                GlobalConstant.KEY);
+        String road = spinnerRoads.getSelectKey();
+        //GlobalMethod.getKeyFromSpinnerSelected(spinnerRoads,
+        //GlobalConstant.KEY);
+        String seg = spinnerRoadseg.getSelectKey();
+        //GlobalMethod.getKeyFromSpinnerSelected(spinnerRoadseg,
+        //GlobalConstant.KEY);
         if (TextUtils.isEmpty(road)) {
             editTextGls.setEnabled(false);
             editTextMs.setEnabled(false);

@@ -9,10 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jwt.pojo.VioFxcFileBean;
 import com.jwt.pojo.VioFxczfBean;
-import com.jwt.pojo.ZapcGzxxBean;
-import com.jwt.update.R;
+import com.jwt.main.R;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -28,7 +28,6 @@ import java.util.List;
 
 public class FxcListUploadThread extends Thread {
     private List<VioFxczfBean> fxczfs;
-    private ProgressDialog progressDialog;
     private Context context;
     private int maxStep = 0;
 

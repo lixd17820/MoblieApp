@@ -14,15 +14,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.jwt.adapter.MainMenuAdapter;
 import com.jwt.bean.MenuGridBean;
 import com.jwt.bean.MenuOptionBean;
-import com.jwt.pojo.Bjbd;
-import com.jwt.pojo.Bjbd_;
-import com.jwt.update.R;
-import com.jwt.utils.GlobalMethod;
+import com.jwt.main.R;
+import com.jwt.utils.GlobalConstant;
+import com.jwt.utils.GlobalData;
 import com.jwt.utils.MenuParser;
 
 import java.util.List;
@@ -63,8 +61,8 @@ public class MenuJbywFragment extends Fragment {
     protected void setUpViews() {
         Activity self = getActivity();
         View v = getView();
-        long bjwd = GlobalMethod.getBoxStore(self).boxFor(Bjbd.class).query()
-                .notEqual(Bjbd_.ydbj, 1).build().count();
+        //long bjwd = GlobalMethod.getBoxStore(self).boxFor(Bjbd.class).query()
+        //        .notEqual(Bjbd_.ydbj, 1).build().count();
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.gridView1);
         //noinspection ConstantConditions
         recyclerView.setHasFixedSize(true);
@@ -72,15 +70,16 @@ public class MenuJbywFragment extends Fragment {
         //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, OrientationHelper.VERTICAL));//这里用线性宫格显示 类似于瀑布流
         menuLists = MenuParser.parseMenuXml(self);
         // 根据权限过滤菜单
-        //menuLists = MenuParser.filterMenuByQx(menuLists, GlobalData.grxx.get("YHLX"));
+        Log.e("MenuJbywFragment", "用户权限：" + GlobalData.grxx.get(GlobalConstant.YHLX));
+        menuLists = MenuParser.filterMenuByQx(menuLists, GlobalData.grxx.get(GlobalConstant.YHLX));
         menuOptionList = menuLists.get(0).getOptions();
         menusAdapter = new MainMenuAdapter(menuClickListener, 3);
         recyclerView.setAdapter(menusAdapter);
-        for (MenuOptionBean opt : menuOptionList) {
-            if ("com.jwt.update.JbywBjbdListActivity".equals(opt.getClassName())) {
-                opt.setBadge(bjwd > 0);
-            }
-        }
+        //for (MenuOptionBean opt : menuOptionList) {
+        //    if ("com.jwt.update.JbywBjbdListActivity".equals(opt.getClassName())) {
+        //        opt.setBadge(bjwd > 0);
+        //    }
+        //}
         menusAdapter.setMenus(menuOptionList);
 
     }
@@ -95,6 +94,7 @@ public class MenuJbywFragment extends Fragment {
                     && !TextUtils.isEmpty(m.getClassName())) {
                 String dn = m.getDataName();
                 String data = m.getData();
+                Log.e("MainActivity", dn + "," + data);
                 if (TextUtils.equals(dn, "out")) {
                     Intent intent = new Intent(m.getClassName()); //广播内容
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

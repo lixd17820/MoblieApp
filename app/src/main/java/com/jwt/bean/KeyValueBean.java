@@ -15,11 +15,6 @@ public class KeyValueBean implements Serializable {
 		this.value = _value;
 	}
 
-	@Override
-	public String toString() {
-		return value;
-	}
-
 	public String getKey() {
 		return key;
 	}
@@ -34,5 +29,14 @@ public class KeyValueBean implements Serializable {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return value;
+				//"KeyValueBean{" +
+				//"key='" + key + '\'' +
+				//", value='" + value + '\'' +
+				//'}';
 	}
 }

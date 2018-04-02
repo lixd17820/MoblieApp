@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TwoLineListItem;
 
 import com.jwt.bean.TwoLineSelectBean;
-import com.jwt.update.R;
+import com.jwt.main.R;
 
 public class TwoLineSelectAdapter extends ArrayAdapter<TwoLineSelectBean> {
 

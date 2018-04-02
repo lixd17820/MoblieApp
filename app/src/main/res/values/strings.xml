@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">移动警务</string>
+    <string name="app_name">移动警务V3</string>
     <string name="ryfl">人员分类</string>
     <string name="fzjg">发证机关</string>
     <string name="fzjgms">发证机关</string>
@@ -128,4 +128,13 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_regc">识别</string>
+    <string name="welcome_title">正在下载系统数据，请等待......</string>
+    <string name="picture">拍照</string>
+    <string name="description_info">无描述信息</string>
+    <string name="request_permission">请求相机权限</string>
+    <string name="start_ocr">开始识别</string>
+    <string name="search">查找</string>
+    <string name="title_activity_base_fragement">BaseFragementActivity</string>
+    <string name="action_settings">Settings</string>
 </resources>

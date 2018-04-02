@@ -2,12 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ntgajwt="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.ntga.jwt.MainActivity" >
-
+    tools:context="com.ntga.jwt.MainActivity">
+    <item
+        android:id="@+id/menu_regc"
+        android:orderInCategory="100"
+        android:title="@string/menu_regc"
+        ntgajwt:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/menu_scan"
         android:orderInCategory="100"
         android:title="@string/menu_scan"
-        ntgajwt:showAsAction="ifRoom|withText"/>
+        ntgajwt:showAsAction="ifRoom|withText" />
+
 
 </menu>

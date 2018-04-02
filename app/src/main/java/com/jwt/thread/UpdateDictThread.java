@@ -1,26 +1,27 @@
 package com.jwt.thread;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.jwt.event.DownSpeedEvent;
+import com.jwt.event.DownDictEvent;
+import com.jwt.globalquery.CxMenus;
 import com.jwt.pojo.AcdLawBean;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
 import com.jwt.pojo.FrmDptCode;
 import com.jwt.pojo.FrmRoadItem;
 import com.jwt.pojo.FrmRoadSeg;
+import com.jwt.pojo.JtssParam;
 import com.jwt.pojo.SeriousStreetBean;
 import com.jwt.pojo.SysParaValue;
 import com.jwt.pojo.VioWfdmCode;
 import com.jwt.pojo.WfxwForce;
 import com.jwt.pojo.ZapcLxxx;
-import com.jwt.update.App;
 import com.jwt.utils.DictName;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
+import com.jwt.utils.GlobalSystemParam;
 import com.jwt.utils.ParserJson;
 import com.jwt.utils.ThreadMethod;
 import com.jwt.web.RestfulDao;
@@ -73,15 +74,19 @@ public class UpdateDictThread extends Thread {
         // 目前处于登录阶段
         // int state = LOGIN_STATE;
         RestfulDao dao = RestfulDaoFactory.getDao();
+        WebQueryResult<List<CxMenus>> cxMenus = dao.restfulGetMenus();
+        if (cxMenus.getStatus() == 200 && cxMenus.getResult() != null) {
+            GlobalData.zhcxMenus = cxMenus.getResult();
+            GlobalSystemParam.loadParam(activity, GlobalConstant.SP_CX_MENUS,
+                    ParserJson.arrayToJsonArray(cxMenus.getResult()).toString());
+        }
+        //下载决定书号码，一定同步
+
         DictName[] vs = DictName.values();
-        int add = 11;
-        int len = vs.length;
-        int total = len + add;
-        int step = 0;
+
         //下载各种数据版本
         WebQueryResult<String> dv = dao.downloadSqlValue("select name,version from t_jwt_data_version", "");
-        SharedPreferences sharedPreferences = activity.getSharedPreferences(GlobalConstant.MJXX_INFO, Activity.MODE_PRIVATE);
-        String dvs = sharedPreferences.getString(dataVersion, "{}");
+        String dvs = GlobalSystemParam.getParam(activity, dataVersion, "{}");
         JSONObject savedVer = ParserJson.getJsonObject(dvs);
         Log.e("UpdateDict", "saved: " + dvs.toString());
         JSONObject version = new JSONObject();
@@ -90,11 +95,18 @@ public class UpdateDictThread extends Thread {
             version = ParserJson.arrayToObj(ParserJson.getJsonArray(dv.getResult()), "name", "version");
 
         }
+        int add = 12;
+        int len = vs.length;
+        int total = len + add;
+        int step = len - 1;
+        Log.e("update dict", "1：");
         downloadFrmCode(dao, vs, add, savedVer, version);
-
-        EventBus.getDefault().post(new DownSpeedEvent("初始化数据", total, ++step, "加载内存中..."));
+        Log.e("update dict", "2");
+        EventBus.getDefault().post(new DownDictEvent("初始化数据", total, ++step, "加载内存中..."));
+        Log.e("update dict", "3");
         int c = GlobalData.initGlobalData(bs);
-        EventBus.getDefault().post(new DownSpeedEvent("初始化数据", total, ++step, "加载内存中..."));
+        Log.e("update dict", "4");
+        EventBus.getDefault().post(new DownDictEvent("初始化数据", total, ++step, "加载内存中..."));
         Log.e("update dict", "字典表共：" + c);
 
         long wfdmCount = vioWfdmCodeBox.count();
@@ -104,22 +116,23 @@ public class UpdateDictThread extends Thread {
         long dptCodeCount = bs.boxFor(FrmDptCode.class).count();
         long lxxxCount = bs.boxFor(ZapcLxxx.class).count();
         long acdlawCount = bs.boxFor(AcdLawBean.class).count();
+        long jtssParmaCount = bs.boxFor(JtssParam.class).count();
 
-        EventBus.getDefault().post(new DownSpeedEvent("下载事故依据", total, ++step, "下载事故依据..."));
+        EventBus.getDefault().post(new DownDictEvent("下载事故依据", total, ++step, "下载事故依据..."));
         if (acdlawCount <= 0 || savedVer.optInt(acdlawVersion) < version.optInt(acdlawVersion) || forceDownload) {
             WebQueryResult<String> dict2 = dao.downloadSqlValue("select xh,flmc,tkmc,tknr from trff_app.acd_laws", "");
             ThreadMethod.saveAcdLawInDb(dict2, GlobalMethod.getBoxStore(activity).boxFor(AcdLawBean.class));
             ParserJson.putJsonVal(savedVer, acdlawVersion, version.optInt(acdlawVersion));
             Log.e("updateDict", "step: " + step);
         }
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载违法代码..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载违法代码..."));
         if (wfdmCount <= 0 || savedVer.optInt(wfdmVersion) < version.optInt(wfdmVersion) || forceDownload) {
             WebQueryResult<String> dict2 = dao.updateOtherDict("wfdm", "1");
             ThreadMethod.saveWfdmInDb(dict2, vioWfdmCodeBox);
             ParserJson.putJsonVal(savedVer, wfdmVersion, version.optInt(wfdmVersion));
             Log.e("updateDict", "step: " + step);
         }
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载强制措施..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载强制措施..."));
         Box<WfxwForce> forceBox = bs.boxFor(WfxwForce.class);
         long count = forceBox.count();
         if (count <= 0 || savedVer.optInt(forceVersion) < version.optInt(forceVersion) || forceDownload) {
@@ -128,21 +141,21 @@ public class UpdateDictThread extends Thread {
             ParserJson.putJsonVal(savedVer, forceVersion, version.optInt(forceVersion));
             Log.e("updateDict", "step: " + step);
         }
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载道路代码..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载道路代码..."));
         if (roadItemCount <= 0 || savedVer.optInt(roadVersion) < version.optInt(roadVersion) || forceDownload) {
             WebQueryResult<String> dict2 = dao.updateOtherDict("road_item", "1");
             ThreadMethod.saveRoadItemInDb(dict2, frmRoadItemBox);
             ParserJson.putJsonVal(savedVer, roadVersion, version.optInt(roadVersion));
             Log.e("updateDict", "step: " + step);
         }
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载路段代码..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载路段代码..."));
         if (roadSegCount <= 0 || savedVer.optInt(roadVersion) < version.optInt(roadVersion) || forceDownload) {
             WebQueryResult<String> dict2 = dao.updateOtherDict("road_seg", "1");
             ThreadMethod.saveRoadSegInDb(dict2, frmRoadSegBox);
             ParserJson.putJsonVal(savedVer, roadVersion, version.optInt(roadVersion));
             Log.e("updateDict", "step: " + step);
         }
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载系统参数..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载系统参数..."));
         if (sysParaCount <= 0 || savedVer.optInt(sysVersion) < version.optInt(sysVersion) || forceDownload) {
             WebQueryResult<String> dict2 = dao.downloadSqlValue("select xtlb,glbm,gjz,csz,csbj,bjcsbj from trff_app.frm_syspara_value", "");
             ThreadMethod.saveSysParaInDb(dict2, vioSysParaBox);
@@ -150,7 +163,7 @@ public class UpdateDictThread extends Thread {
             Log.e("updateDict", "step: " + step);
         }
         //根据严管街版本下载
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载严管街..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载严管街..."));
         Box<SeriousStreetBean> box = GlobalMethod.getBoxStore(activity).boxFor(SeriousStreetBean.class);
         long streeCount = box.count();
         if (streeCount <= 0 || savedVer.optInt(streeVersion) < version.optInt(streeVersion) || forceDownload) {
@@ -160,25 +173,31 @@ public class UpdateDictThread extends Thread {
             Log.e("updateDict", "step: " + step);
         }
         //大平台字典
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载大平台字典表..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载大平台字典表..."));
         if (dptCodeCount <= 0 || savedVer.optInt(dptVersion) < version.optInt(dptVersion) || forceDownload) {
             WebQueryResult<String> dict2 = dao.downloadSqlValue("select xtlb,dmlb,dmz,dmsm1,dmsm2,dmlbsm,zt from frm_dpt_code", "");
             ThreadMethod.saveDptCodeInDb(dict2, bs.boxFor(FrmDptCode.class));
             ParserJson.putJsonVal(savedVer, dptVersion, version.optInt(dptVersion));
             Log.e("updateDict", "step: " + step);
         }
-        EventBus.getDefault().post(new DownSpeedEvent("下载数据", total, ++step, "下载盘查路线..."));
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载盘查路线..."));
         if (lxxxCount <= 0 || savedVer.optInt(lxxxVersion) < version.optInt(lxxxVersion) || forceDownload) {
             WebQueryResult<String> dict2 = dao.downloadSqlValue("select xldm,xlxl,trffbh from v_jwt_zapc_lxxx", "");
             ThreadMethod.saveZapcLxxxInDb(dict2, bs.boxFor(ZapcLxxx.class));
             ParserJson.putJsonVal(savedVer, lxxxVersion, version.optInt(lxxxVersion));
             Log.e("updateDict", "step: " + step);
         }
+        EventBus.getDefault().post(new DownDictEvent("下载数据", total, ++step, "下载交通设施字典表..."));
+        if (jtssParmaCount <= 0 || savedVer.optInt(jtssVesion,0) < version.optInt(jtssVesion,0) || forceDownload) {
+            WebQueryResult<String> dict2 = dao.downloadJtssParam();
+            if (dict2.getStatus() == 200) {
+                ThreadMethod.saveJtssParamInDb(dict2, bs.boxFor(JtssParam.class));
+                ParserJson.putJsonVal(savedVer, jtssVesion, version.optInt(jtssVesion));
+            }
+        }
         //保存版本号的数据
-        SharedPreferences.Editor editor = sharedPreferences.edit();//获取编辑器
-        editor.putString(dataVersion, savedVer.toString());
-        editor.commit();//提交修改
-        EventBus.getDefault().post(new DownSpeedEvent("", total, total, ""));
+        GlobalSystemParam.loadParam(activity, dataVersion, savedVer.toString());
+        EventBus.getDefault().post(new DownDictEvent("", total, total, ""));
         Log.e("UpdateDict", "has saved: " + savedVer.toString());
     }
 
@@ -186,7 +205,8 @@ public class UpdateDictThread extends Thread {
             roadVersion = "roadVersion", wfdmVersion = "wfdmVersion",
             forceVersion = "forceVersion", sysVersion = "sysVersion",
             streeVersion = "streeVersion", dptVersion = "dptVersion",
-            lxxxVersion = "lxxxVersion", acdlawVersion = "acdlawVersion";
+            lxxxVersion = "lxxxVersion", acdlawVersion = "acdlawVersion",
+            jtssVesion = "jtssVersion";
 
     /**
      * 保存数据到字典表数据库中
@@ -199,7 +219,7 @@ public class UpdateDictThread extends Thread {
         if (isNeed)
             frmCodeBox.removeAll();
         int total = vs.length + add;
-        EventBus.getDefault().post(new DownSpeedEvent("联网下载数据", total, 0, "联网下载中"));
+        EventBus.getDefault().post(new DownDictEvent("联网下载数据", total, 0, "联网下载中"));
         int step = 0;
         for (DictName d : vs) {
             step++;
@@ -228,7 +248,7 @@ public class UpdateDictThread extends Thread {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                EventBus.getDefault().post(new DownSpeedEvent("联网下载数据", total, step, d.getName()));
+                EventBus.getDefault().post(new DownDictEvent("联网下载数据", total, step, d.getName()));
             }
         }
         ParserJson.putJsonVal(savedVer, codeVersion, servceVersion);

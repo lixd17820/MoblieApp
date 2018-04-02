@@ -1,5 +1,6 @@
 package com.jwt.web;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -67,8 +68,10 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.FormBody;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public abstract class RestfulDao {
@@ -80,6 +83,14 @@ public abstract class RestfulDao {
     public final static int POST = 1;
     private int timeoutConnection = 30000;
     private int timeoutSocket = 30000;
+    private static final String JTSS_URL = "/jtss/services/main/";
+    private static final String JTSS_PARAM = JTSS_URL + "queryParam";
+    private static final String JTSS_QUERY_ROAD = JTSS_URL + "queryRoad";
+    private static final String JTSS_QUERY_CROSS = JTSS_URL + "queryCross";
+    private static final String JTSS_QUERY_LIGHT = JTSS_URL + "queryLightDevice";
+    private static final String JTSS_UPLOAD_LIGHT_PIC = "/jtss/upLightPic";
+    //-----------------------------------------
+
     private String URL_PATH = "/ydjw/services/ydjw/";
     private String FORBID_PATH = "/forbid/services/forbid/";
     private String CROSS_PATH = "/cross/services/cross";
@@ -170,7 +181,7 @@ public abstract class RestfulDao {
 
     private final String UPLOAD_FXC_PHOTO_MD5 = URL_PATH + "uploadFxcPhotoMd5";
 
-    private final String UPLOAD_FXC_JL_IMG = URL_PATH + "uploadFxcJlImg";
+    private final String UPLOAD_FXC_JL_IMG = URL_PATH + "uploadFxcJlImgV3";
 
     private final String CHECK_USER_MD5 = URL_PATH + "checkUserMd5";
 
@@ -201,6 +212,10 @@ public abstract class RestfulDao {
     //---------------------------禁区通行证常量-------------------------------
     private final String QUERY_FROBID = FORBID_PATH + "queryPassInfo";
 
+
+    public String getLightPicUrl() {
+        return getUrl() + "/jtss/showLightPic";
+    }
 
 //    /**
 //     * 获取严管违停信息
@@ -502,7 +517,10 @@ public abstract class RestfulDao {
      * @return
      */
     public WebQueryResult<List<THmb>> hqVioWs(String yhbh, String wslx) {
-        WebQueryResult<String> re = httpTextClient(getUrl() + GAIN_VIO_BILL, POST, "yhbh", yhbh, "wslx", wslx);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("sdk", Build.VERSION.SDK_INT + "");
+        headers.put("version", "V3");
+        WebQueryResult<String> re = httpTextClient(getUrl() + GAIN_VIO_BILL, headers, POST, "yhbh", yhbh, "wslx", wslx);
         return GlobalMethod.webXmlStrToListObj(re, THmb.class);
     }
 
@@ -1366,6 +1384,46 @@ public abstract class RestfulDao {
         return httpTextClient(url, POST, postParams);
     }
 
+    //----------------------------------交通设施方法------------------------------------------------
+
+    public WebQueryResult<String> downloadJtssParam() {
+        String queryUrl = getUrl() + JTSS_PARAM;
+        return httpTextClient(queryUrl, POST);
+    }
+
+    public WebQueryResult<String> queryRoadByXzqh(String xzqh) {
+        String queryUrl = getUrl() + JTSS_QUERY_ROAD;
+        String jh = GlobalData.grxx.get(GlobalConstant.JH);
+        Map<String, String> postParams = new HashMap<>();
+        postParams.put("xzqh", xzqh);
+        postParams.put("city", jh.substring(0, 4));
+        return httpTextClient(queryUrl, POST, postParams);
+    }
+
+    public WebQueryResult<String> queryCrossByDldm(String dldm) {
+        String queryUrl = getUrl() + JTSS_QUERY_CROSS;
+        String jh = GlobalData.grxx.get(GlobalConstant.JH);
+        Map<String, String> postParams = new HashMap<>();
+        postParams.put("dldm", dldm);
+        postParams.put("city", jh.substring(0, 4));
+        return httpTextClient(queryUrl, POST, postParams);
+    }
+
+    public WebQueryResult<String> queryLightByCross(String crossId) {
+        String queryUrl = getUrl() + JTSS_QUERY_LIGHT;
+        String jh = GlobalData.grxx.get(GlobalConstant.JH);
+        Map<String, String> postParams = new HashMap<>();
+        postParams.put("crossId", crossId);
+        postParams.put("city", jh.substring(0, 4));
+        return httpTextClient(queryUrl, POST, postParams);
+    }
+
+    public WebQueryResult<String> uploadLightPic(String id, File file) {
+        String url = getUrl() + JTSS_UPLOAD_LIGHT_PIC + "?ids=" + id;
+        return uploadFile(url, "upfiles", file);
+    }
+
+
     // ------------------------以下是本类中公用的方法-----------------------------------
 
     public WebQueryResult<String> httpTextClient(String url, int method, String... param) {
@@ -1378,20 +1436,38 @@ public abstract class RestfulDao {
         return httpTextClient(url, method, params);
     }
 
+    public WebQueryResult<String> httpTextClient(String url, Map<String, String> headers, int method, String... param) {
+        Map<String, String> params = new HashMap<>();
+        if (param.length > 0 && param.length % 2 == 0) {
+            for (int i = 0; i < param.length / 2; i++) {
+                params.put(param[2 * i], param[2 * i + 1]);
+            }
+        }
+        return httpTextClient(url, method, params, headers);
+    }
+
     public WebQueryResult<String> httpTextClient(String url, int method, Map<String, String> params) {
+        return httpTextClient(url, method, params, null);
+    }
+
+    public WebQueryResult<String> httpTextClient(String url, int method, Map<String, String> params,
+                                                 Map<String, String> headers) {
         String jybh = GlobalData.grxx == null ? "" : GlobalData.grxx.get(GlobalConstant.JH);
         String meid = GlobalData.serialNumber == null ? "" : GlobalData.serialNumber;
         WebQueryResult<String> web = new WebQueryResult<>();
         web.setStatus(400);
         OkHttpClient client = new OkHttpClient();
-        Log.e("ResultDao", "url: " + url + ", method:" + method + "params: " + ((params == null) ? "0" : params.size()));
-        Log.e("ResultDao", "jybh: " + jybh + ", meid:" + meid);
-        GlobalMethod.logMap(params, "httpTextClient");
+        //Log.e("ResultDao", "jybh: " + jybh + ", meid:" + meid);
+        //GlobalMethod.logMap(params, "httpTextClient");
         Request.Builder reqb = new Request.Builder().url(url);
         if (!TextUtils.isEmpty(jybh))
             reqb = reqb.header("jybh", jybh);
         if (!TextUtils.isEmpty(meid))
             reqb = reqb.header("meid", meid);
+        if (headers != null) {
+            for (String key : headers.keySet())
+                reqb = reqb.header(key, headers.get(key));
+        }
         if (method == POST) {
             FormBody.Builder mb = new FormBody.Builder();
             if (params != null)
@@ -1406,6 +1482,7 @@ public abstract class RestfulDao {
             int code = response.code();
             web.setStatus(code);
             Log.e("ResultDao", "code: " + code);
+
             if (response.isSuccessful()) {
                 String s = response.body().string();
                 Log.e("ResultDao", "return: " + s);
@@ -1415,7 +1492,55 @@ public abstract class RestfulDao {
             e.printStackTrace();
             web.setStMs(e.getMessage());
         }
+        GlobalMethod.logFileInfo("url: " + url + ", method:" + method + "params: "
+                + GlobalMethod.logMap(params) + " 结果: " + web.getStatus());
         return web;
+    }
+
+    /**
+     * 上传表单文件，含有字段名称
+     *
+     * @param url
+     * @param fieldName
+     * @param file
+     * @return
+     */
+    public WebQueryResult<String> uploadFile(String url, String fieldName, File file) {
+
+        WebQueryResult<String> re = new WebQueryResult<String>(
+                HttpURLConnection.HTTP_BAD_REQUEST);
+        OkHttpClient client = new OkHttpClient();
+        // 补全请求地址
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        // 设置类型
+        builder.setType(MultipartBody.FORM);
+        // 追加参数
+
+        builder.addFormDataPart(fieldName, file.getName(),
+                RequestBody.create(null, file));
+
+        // 创建RequestBody
+        RequestBody body = builder.build();
+        // 创建Request
+        final Request request = new Request.Builder().url(url)
+                .post(body).build();
+        Response response = null;
+        String s = "";
+        try {
+            response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                s = response.body().string();
+            }
+            GlobalMethod.logFileInfo("url: " + url + ", 上传文件:" + fieldName +
+                    "; status: " + response.code());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!TextUtils.isEmpty(s)) {
+            re.setResult(s);
+            re.setStatus(HttpURLConnection.HTTP_OK);
+        }
+        return re;
     }
 
     public WebQueryResult<String> uploadFile(String url, File file) {
@@ -1454,6 +1579,7 @@ public abstract class RestfulDao {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        GlobalMethod.logFileInfo("url: " + url + ", 上传文件:" + file.getAbsolutePath() + "; 结果：" + re.getStatus());
         return re;
     }
 
@@ -1498,7 +1624,7 @@ public abstract class RestfulDao {
             e.printStackTrace();
             sendData(1, 0, 0, handler);
         }
-
+        GlobalMethod.logFileInfo("url: " + url + ", 上传数据:" + data.length + "; 结果：" + re.getStatus());
         return re;
     }
 
@@ -1538,6 +1664,7 @@ public abstract class RestfulDao {
     public long downloadFile(String urlStr, File dest, long fileSize, String fn) {
         long count = 0;
         byte[] b = new byte[1024];
+        int code = 204;
         try {
             //String u = getUrl() + urlStr;
             Log.e("RestfulDao", "下载文件地址：" + urlStr);
@@ -1545,13 +1672,13 @@ public abstract class RestfulDao {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoInput(true);
             conn.connect();
-            int code = conn.getResponseCode();
+            code = conn.getResponseCode();
             Log.e("RestfulDao", "下载文件状态：" + code);
             if (code != HttpURLConnection.HTTP_OK)
                 return 0;
             InputStream is = conn.getInputStream();
             FileOutputStream out = new FileOutputStream(dest);
-            Log.e("down file",dest.getAbsolutePath());
+            Log.e("down file", dest.getAbsolutePath());
             int len = 0;
             while ((len = is.read(b)) > 0) {
                 out.write(b, 0, len);
@@ -1566,6 +1693,8 @@ public abstract class RestfulDao {
             e.printStackTrace();
         }
         EventBus.getDefault().post(new DownApkEvent(false, 100, fn));
+        GlobalMethod.logFileInfo("url: " + url + ", 下载数据:" + dest.getAbsolutePath()
+                + "; 结果：" + code);
         return count;
     }
 

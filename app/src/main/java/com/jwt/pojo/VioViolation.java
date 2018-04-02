@@ -1,5 +1,7 @@
 package com.jwt.pojo;
 
+import com.jwt.utils.ParserJson;
+
 import java.io.Serializable;
 
 import io.objectbox.annotation.Entity;
@@ -453,5 +455,10 @@ public class VioViolation implements Serializable {
 
     public void setPicScbj(int picScbj) {
         this.picScbj = picScbj;
+    }
+
+    @Override
+    public String toString() {
+        return ParserJson.objToJson(this).toString();
     }
 }

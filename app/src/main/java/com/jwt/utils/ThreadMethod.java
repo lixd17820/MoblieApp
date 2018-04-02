@@ -4,6 +4,7 @@ import com.jwt.pojo.AcdLawBean;
 import com.jwt.pojo.FrmDptCode;
 import com.jwt.pojo.FrmRoadItem;
 import com.jwt.pojo.FrmRoadSeg;
+import com.jwt.pojo.JtssParam;
 import com.jwt.pojo.SeriousStreetBean;
 import com.jwt.pojo.SysParaValue;
 import com.jwt.pojo.VioWfdmCode;
@@ -186,6 +187,25 @@ public class ThreadMethod {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 AcdLawBean c = ParserJson.parseJsonToObj(obj, AcdLawBean.class);
+                codes.add(c);
+            }
+            if (codes != null && codes.size() > 0) {
+                box.put(codes);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveJtssParamInDb(WebQueryResult<String> data, Box<JtssParam> box) {
+        box.removeAll();
+        String re = data.getResult();
+        List<JtssParam> codes = new ArrayList<>();
+        try {
+            JSONArray array = new JSONArray(re);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                JtssParam c = ParserJson.parseJsonToObj(obj, JtssParam.class);
                 codes.add(c);
             }
             if (codes != null && codes.size() > 0) {

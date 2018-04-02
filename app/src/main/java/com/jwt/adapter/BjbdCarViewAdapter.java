@@ -1,23 +1,18 @@
 package com.jwt.adapter;
 
-import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jwt.pojo.Bjbd;
-import com.jwt.update.R;
-import com.jwt.utils.GlobalConstant;
+import com.jwt.main.R;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -41,6 +36,8 @@ public class BjbdCarViewAdapter extends RecyclerView.Adapter<BjbdCarViewAdapter.
         public TextView text;
         @BindView(R.id.image_item)
         public ImageView img;
+        @BindView(R.id.red_item)
+        public ImageView readBj;
 
         public BjbdViewHolder(View itemView) {
             super(itemView);
@@ -75,8 +72,13 @@ public class BjbdCarViewAdapter extends RecyclerView.Adapter<BjbdCarViewAdapter.
         SelectObjectBean<Bjbd> data = dataset.get(position);
         Bjbd bjbd = data.getBean();
         String txt = bjbd.getId() + ". " + bjbd.getDdsj() + GlobalMethod.getStringFromKVListByKey(GlobalData.hpzlList, bjbd.getHpzl())
-                + bjbd.getHphm() + "通过" + bjbd.getCbz() + "，布控原因：" + bjbd.getBjyy();
+                + bjbd.getHphm() + "通过" + bjbd.getCbz() + "，布控原因：" + bjbd.getBjyy()+", " + bjbd.getYdbj();
         viewHolder.text.setText(txt);
+        if(bjbd.getYdbj() == 1){
+            viewHolder.readBj.setVisibility(View.INVISIBLE);
+        }else{
+            viewHolder.readBj.setVisibility(View.VISIBLE);
+        }
         if (isShowSelect) {
             viewHolder.img.setImageResource(data.isSel() ? R.drawable.ic_check_box_black_24dp
                     : R.drawable.ic_check_blank_black_24dp);

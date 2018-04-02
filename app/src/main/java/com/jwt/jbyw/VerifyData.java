@@ -287,12 +287,7 @@ public class VerifyData {
         if (!GlobalMethod.isChinaOrAz(v.getWfdz())) {
             return "违法地点包括非正常字符";
         }
-        // 身份证号不符合标准
-        if ("A".equals(v.getZjlx()) && !TextUtils.isEmpty(v.getJszh()) && v.getJszh().length() == 15)
-            return "请填入18位身份证号，15位已停止使用";
-
-        if ("A".equals(v.getZjlx()) && TextUtils.isEmpty(v.getJszh())
-                || !IDCard.Verify(v.getJszh().trim().toUpperCase())) {
+        if("A".equals(v.getZjlx()) && !IDCard.Verify(v.getJszh().trim().toUpperCase())){
             // 未通过身份证难证的，进一步确认
             // 人员分类是行人、非机动车且验证规则为非严格模式时允许通过
             // 不是 （非机动车且宽松模式且长度为0）不能通过

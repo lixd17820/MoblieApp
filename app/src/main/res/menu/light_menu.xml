@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ntgajwt="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/print_file"
+        android:orderInCategory="100"
+        android:title="@string/search"
+        ntgajwt:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/save_file"
+        android:orderInCategory="100"
+        android:title="@string/photo"
+        ntgajwt:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_show_image"
+        android:orderInCategory="100"
+        android:title="@string/upload"
+        ntgajwt:showAsAction="ifRoom" />
+</menu>

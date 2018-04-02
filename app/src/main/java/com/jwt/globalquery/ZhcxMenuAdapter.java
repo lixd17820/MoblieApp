@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jwt.update.R;
+import com.jwt.main.R;
 
 import java.util.ArrayList;
 import java.util.List;

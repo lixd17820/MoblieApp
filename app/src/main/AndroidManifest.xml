@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jwt.update">
+    package="com.jwt.main">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -30,7 +30,7 @@
         android:theme="@style/AppTheme">
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.jwt.update.fileprovider"
+            android:authorities="com.jwt.main.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -41,16 +41,19 @@
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="portrait" />
-        <!-- Mqtt Service -->
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN" />
+
+                        <category android:name="android.intent.category.LAUNCHER" />
+                    </intent-filter>
+
+                </activity>
+                <activity
+                    android:name=".MainActivity"
+                    android:exported="true"
+                    android:screenOrientation="portrait" />
+                <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
         <service
             android:name=".MainReferService"
@@ -146,7 +149,7 @@
             android:name=".TestActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.jwt.jbyw.JdsPreviewActivity"
+            android:name=".JdsPreviewActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".JbywSixSpListActivity"
@@ -225,7 +228,23 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ImageViewPage"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".JbywPhotoOcrActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity
+            android:name=".CameraActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".BaseFragementActivity"
+            android:label="@string/title_activity_base_fragement"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

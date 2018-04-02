@@ -3,14 +3,14 @@ apply plugin: 'io.objectbox'
 
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.1'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
-        applicationId "com.jwt.update"
-        minSdkVersion 15
+        applicationId "com.jwt.main"
+        minSdkVersion 21
         targetSdkVersion 25
-        versionCode 14
-        versionName "14.0"
+        versionCode 16
+        versionName "16.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -21,36 +21,48 @@ android {
         }
     }
 
-    sourceSets { main { res.srcDirs = ['src/main/res', 'src/main/res/menu'] } }
+    sourceSets {
+        main {
+            res.srcDirs = ['src/main/res', 'src/main/res/menu']
+            jni.srcDirs = ['src/main/jni', 'src/main/jniLibs/']
+        }
+    }
+
+    externalNativeBuild {
+        ndkBuild {
+            path '../Android.mk'
+        }
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/android-viewbadger.jar')
     compile "io.objectbox:objectbox-android:$objectBoxVersion"
-    compile files('libs/sdses_500C_serialport_1.0.jar')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:cardview-v7:26.0.0-alpha1'
-    compile 'com.android.support:recyclerview-v7:26.0.0-alpha1'
+    compile 'com.android.support:cardview-v7:27.0.2'
+    compile 'com.android.support:recyclerview-v7:27.0.2'
+    compile 'com.android.support:support-v4:27.0.2'
+    compile 'com.android.support:appcompat-v7:27.0.2'
+    compile 'com.android.support:design:27.0.2'
     compile 'me.leolin:ShortcutBadger:1.1.16@aar'
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.0'
-    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'org.greenrobot:eventbus:3.1.1'
     compile 'com.jakewharton:butterknife:8.8.1'
     compile 'com.lovedise:permissiongen:0.0.6'
     compile 'com.journeyapps:zxing-android-embedded:3.5.0'
     compile 'com.github.chrisbanes:PhotoView:2.1.3'
-    compile 'com.afollestad.material-dialogs:core:0.9.0.2'
+    compile 'com.afollestad.material-dialogs:core:0.9.6.0'
     compile 'com.alibaba:fastjson:1.2.37'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
-    compile 'com.android.support:support-v4:26.0.0-alpha1'
-    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
-    compile 'com.android.support:design:26.0.0-alpha1'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     compile 'com.github.jdsjlzx:LRecyclerView:1.4.3'
+    implementation project(':openCVLibrary331')
+
 }

@@ -1,28 +1,18 @@
 package com.jwt.adapter;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jwt.bean.MenuOptionBean;
 import com.jwt.pojo.ZapcGzxxBean;
-import com.jwt.update.R;
-import com.jwt.utils.GlobalMethod;
+import com.jwt.main.R;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class GzxxListAdapter extends RecyclerView.Adapter<GzxxListAdapter.ViewHolder> {
 

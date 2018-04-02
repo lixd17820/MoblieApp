@@ -16,6 +16,7 @@ import com.jwt.pojo.FrmCode_;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalMethod;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.objectbox.Box;
@@ -39,12 +40,16 @@ public class AcdSimpleDao {
 
     public static List<AcdSimpleBean> getAllAcd(BoxStore boxStore) {
         Box<AcdSimpleBean> box = boxStore.boxFor(AcdSimpleBean.class);
-        return box.query().build().find();
+        List<AcdSimpleBean> list= box.query().build().find();
+        Collections.reverse(list);
+        return list;
     }
 
     public static List<AcdSimpleBean> getAllAcd(String wsbh, BoxStore boxStore) {
         Box<AcdSimpleBean> box = boxStore.boxFor(AcdSimpleBean.class);
-        return box.query().equal(AcdSimpleBean_.wsbh, wsbh).build().find();
+        List<AcdSimpleBean> list= box.query().equal(AcdSimpleBean_.wsbh, wsbh).build().find();
+        Collections.reverse(list);
+        return list;
     }
 
     public static AcdSimpleBean getAcdById(long id, BoxStore boxStore) {

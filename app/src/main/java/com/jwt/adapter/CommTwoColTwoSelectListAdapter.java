@@ -3,7 +3,7 @@ package com.jwt.adapter;
 import java.util.List;
 
 import com.jwt.bean.TwoColTwoSelectBean;
-import com.jwt.update.R;
+import com.jwt.main.R;
 
 import android.app.Activity;
 import android.view.LayoutInflater;

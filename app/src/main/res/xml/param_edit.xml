@@ -12,9 +12,9 @@
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:summaryOn="上传定位信息"
-        android:summaryOff="不上传定位信息"
         android:key="gps_upload"
+        android:summaryOff="不上传定位信息"
+        android:summaryOn="上传定位信息"
         android:title="上传GPS定位信息" />
 
     <ListPreference
@@ -27,8 +27,8 @@
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="need_sfzh"
-        android:summaryOn="严格验证身份证号码"
         android:summaryOff="不验证身份号码"
+        android:summaryOn="严格验证身份证号码"
         android:title="非机动车身份证验证模式" />
 
     <ListPreference
@@ -52,13 +52,18 @@
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="preview_photo"
-        android:summaryOn="预览"
         android:summaryOff="不预览"
+        android:summaryOn="预览"
         android:title="非现场、事故拍照预览" />
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="skip_spinner"
         android:summary="不要轻易打开"
         android:title="人员类型变化问题点这里" />
-
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="log_status"
+        android:summaryOff="不保存日志"
+        android:summaryOn="日志保存为文件"
+        android:title="记录日志模式" />
 </PreferenceScreen>

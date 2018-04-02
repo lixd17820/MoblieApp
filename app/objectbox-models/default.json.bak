@@ -1706,13 +1706,38 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "27:7780299646660662238",
+      "lastPropertyId": "4:1062520655604996442",
+      "name": "JtssParam",
+      "properties": [
+        {
+          "id": "1:2997153714200168034",
+          "name": "id"
+        },
+        {
+          "id": "2:705840061282784152",
+          "name": "type"
+        },
+        {
+          "id": "3:8319853358255419279",
+          "name": "code"
+        },
+        {
+          "id": "4:1062520655604996442",
+          "name": "value"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "26:8986145510440321019",
+  "lastEntityId": "27:7780299646660662238",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
-  "modelVersion": 3,
+  "modelVersion": 4,
+  "modelVersionParserMinimum": 4,
   "retiredEntityUids": [
     6136105981409624354,
     5161389623191473766

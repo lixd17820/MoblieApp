@@ -4,19 +4,20 @@ package com.jwt.adapter;
  * Created by lixiaodong on 2017/9/13.
  */
 
-public class SelectObjectBean<E> {
+public class SelectObjectBean<T> {
 
     private boolean sel;
-    private E bean;
+    private T bean;
+    private String text;
 
     public SelectObjectBean() {
     }
 
-    public SelectObjectBean(E bean) {
+    public SelectObjectBean(T bean) {
         this.bean = bean;
     }
 
-    public SelectObjectBean(E bean, boolean sel) {
+    public SelectObjectBean(T bean, boolean sel) {
         this.bean = bean;
         this.sel = sel;
     }
@@ -29,11 +30,19 @@ public class SelectObjectBean<E> {
         this.sel = sel;
     }
 
-    public E getBean() {
+    public T getBean() {
         return bean;
     }
 
-    public void setBean(E bean) {
+    public void setBean(T bean) {
         this.bean = bean;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

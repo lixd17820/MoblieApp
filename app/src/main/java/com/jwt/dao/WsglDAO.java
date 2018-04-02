@@ -3,18 +3,10 @@ package com.jwt.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
 
 import com.jwt.pojo.THmb;
 import com.jwt.pojo.THmb_;
-import com.jwt.update.R;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 

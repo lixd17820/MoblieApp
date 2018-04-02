@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import com.jwt.update.R;
+import com.jwt.main.R;
 
 import com.jwt.bean.KeyValueBean;
 
@@ -35,7 +35,11 @@ public class SpinnerCustomAdapter extends ArrayAdapter<KeyValueBean> {
 		TextView tv = (TextView) row.findViewById(R.id.text1);
 		tv.setText(kv.getValue());
 		return row;
+	}
 
+	public void setArray(List<KeyValueBean> array){
+		this.object.clear();
+		this.object.addAll(array);
 	}
 	
 	public List<KeyValueBean> getArray(){

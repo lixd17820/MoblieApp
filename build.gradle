@@ -1,11 +1,12 @@
 buildscript {
-    ext.objectBoxVersion = "1.0.1"
+    ext.objectBoxVersion = "1.3.4"
     repositories {
         jcenter()
         maven { url "http://objectbox.net/beta-repo/" }
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath "io.objectbox:objectbox-gradle-plugin:$objectBoxVersion"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -19,6 +20,7 @@ allprojects {
         maven { url "https://repo.eclipse.org/content/repositories/paho-releases/" }
         maven { url "https://jitpack.io" }
         maven { url "http://objectbox.net/beta-repo/" }
+        google()
     }
 }
 

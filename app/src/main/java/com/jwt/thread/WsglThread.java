@@ -7,7 +7,7 @@ import android.util.Log;
 import com.jwt.dao.WsglDAO;
 import com.jwt.event.DownSpeedEvent;
 import com.jwt.pojo.THmb;
-import com.jwt.update.App;
+import com.jwt.main.App;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalMethod;
 import com.jwt.utils.ParserJson;

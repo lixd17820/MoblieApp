@@ -2,21 +2,14 @@ package com.jwt.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jwt.dao.ZaPcdjDao;
-import com.jwt.pojo.ZapcGzxxBean;
-import com.jwt.pojo.ZapcRypcxxBean;
-import com.jwt.pojo.ZapcWppcxxBean;
 import com.jwt.pojo.Zapcxx;
-import com.jwt.update.R;
-import com.jwt.utils.GlobalData;
-import com.jwt.utils.GlobalMethod;
+import com.jwt.main.R;
 
 import java.util.List;
 

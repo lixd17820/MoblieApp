@@ -43,5 +43,10 @@
         android:orderInCategory="100"
         ntgajwt:showAsAction="ifRoom|withText"
         android:title="上传照片"/>
+    <item
+        android:id="@+id/orc_sfzh"
+        android:orderInCategory="100"
+        ntgajwt:showAsAction="ifRoom|withText"
+        android:title="识别证件"/>
 
 </menu>

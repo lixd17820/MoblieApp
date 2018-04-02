@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GlobalConstant {
+
     public static Map<String, String> hdzh;
     public static Map<String, String> fxjgMap;
     public static Map<String, String> xsfxMap;
@@ -380,4 +381,9 @@ public class GlobalConstant {
      * 用于保存常用信息的常量名称
      */
     public final static String MJXX_INFO = "mjxx_info";
+
+    public final static String SP_MJXX = "mjxx";
+    public final static String SP_CX_MENUS = "cxMenus";
+    public final static int SERVCIE_LOGOUT = 100;
+    public static final String NETWORK_STATUS = "network_state";
 }

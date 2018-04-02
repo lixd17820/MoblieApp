@@ -5,30 +5,32 @@ import java.util.List;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.jwt.adapter.OneLineSelectAdapter;
+import com.jwt.adapter.SelectCommAdapter;
+import com.jwt.adapter.SelectObjectBean;
 import com.jwt.adapter.TextWatcherImpl;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.TwoLineSelectBean;
 import com.jwt.bean.WfddBean;
 import com.jwt.dao.WfddDao;
 import com.jwt.pojo.FavorWfdd;
-import com.jwt.update.R;
+import com.jwt.main.R;
+import com.jwt.pojo.FrmRoadItem;
+import com.jwt.pojo.FrmRoadSeg;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.GlobalData;
 import com.jwt.utils.GlobalMethod;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -47,17 +49,17 @@ public class WfddAllFragmentList extends ListFragment {
 
     private EditText editText, editGls, editMs, editLdmc, editPtLdmc;
 
-    private ArrayList<TwoLineSelectBean> wfddLineList = new ArrayList<TwoLineSelectBean>();
+    private List<SelectObjectBean> wfddList = new ArrayList<>();
 
-    private ArrayList<WfddBean> wfddList = new ArrayList<WfddBean>();
-
-    private ContentResolver resolver;
+    //private ArrayList<SelectObjectBean> wfddList = new ArrayList<SelectObjectBean>();
 
     private MaterialDialog mdialog = null;
 
     private WfddBean curWfdd;
 
     private boolean isAddFavor = true;
+
+    private static final String TAG = "WfddAllFragmentList";
 
     @Override
     public View onCreateView(LayoutInflater in, ViewGroup c, Bundle si) {
@@ -81,8 +83,8 @@ public class WfddAllFragmentList extends ListFragment {
         self.findViewById(R.id.fouce_line).requestFocus();
         // 设置行政区划
         GlobalMethod.changeAdapter(
-                spinXzqh,
-                WfddDao.getOwnerXzqhList(GlobalData.grxx.get(GlobalConstant.YBMBH), GlobalMethod.getBoxStore(self)), self);
+                spinXzqh, WfddDao.getOwnerXzqhList(GlobalData.grxx.get(GlobalConstant.YBMBH),
+                        GlobalMethod.getBoxStore(self)), self);
         referView();
     }
 
@@ -100,6 +102,8 @@ public class WfddAllFragmentList extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (curWfdd == null)
+                    return;
                 editLdmc.setText(curWfdd.getLdmc() + s + "公里"
                         + editMs.getText() + "米");
             }
@@ -109,6 +113,8 @@ public class WfddAllFragmentList extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (curWfdd == null)
+                    return;
                 editLdmc.setText(curWfdd.getLdmc() + editGls.getText() + "公里"
                         + s + "米");
             }
@@ -118,6 +124,10 @@ public class WfddAllFragmentList extends ListFragment {
     MaterialDialog.SingleButtonCallback sc = new MaterialDialog.SingleButtonCallback() {
         @Override
         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+            int index = getSelectItem();
+            if (index < 0)
+                return;
+            WfddBean curWfdd = (WfddBean) wfddList.get(index).getBean();
             String gls = editGls.getText().toString();
             String ms = editMs.getText().toString();
             String ldmc = editLdmc.getText().toString();
@@ -151,6 +161,11 @@ public class WfddAllFragmentList extends ListFragment {
                     + Integer.valueOf(gls) + "公里"
                     + Integer.valueOf(ms) + "米");
             favor.setXzqh(curWfdd.getXzqh());
+            boolean isWfddOk = WfddDao.checkGsdGls(favor.getXzqh(), favor.getDldm(), favor.getLddm(), self);
+            if (!isWfddOk) {
+                GlobalMethod.toast(self, "公里数不在单位辖区内");
+                return;
+            }
             if (isAddFavor) {
                 int re = WfddDao.addFavorWfdd(favor, GlobalMethod.getBoxStore(self));
                 Toast.makeText(self, re > 0 ? "自选路段加入成功" : "存在重复自选地点名称", Toast.LENGTH_LONG)
@@ -181,7 +196,7 @@ public class WfddAllFragmentList extends ListFragment {
                     Toast.makeText(self, "请选择一条记录", Toast.LENGTH_LONG).show();
                     return;
                 }
-                curWfdd = wfddList.get(index);
+                curWfdd = (WfddBean) wfddList.get(index).getBean();
                 if (curWfdd.isGsd()) {
                     if (mdialog == null)
                         createMDialog();
@@ -190,35 +205,60 @@ public class WfddAllFragmentList extends ListFragment {
                     editLdmc.setText(curWfdd.getLdmc() + "0公里0米");
                     mdialog.show();
                 } else {
-                    showDialog(curWfdd.getLdmc());
+                    showDialog(curWfdd);
                 }
             } else if (v == btnFind) {
                 wfddList.clear();
-                String filter = editText.getText().toString();
-                boolean isFilter = !TextUtils.isEmpty(filter);
+                List<WfddBean> temp = new ArrayList<>();
+
+                //boolean isFilter = !TextUtils.isEmpty(filter);
                 String xzqh = GlobalMethod.getKeyFromSpinnerSelected(spinXzqh,
                         GlobalConstant.KEY);
-                List<KeyValueBean> roads = WfddDao.getRoadItemsByXzqh(xzqh,
+                List<FrmRoadItem> roads = WfddDao.getRoadItemsByXzqh(xzqh,
                         GlobalMethod.getBoxStore(self));
-                for (KeyValueBean road : roads) {
-                    String roadDm = road.getKey();
-                    if (WfddDao.isGsd(road.getKey())) {
-                        if (!isFilter || road.getValue().indexOf(filter) > -1)
-                            wfddList.add(new WfddBean(xzqh, roadDm, "", "",
-                                    road.getValue(), true));
+                for (FrmRoadItem road : roads) {
+                    if (TextUtils.isEmpty(road.getDldm()) || TextUtils.isEmpty(road.getDlmc()))
+                        continue;
+                    if (WfddDao.isGsd(road.getDldm())) {
+                        //if (!isFilter || road.getValue().indexOf(filter) > -1)
+                        temp.add(new WfddBean(xzqh, road.getDldm(), "", "", road.getDlmc(), true));
                     } else {
-                        List<KeyValueBean> segs = WfddDao.getRoadSegByRoad(
-                                roadDm, xzqh, GlobalMethod.getBoxStore(self));
+                        List<FrmRoadSeg> segs = WfddDao.getRoadSegByRoad(
+                                road.getDldm(), xzqh, GlobalMethod.getBoxStore(self));
                         if (segs != null && !segs.isEmpty()) {
-                            for (KeyValueBean seg : segs) {
-                                if (!isFilter
-                                        || road.getValue().indexOf(filter) > -1
-                                        || seg.getValue().indexOf(filter) > -1)
-                                    wfddList.add(new WfddBean(xzqh, roadDm, seg
-                                            .getKey(), "", road.getValue()
-                                            + seg.getValue(), false));
+                            for (FrmRoadSeg seg : segs) {
+                                temp.add(new WfddBean(xzqh, road.getDldm(), seg.getLddm()
+                                        , "", road.getDlmc() + seg.getLdmc(), false));
                             }
                         }
+                    }
+                }
+                String filter = editText.getText().toString();
+                boolean isFilter = !TextUtils.isEmpty(filter);
+                for (WfddBean w : temp) {
+                    if (!w.isGsd() && TextUtils.isEmpty(w.getLddm()))
+                        continue;
+                    SelectObjectBean ob = new SelectObjectBean(w);
+                    ob.setText(getWfddText(w));
+                    if (isFilter) {
+                        String[] fs = filter.trim().split(" ");
+                        String ldmc = w.getLdmc();
+                        if (fs.length == 1 && ldmc.indexOf(fs[0].trim()) > -1) {
+                            if (ldmc.indexOf(fs[0].trim()) > -1) {
+                                wfddList.add(ob);
+                            }
+                        } else if (fs.length > 1) {
+                            int findCount = 0;
+                            for (String f : fs) {
+                                if (ldmc.indexOf(f.trim()) > -1) {
+                                    findCount++;
+                                }
+                            }
+                            if (findCount == fs.length)
+                                wfddList.add(ob);
+                        }
+                    } else {
+                        wfddList.add(ob);
                     }
                 }
                 referView();
@@ -226,11 +266,11 @@ public class WfddAllFragmentList extends ListFragment {
         }
     };
 
-    private void showDialog(String preText) {
+    private void showDialog(final WfddBean wfdd) {
         new MaterialDialog.Builder(self)
                 .content("请输入自定义地点：")
                 .positiveText("确定")
-                .input("请输入自定义地点名称", preText, false, new MaterialDialog.InputCallback() {
+                .input("请输入自定义地点名称", wfdd.getLdmc(), false, new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
 
@@ -239,24 +279,30 @@ public class WfddAllFragmentList extends ListFragment {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        Log.e("dialog", dialog.getInputEditText().getText().toString());
+                        //Log.e("dialog", dialog.getInputEditText().getText().toString());
                         String ldmc = dialog.getInputEditText().getText().toString();
                         if (TextUtils.isEmpty(ldmc)) {
-                            Toast.makeText(self, "路段名称不能为空", Toast.LENGTH_LONG)
-                                    .show();
+                            GlobalMethod.toast(self, "路段名称不能为空");
+                            return;
+                        }
+                        if (TextUtils.isEmpty(wfdd.getDldm())) {
+                            GlobalMethod.toast(self, "道路代码不能为空");
+                            return;
+                        }
+                        if (TextUtils.isEmpty(wfdd.getLddm())) {
+                            GlobalMethod.toast(self, "路段代码不能为空");
                             return;
                         }
                         FavorWfdd favor = new FavorWfdd();
-                        favor.setDldm(curWfdd.getDldm());
+                        favor.setDldm(wfdd.getDldm());
                         favor.setFavorLdmc(ldmc);
-                        favor.setLddm(curWfdd.getLddm());
+                        favor.setLddm(wfdd.getLddm());
                         favor.setMs("000");
-                        favor.setSysLdmc(curWfdd.getLdmc());
-                        favor.setXzqh(curWfdd.getXzqh());
+                        favor.setSysLdmc(wfdd.getLdmc());
+                        favor.setXzqh(wfdd.getXzqh());
                         if (isAddFavor) {
                             int re = WfddDao.addFavorWfdd(favor, GlobalMethod.getBoxStore(self));
-                            Toast.makeText(self, re > 0 ? "自选路段加入成功" : "存在重复自选地点名称", Toast.LENGTH_LONG)
-                                    .show();
+                            GlobalMethod.toast(self, re > 0 ? "自选路段加入成功" : "存在重复自选地点名称");
                         } else {
                             Intent i = new Intent();
                             Bundle b = new Bundle();
@@ -274,17 +320,23 @@ public class WfddAllFragmentList extends ListFragment {
     }
 
     private void referView() {
-        wfddLineList.clear();
-        int row = 1;
-        for (WfddBean wfdd : wfddList) {
-            wfddLineList.add(new TwoLineSelectBean(row + ". " + wfdd.getLdmc()
-                    + "--" + (wfdd.isGsd() ? "国省道" : "普通道路"), wfdd.getDldm()));
-            row++;
-        }
-        OneLineSelectAdapter ard = (OneLineSelectAdapter) this.getListAdapter();
+        //      wfddList.clear();
+        //       int row = 1;
+        //Log.e(TAG, "违法地点列表：" + wfddList.size());
+//        for (SelectObjectBean wfddSel : wfddList) {
+//            //Log.e(TAG, "列表中的道路代码：" + wfdd.getDldm());
+//            //Log.e(TAG, wfdd.toString());
+//            WfddSelBean wfdd = (WfddSelBean) wfddSel;
+//            if (!wfdd.isGsd() && TextUtils.isEmpty(wfdd.getLddm()))
+//                continue;
+//            wfddLineList.add(new TwoLineSelectBean(row + ". " + wfdd.getLdmc()
+//                    + "--" + (wfdd.isGsd() ? "国省道" : "普通道路"), wfdd.getDldm()));
+//            row++;
+//        }
+        SelectCommAdapter ard = (SelectCommAdapter) this.getListAdapter();
         if (ard == null) {
-            ard = new OneLineSelectAdapter(self, R.layout.one_row_select_item,
-                    wfddLineList);
+            ard = new SelectCommAdapter(self, R.layout.one_row_select_item,
+                    wfddList);
             this.getListView().setAdapter(ard);
         }
         ard.notifyDataSetChanged();
@@ -292,28 +344,30 @@ public class WfddAllFragmentList extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        for (int i = 0; i < wfddLineList.size(); i++) {
-            TwoLineSelectBean c = wfddLineList.get(i);
+        for (int i = 0; i < wfddList.size(); i++) {
+            SelectObjectBean c = wfddList.get(i);
             if (i == position)
-                c.setSelect(!c.isSelect());
+                c.setSel(!c.isSel());
             else
-                c.setSelect(false);
+                c.setSel(false);
         }
-        OneLineSelectAdapter ad = (OneLineSelectAdapter) this.getListView()
+        SelectCommAdapter ad = (SelectCommAdapter) this.getListView()
                 .getAdapter();
         ad.notifyDataSetChanged();
     }
 
     private int getSelectItem() {
-        int position = -1;
-        int i = 0;
-        while (wfddLineList.size() > 0 && i < wfddLineList.size()) {
-            if (wfddLineList.get(i).isSelect()) {
-                position = i;
-                break;
-            }
-            i++;
+        for (int i = 0; i < wfddList.size(); i++) {
+            if (wfddList.get(i).isSel())
+                return i;
         }
-        return position;
+        return -1;
     }
+
+    private String getWfddText(WfddBean wfdd) {
+        return wfdd.getLdmc()
+                + "--" + (wfdd.isGsd() ? "国省道" : "普通道路");
+
+    }
+
 }

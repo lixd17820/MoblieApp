@@ -1,25 +1,20 @@
 package com.jwt.utils;
 
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
-import android.content.ContentResolver;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.jwt.bean.KeyValueBean;
 import com.jwt.dao.ZaPcdjDao;
+import com.jwt.globalquery.CxMenus;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
-import com.jwt.update.App;
-
-import org.w3c.dom.Text;
 
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -33,6 +28,8 @@ public class GlobalData {
     // 保存决定书时验证驾驶员和机动车的方式,初始化为本地车和证
     //public static int drvCheckFs = 2;
     //public static int vehCheckFs = 2;
+
+    public static List<CxMenus> zhcxMenus = new ArrayList<>();
 
     public static String myTopic = "clgj.320601";
 
@@ -144,6 +141,7 @@ public class GlobalData {
 //
 //        grxx = ViolationDAO.getMjgrxx(resolver);
 //
+        Log.e("update dict", "5");
         clbjList = new ArrayList<KeyValueBean>();
         clbjList.add(new KeyValueBean("0", "未处理"));
         clbjList.add(new KeyValueBean("1", "已处理"));
@@ -202,6 +200,7 @@ public class GlobalData {
         for (KeyValueBean kv : sjxmList) {
             kv.setKey("1" + kv.getKey());
         }
+        Log.e("update dict", "6");
         //加载大平台字典库
         ZaPcdjDao.initZapcData(boxStore);
         //加载预定报警
@@ -222,6 +221,7 @@ public class GlobalData {
                 return Integer.valueOf(o1.getKey())-Integer.valueOf(o2.getKey());
             }
         });
+        Log.e("update dict", "7");
         //加载报警种类
         if (bjzlList == null)
             bjzlList = new ArrayList<>();
@@ -251,9 +251,8 @@ public class GlobalData {
         bjzlList.add(new KeyValueBean("39", "吸毒驾驶人车辆"));
         bjzlList.add(new KeyValueBean("43", "黄标车管控"));
         bjzlList.add(new KeyValueBean("99", "其他"));
-
-        //
         isInitLoadData = true;
+        Log.e("update dict", "8");
         return count;
     }
 

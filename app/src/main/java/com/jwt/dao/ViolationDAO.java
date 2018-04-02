@@ -1,17 +1,15 @@
 package com.jwt.dao;
 
-import android.content.ContentResolver;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.jwt.bean.KeyValueBean;
-import com.jwt.bean.WfxwBzz;
 import com.jwt.pojo.VioViolation;
 import com.jwt.pojo.VioViolation_;
 import com.jwt.pojo.FrmCode;
 import com.jwt.pojo.FrmCode_;
 import com.jwt.pojo.VioWfdmCode;
-import com.jwt.update.JbywPrintJdsDetailActivity;
+import com.jwt.main.JbywPrintJdsDetailActivity;
 import com.jwt.utils.GlobalConstant;
 import com.jwt.utils.ParserJson;
 import com.jwt.web.RestfulDao;
@@ -144,6 +142,7 @@ public class ViolationDAO {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.e("ViolationDao", "uploadViolation: " + vobj.toString());
         return dao.uploadViolationMobile(vobj);
     }
 
@@ -153,9 +152,17 @@ public class ViolationDAO {
         return violation.getId();
     }
 
+    /**
+     * 同一人，时间、地点、违法行为、文书类别相同不能入库
+     *
+     * @param v
+     * @param bs
+     * @return
+     */
     public static boolean isViolationDuplicate(VioViolation v, BoxStore bs) {
         Box<VioViolation> box = bs.boxFor(VioViolation.class);
-        long c = box.query().equal(VioViolation_.wfsj, v.getWfsj()).equal(VioViolation_.wfdz, v.getWfdz())
+        long c = box.query().equal(VioViolation_.dsr, v.getDsr())
+                .equal(VioViolation_.wfsj, v.getWfsj()).equal(VioViolation_.wfdz, v.getWfdz())
                 .equal(VioViolation_.wfxw, v.getWfxw()).equal(VioViolation_.wslb, v.getWslb())
                 .build().count();
         return c > 0;

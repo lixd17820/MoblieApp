@@ -101,4 +101,8 @@
         <item>线路一</item>
         <item>线路二</item>
     </string-array>
+    <string-array name="regc_items">
+        <item>身份证</item>
+        <item>驾驶证</item>
+    </string-array>
 </resources>

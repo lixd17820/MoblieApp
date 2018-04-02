@@ -32,7 +32,7 @@ public class LoginUpdateThread extends Thread {
     private Activity self;
 
 
-    public void doStart(String mjjh, String mm, String serial,Activity self) {
+    public void doStart(String mjjh, String mm, String serial, Activity self) {
         // 显示进度对话框
         this.mjjh = mjjh;
         this.mm = mm;
@@ -54,7 +54,7 @@ public class LoginUpdateThread extends Thread {
                 mjjh, mm, serial);
         String err = GlobalMethod.getErrorMessageFromWeb(login);
         LoginEvent event = new LoginEvent();
-        if(!TextUtils.isEmpty(err)){
+        if (!TextUtils.isEmpty(err)) {
             event.setStatus(-1);
             event.setStMs(err);
             EventBus.getDefault().post(event);
@@ -67,13 +67,13 @@ public class LoginUpdateThread extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(result == null){
+        if (result == null) {
             event.setStatus(200);
             event.setStMs("服务器错误");
             EventBus.getDefault().post(event);
             return;
         }
-        if(!TextUtils.equals("1",result.getCode())){
+        if (!TextUtils.equals("1", result.getCode())) {
             event.setStatus(200);
             event.setStMs(result.getCwms());
             EventBus.getDefault().post(event);
@@ -81,6 +81,7 @@ public class LoginUpdateThread extends Thread {
         }
         EventBus.getDefault().post(new LoginEvent(1));
         WebQueryResult<List<CxMenus>> cxMenus = dao.restfulGetMenus();
+        GlobalData.zhcxMenus = cxMenus.getResult();
         EventBus.getDefault().post(new LoginEvent(2));
         //下载决定书号码，一定同步
         new WsglThread(self, mjjh).downloadHmb(dao);

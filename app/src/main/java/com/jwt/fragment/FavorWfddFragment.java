@@ -8,12 +8,10 @@ import com.jwt.adapter.OneLineSelectAdapter;
 import com.jwt.bean.TwoLineSelectBean;
 import com.jwt.dao.WfddDao;
 import com.jwt.pojo.FavorWfdd;
-import com.jwt.update.App;
-import com.jwt.update.R;
+import com.jwt.main.R;
 import com.jwt.utils.GlobalMethod;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -23,8 +21,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import io.objectbox.Box;
 
 public class FavorWfddFragment extends ListFragment {
 
@@ -52,6 +48,9 @@ public class FavorWfddFragment extends ListFragment {
         adapter = new OneLineSelectAdapter(self, R.layout.one_row_select_item,
                 new ArrayList<TwoLineSelectBean>());
         this.getListView().setAdapter(adapter);
+        favorWfddList = WfddDao.getAllFavorWfdd(GlobalMethod.getBoxStore(self));
+        //验证自选地点是否有效，如果有问题则删除
+        WfddDao.checkFavorWfld(self, favorWfddList);
         changeFavorWfddList();
         buttonDetail.setOnClickListener(clickListener);
         favorOKBt.setOnClickListener(clickListener);
@@ -86,14 +85,16 @@ public class FavorWfddFragment extends ListFragment {
                 self.finish();
             } else if (v == delFavorButton) {
                 WfddDao.delFavorWfddById(wfdd.getId(), GlobalMethod.getBoxStore(self));
+                favorWfddList = WfddDao.getAllFavorWfdd(GlobalMethod.getBoxStore(self));
                 changeFavorWfddList();
             }
         }
     };
 
     private void changeFavorWfddList() {
-        favorWfddList = WfddDao.getAllFavorWfdd(GlobalMethod.getBoxStore(self));
+        adapter.setNotifyOnChange(false);
         List<TwoLineSelectBean> oneLineList = adapter.getList();
+        oneLineList.clear();
         if (favorWfddList != null) {
             for (FavorWfdd fwfdd : favorWfddList) {
                 oneLineList.add(new TwoLineSelectBean(fwfdd.getFavorLdmc(),

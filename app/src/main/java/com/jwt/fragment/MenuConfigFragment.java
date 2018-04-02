@@ -13,11 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.jwt.bean.MenuGridBean;
 import com.jwt.bean.MenuOptionBean;
-import com.jwt.update.R;
 import com.jwt.utils.MenuParser;
 
 import java.util.ArrayList;

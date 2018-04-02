@@ -2,6 +2,7 @@ package com.jwt.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Service;
@@ -14,7 +15,9 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -46,7 +49,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -58,11 +60,13 @@ import com.jwt.adapter.SpinnerCustomAdapter;
 import com.jwt.bean.KeyValueBean;
 import com.jwt.bean.UpdateFile;
 import com.jwt.globalquery.ZhcxQueryResultBean;
+import com.jwt.main.MainReferService;
+import com.jwt.pojo.Bjbd;
 import com.jwt.printer.BlueToothPrint;
-import com.jwt.update.App;
-import com.jwt.update.ImageViewPage;
-import com.jwt.update.R;
-import com.jwt.update.ShowImageActivity;
+import com.jwt.main.App;
+import com.jwt.main.ImageViewPage;
+import com.jwt.main.R;
+import com.jwt.view.NamedSpinner;
 import com.jwt.web.WebQueryResult;
 
 import org.json.JSONException;
@@ -73,6 +77,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -81,6 +86,7 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -279,8 +285,13 @@ public class GlobalMethod {
     }
 
     public static void showImageActivity(String file, Context c) {
+        showImageActivity(file, c, ImageViewPage.FILE_IMG);
+    }
+
+    public static void showImageActivity(String file, Context c, int catalog) {
         Intent intent = new Intent(c, ImageViewPage.class);
         intent.putExtra("images", file);
+        intent.putExtra("catalog", catalog);
         c.startActivity(intent);
     }
 
@@ -436,6 +447,48 @@ public class GlobalMethod {
     public static void changeAdapter(Spinner spinner, List<KeyValueBean> list,
                                      Activity context) {
         changeAdapter(spinner, list, context, false);
+    }
+
+    public static void changeAdapter(NamedSpinner spinner, List<KeyValueBean> list,
+                                     Activity context) {
+        changeAdapter(spinner, list, context, false);
+    }
+
+    public static void changeAdapter(NamedSpinner spinner, List<KeyValueBean> list,
+                                     Activity context, boolean isFirstWhite) {
+        SpinnerCustomAdapter adapter = (SpinnerCustomAdapter) spinner
+                .getAdapter();
+        if (adapter == null) {
+            adapter = new SpinnerCustomAdapter(context,
+                    new ArrayList<KeyValueBean>());
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(adapter);
+        }
+        adapter.setNotifyOnChange(false);
+        if (list == null)
+            adapter.clear();
+        else {
+            if (isFirstWhite)
+                list.add(0, new KeyValueBean("", ""));
+            adapter.setArray(list);
+            spinner.setSelectedPosition(0);
+        }
+//        if (list != null && list.size() > 0) {
+//            adapter = new SpinnerCustomAdapter(context, copyList(list));
+//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//            spinner.setAdapter(adapter);
+//        } else {
+//            if (adapter == null) {
+//                // 第一次加载数据,需加载的数据为空
+//                adapter = new SpinnerCustomAdapter(context,
+//                        new ArrayList<KeyValueBean>());
+//                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//                spinner.setAdapter(adapter);
+//            } else {
+//                adapter.clear();
+//            }
+//        }
+        adapter.notifyDataSetChanged();
     }
 
     /**
@@ -1403,50 +1456,6 @@ public class GlobalMethod {
         }
     }
 
-    /**
-     * 保存系统参数
-     *
-     * @param context
-     */
-    public static void saveParam(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        GlobalSystemParam.vehCheckFs = Integer.valueOf(prefs.getString("veh_check", "2"));
-        GlobalSystemParam.drvCheckFs = Integer.valueOf(prefs.getString("drv_check", "2"));
-        GlobalSystemParam.picCompress = Integer.valueOf(prefs.getString("pic_compress", "60"));
-        GlobalSystemParam.uploadFreq = Integer.valueOf(prefs.getString("gps_up_freq", "5"));
-        GlobalSystemParam.isPreviewPhoto = prefs.getBoolean("preview_photo", true);
-        GlobalSystemParam.isGpsUpload = prefs.getBoolean("gps_upload", false);
-        GlobalSystemParam.isSkipSpinner = prefs.getBoolean("skip_spinner", false);
-        GlobalSystemParam.isCheckFjdcSfzm = prefs.getBoolean("need_sfzh", false);
-        GlobalSystemParam.recBjbdFW = prefs.getStringSet("bjbd_fw", new HashSet<String>());
-        GlobalSystemParam.recBjbdZl = prefs.getStringSet("bjbd_catalog", new HashSet<String>());
-        GlobalSystemParam.isReciveBj = prefs.getBoolean("is_rec_bj", true);
-        GlobalSystemParam.isReciveText = prefs.getBoolean("is_rec_text", true);
-        GlobalSystemParam.isNotNotice = prefs.getBoolean("not_notice", true);
-        GlobalSystemParam.bjRingtone = prefs.getString("bj_ringtone", "");
-        GlobalSystemParam.isConnBjbd = prefs.getBoolean("is_conn_bjbd", false);
-        GlobalData.connCata = ConnCata.getValByIndex(Integer.valueOf(prefs.getString("network_state", "1")));
-        //       Map<String, ?> map = prefs.getAll();
-//        for (Entry<String, ?> entry : map.entrySet()) {
-//            Log.e("saveParam", " " + entry.getKey() + "/"
-//                    + entry.getValue().getClass().getName());
-//        }
-//        Log.e("GlbalMethod", prefs.getAll().size() + "个设置");
-    }
-
-    public static void loadParam(Context context, String name, String value) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor edit = prefs.edit();
-        edit.putString(name, value);
-        edit.commit();
-    }
-
-    public static void loadParam(SharedPreferences prefs, String name, boolean value) {
-        SharedPreferences.Editor edit = prefs.edit();
-        edit.putBoolean(name, value);
-        edit.commit();
-    }
-
     // public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, float roundPx)
     // {
     // int w = bitmap.getWidth();
@@ -1557,6 +1566,15 @@ public class GlobalMethod {
         }
     }
 
+    public static String logMap(Map<String, String> map) {
+        String re = "";
+        Set<Entry<String, String>> set = map.entrySet();
+        for (Entry<String, String> entry : set) {
+            re += entry.getKey() + ": " + entry.getValue() + "; ";
+        }
+        return re;
+    }
+
 //    /**
 //     * 读出保存的系统参数
 //     *
@@ -1650,6 +1668,7 @@ public class GlobalMethod {
         TelephonyManager tm = (TelephonyManager) context
                 .getApplicationContext().getSystemService(
                         Context.TELEPHONY_SERVICE);
+        @SuppressLint("MissingPermission")
         String serial = tm.getDeviceId();// "862020981638724";
         if (serial != null)
             return serial.toUpperCase();
@@ -1751,8 +1770,7 @@ public class GlobalMethod {
     }
 
     public static Map<String, String> getSavedMjInfo(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(GlobalConstant.MJXX_INFO, MODE_PRIVATE);
-        String mjxx = sharedPreferences.getString("mjxx", "{}");
+        String mjxx = GlobalSystemParam.getParam(context, GlobalConstant.SP_MJXX, "{}");
         Map<String, String> map = new HashMap<>();
         try {
             JSONObject obj = new JSONObject(mjxx);
@@ -1793,32 +1811,6 @@ public class GlobalMethod {
         return TextUtils.isEmpty(et.getText()) ? 0 : Integer.valueOf(et.getText().toString());
     }
 
-    /**
-     * 获取保存值
-     *
-     * @param self
-     * @param name
-     * @return
-     */
-    public static String getSavedInfo(Context self, String name) {
-        SharedPreferences sharedPreferences = self.getSharedPreferences(GlobalConstant.MJXX_INFO, MODE_PRIVATE);
-        return sharedPreferences.getString(name, "");
-    }
-
-    /**
-     * 保存值
-     *
-     * @param self
-     * @param name
-     * @param value
-     */
-    public static void putSavedInfo(Context self, String name, String value) {
-        SharedPreferences sharedPreferences = self.getSharedPreferences(GlobalConstant.MJXX_INFO, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();//获取编辑器
-        editor.putString(name, value);
-        editor.commit();//提交修改
-    }
-
     public static String join(Collection<String> list, String d) {
         String re = "";
         for (String s : list) {
@@ -1844,7 +1836,7 @@ public class GlobalMethod {
     }
 
     public static BlueToothPrint getBluetoothPrint(Activity self) {
-        String paddress = GlobalMethod.getSavedInfo(self, GlobalConstant.GRXX_PRINTER_ADDRESS);
+        String paddress = GlobalSystemParam.getSavedInfo(self, GlobalConstant.GRXX_PRINTER_ADDRESS);
         Log.e("PrintList", paddress);
         if (TextUtils.isEmpty(paddress)) {
             GlobalMethod.showDialog("错误信息", "没有配置默认打印机!", "返回", self);
@@ -1873,6 +1865,181 @@ public class GlobalMethod {
         return btp;
     }
 
+    /**
+     * 解析已保存的报警重点关注车辆和地点
+     *
+     * @param self
+     */
+    public static void parseZdgzVehCbz(Context self) {
+        String zdgzStr = GlobalSystemParam.getSavedInfo(self, "zdgz");
+        if (!TextUtils.isEmpty(zdgzStr)) {
+            try {
+                JSONObject obj = new JSONObject(zdgzStr);
+                String vehs = obj.optString("vehs");
+                if (!TextUtils.isEmpty(vehs)) {
+                    GlobalSystemParam.bjVehSet = new HashSet<>(Arrays.asList(vehs.split(",")));
+                }
+                String cbzs = obj.optString("cbzs");
+                if (!TextUtils.isEmpty(cbzs)) {
+                    GlobalSystemParam.bjCbzSet = new HashSet<>(Arrays.asList(cbzs.split(",")));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    /**
+     * 是否接收报警，用于显示和通知
+     *
+     * @param bjbd
+     * @return
+     */
+    public static boolean isRecBjbd(Bjbd bjbd) {
+        if ("1".equals(bjbd.getType()) &&
+                (!GlobalSystemParam.isReciveBj ||
+                        !GlobalSystemParam.bjzlNames.contains(bjbd.getBjyy()))) {
+            return false;
+        }
+        //这是群发信息
+        if ("0".equals(bjbd.getType()) && !GlobalSystemParam.isReciveText)
+            return false;
+        String hphm = bjbd.getHphm();
+        String cbz = bjbd.getCbz();
+        if (!GlobalSystemParam.bjVehSet.isEmpty() && !GlobalSystemParam.bjCbzSet.isEmpty()) {
+            //如果设定了车号和地点关注
+            return (GlobalSystemParam.bjVehSet.contains(hphm) || GlobalSystemParam.bjCbzSet.contains(cbz));
+        }
+        if (!GlobalSystemParam.bjVehSet.isEmpty() && !GlobalSystemParam.bjVehSet.contains(hphm))
+            return false;
+        if (!GlobalSystemParam.bjCbzSet.isEmpty() && !GlobalSystemParam.bjCbzSet.contains(cbz))
+            return false;
+        return true;
+    }
 
+    public static void toast(Context context, String text) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void logFileInfo(String info) {
+        String sj = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        info = sj + "  " + info;
+        if (!GlobalSystemParam.isLogToFile) {
+            Log.e("GlobalMethod", info);
+            return;
+        }
+        File storageDir = Environment.getExternalStorageDirectory();
+        storageDir = new File(storageDir, "jwt_logs");
+        if (!storageDir.exists())
+            storageDir.mkdirs();
+        File log = new File(storageDir, new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".log");
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(log, true));
+            bw.write(info + "\n");
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<String> logReadInfo() {
+        List<String> list = new ArrayList<>();
+        File storageDir = Environment.getExternalStorageDirectory();
+        storageDir = new File(storageDir, "jwt_logs");
+        if (!storageDir.exists())
+            storageDir.mkdirs();
+        File log = new File(storageDir, new SimpleDateFormat("yyyyMMdd").format(new Date()) + ".log");
+        if (!log.exists())
+            return list;
+
+        try {
+            BufferedReader bw = new BufferedReader(new FileReader(log));
+            String s = null;
+            while ((s = bw.readLine()) != null) {
+                list.add(s);
+            }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * 方法描述：判断某一应用是否正在运行
+     * Created by cafeting on 2017/2/4.
+     *
+     * @param context     上下文
+     * @param packageName 应用的包名
+     * @return true 表示正在运行，false 表示没有运行
+     */
+    public static boolean isAppRunning(Context context, String packageName) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> list = am.getRunningTasks(100);
+        if (list.size() <= 0) {
+            return false;
+        }
+        for (ActivityManager.RunningTaskInfo info : list) {
+            if (info.baseActivity.getPackageName().equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //获取已安装应用的 uid，-1 表示未安装此应用或程序异常
+    public static int getPackageUid(Context context, String packageName) {
+        try {
+            ApplicationInfo applicationInfo = context.getPackageManager().getApplicationInfo(packageName, 0);
+            if (applicationInfo != null) {
+                Log.d("GlobalMethod", applicationInfo.uid + "");
+                return applicationInfo.uid;
+            }
+        } catch (Exception e) {
+            return -1;
+        }
+        return -1;
+    }
+
+    /**
+     * 判断某一 uid 的程序是否有正在运行的进程，即是否存活
+     * Created by cafeting on 2017/2/4.
+     *
+     * @param context 上下文
+     * @param uid     已安装应用的 uid
+     * @return true 表示正在运行，false 表示没有运行
+     */
+    public static boolean isProcessRunning(Context context, int uid) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> runningServiceInfos = am.getRunningServices(200);
+        if (runningServiceInfos.size() > 0) {
+            for (ActivityManager.RunningServiceInfo appProcess : runningServiceInfos) {
+                if (uid == appProcess.uid) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static int appStatus(Context context, String pName) {
+        int uid = getPackageUid(context, pName);
+        if (uid > 0) {
+            boolean rstA = isAppRunning(context, pName);
+            boolean rstB = isProcessRunning(context, uid);
+            if (rstA || rstB) {
+                //指定包名的程序正在运行中
+                return 1;
+            } else {
+                //指定包名的程序未在运行中
+                return 0;
+            }
+        }
+        // 未安装应用
+        return -1;
+    }
+
+    public static boolean isSslRunning(Context context){
+        return (GlobalMethod.appStatus(context, "koal.ssl") > 0);
+    }
 }

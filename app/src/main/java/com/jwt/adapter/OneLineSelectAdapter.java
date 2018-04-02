@@ -1,7 +1,7 @@
 package com.jwt.adapter;
 
 import com.jwt.bean.TwoLineSelectBean;
-import com.jwt.update.R;
+import com.jwt.main.R;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class OneLineSelectAdapter extends ArrayAdapter<TwoLineSelectBean> {

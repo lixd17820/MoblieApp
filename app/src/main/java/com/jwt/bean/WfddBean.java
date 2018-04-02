@@ -70,4 +70,15 @@ public class WfddBean {
 		this.isGsd = isGsd;
 	}
 
+//	@Override
+//	public String toString() {
+//		return "WfddBean{" +
+//				"xzqh='" + xzqh + '\'' +
+//				", dldm='" + dldm + '\'' +
+//				", lddm='" + lddm + '\'' +
+//				", ms='" + ms + '\'' +
+//				", ldmc='" + ldmc + '\'' +
+//				", isGsd=" + isGsd +
+//				'}';
+//	}
 }

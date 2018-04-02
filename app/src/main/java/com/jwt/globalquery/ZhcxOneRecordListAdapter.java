@@ -3,7 +3,7 @@ package com.jwt.globalquery;
 import java.util.List;
 
 
-import com.jwt.update.R;
+import com.jwt.main.R;
 
 
 
